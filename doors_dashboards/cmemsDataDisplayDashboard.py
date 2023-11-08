@@ -1,29 +1,48 @@
 import dash
 import plotly.graph_objs as go
 from dash import html, dcc
-import dash_bootstrap_components as dbc
+import requests
 
 # Create a Dash app
 app = dash.Dash(__name__)
 
 # The URL of the ECMWF
-ecmwfurl = "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram"
+ecmwfurl = "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram/"
 scale_factor = 0.5
-image_url = 'https://charts.ecmwf.int/content/20231103081456-124b11b5e5a4ba9aa1a1d6a5dfc077f7be2c8648.png'
+image_url = ''
 # Define the parameters for the ECMWF request
+headers = {"accept": "application/json"}
 params = {
     "format": "png",
-    "base_time": "2023-11-03T00%3A00%3A00Z",
+    "base_time": "2023-11-08T00:00:00Z",
     "epsgram": "classical_wave",
-    "lon": "28.75",
-    "lat": "44",
+    "lon": "28",
+    "lat": "42.6",
 }
+def get_ecmwf_data():
+    response = requests.get(ecmwfurl, params=params, headers=headers)
+    print(requests)
+    if response.status_code != 200:
+        return ecmwfurl
+    else:
+        response_data = response.json()
+        image_url = response_data["data"]["link"]["href"]
+        return image_url
+        #print(response_data)
 
 
+point_lat = 42.6
+point_lon = 28
 
+#get_ecmwf_data()
 
-
-fig1 = go.Figure(go.Scattermapbox())
+fig1 = go.Figure(go.Scattermapbox(lat=[point_lat],
+    lon=[point_lon],
+    mode='markers',
+    marker=go.scattermapbox.Marker(
+        size=9,color='blue'
+    ),
+    text='Bulgarian Coastline',))
 mapboxt = 'pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q'
 mapbox = dict(
     zoom=4.5,
@@ -43,10 +62,10 @@ app.layout = html.Div([
             id='cmems-grph',
             figure=fig1
         ),
-    html.Img(src='https://charts.ecmwf.int/content/20231103081456-124b11b5e5a4ba9aa1a1d6a5dfc077f7be2c8648.png')
+    html.Img(src=get_ecmwf_data())
 ],style={'display': 'flex', 'flex-direction': 'row', 'width': '100%', 'height': '100vh'})
 
-#get_ecmwf_data()
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
