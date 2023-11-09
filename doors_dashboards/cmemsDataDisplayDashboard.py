@@ -34,8 +34,8 @@ point_lon = 28
 
 #get_ecmwf_data()
 
-fig1 = go.Figure(go.Scattermapbox(lat=[point_lat],
-    lon=[point_lon],
+fig1 = go.Figure(go.Scattermapbox(lat=[42.6,42.525,42.47,42.655],
+    lon=[28,27.7,27.46,27.725],
     mode='markers',
     marker=go.scattermapbox.Marker(
         size=9,color='blue'
