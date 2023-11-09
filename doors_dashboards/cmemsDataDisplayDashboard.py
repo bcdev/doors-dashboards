@@ -28,8 +28,6 @@ def get_ecmwf_data():
         response_data = response.json()
         image_url = response_data["data"]["link"]["href"]
         return image_url
-        #print(response_data)
-
 
 point_lat = 42.6
 point_lon = 28
