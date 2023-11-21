@@ -1,4 +1,6 @@
-from dash import html, Input, Output
+from datetime import date
+
+from dash import html, Input, Output, dcc
 from dash import Dash
 
 from doors_dashboards.components.scattermap import ScatterMapComponent
@@ -26,18 +28,44 @@ def _create_app() -> Dash:
     meteogram = MeteogramComponent().get(coastline_central[0], coastline_central[1])
 
     app.layout = html.Div(
-        [scattermap,
-         html.Div(
-             id=METEROGRAM_ID,
-             children=[
-                 html.Label(
-                     id='marker-label',
-                     children=marker_label_default,
-                     style={'textAlign': 'center', 'fontSize': '24px', 'fontWeight': 'bold', 'marginBottom': '10px'}
-                 ),
-                 meteogram
-             ]
-         )],
+        [
+            html.Div(
+                children=[
+                    html.Div(dcc.DatePickerSingle(
+                        id='my-date-picker-single',
+                        min_date_allowed=date(1995, 8, 5),
+                        max_date_allowed=date(2024, 9, 19),
+                        initial_visible_month=date(2023, 8, 5),
+                        date=date(2023, 8, 25)
+                    )),
+                    scattermap
+                ],
+                style={
+                    'display': 'flex',
+                    'flexDirection': 'column',
+                    'width': '100vh',
+                    'height': '1000px',
+                    'alignItems': 'center',
+                    #rgb(12, 80, 111)
+                }
+            ),
+            # scattermap,
+            html.Div(
+                id=METEROGRAM_ID,
+                children=[
+                    meteogram,
+                ],
+                style={
+                    'display': 'flex',
+                    'flexDirection': 'column',
+                    'height': '50vh',
+                    'alignItems': 'center',
+                    'fontSize': 'xx-large',
+                    'fontWeight': 'bold',
+                    'color': 'black',
+                    'font-family': 'Roboto, Helvetica, Arial, sans-serif'
+                }
+            )],
         style={
             'display': 'flex',
             'flexDirection': 'row',
@@ -46,18 +74,24 @@ def _create_app() -> Dash:
         }
     )
 
-    @app.callback(Output('marker-label', 'children'),
-                  Output(METEROGRAM_ID, 'children'),
-                  Input(DASHBOARD_ID, 'clickData')
-                  )
-    def update_ecmwf_image(click_data):
-        print(marker_label_default)
+    @app.callback(
+        Output(METEROGRAM_ID, 'children'),
+        Input(DASHBOARD_ID, 'clickData'),
+        Input('my-date-picker-single', 'date')
+    )
+    def update_ecmwf_image(click_data, date_value):
+        if date_value is not None:
+            date_object = date.fromisoformat(date_value)
+            date_string = date_object.strftime('%B %d, %Y')
+            print(date_string)
+
         if click_data is None:
             marker_label = marker_label_default
-            return marker_label,meteogram
+            return marker_label, meteogram
         else:
             marker_label = click_data['points'][0]['text']
-            return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'], click_data['points'][0]['lat'])
+            return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
+                                                          click_data['points'][0]['lat'])
 
     return app
 

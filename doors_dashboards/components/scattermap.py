@@ -23,7 +23,7 @@ def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
 
 
 def get_zoom_level(
-        lons: List[float], lats: List[float], center_lon: float, center_lat:float
+        lons: List[float], lats: List[float], center_lon: float, center_lat: float
 ) -> float:
     max_distance = max(
         abs(lat - center_lat) + abs(lon - center_lon)
@@ -72,5 +72,6 @@ class ScatterMapComponent(DashboardComponent):
 
         return dcc.Graph(
             id=graph_id,
-            figure=figure
+            figure=figure,
+            style={'height': '1000px'}
         )
