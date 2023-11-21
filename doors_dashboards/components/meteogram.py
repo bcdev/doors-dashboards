@@ -17,8 +17,9 @@ BASE_PARAMS = {
 
 class MeteogramComponent(DashboardComponent):
 
-    def get(self, lon: float, lat: float, **kwargs) -> Component:
-        params = self._get_params(lon, lat, **kwargs)
+    def get(self, lon: float, lat: float, time: str = None, **kwargs) -> Component:
+        print(time)
+        params = self._get_params(lon, lat, 'classical_wave', time, **kwargs)
         response = requests.get(METEOGRAM_ENDPOINT, params=params, headers=HEADERS)
         if response.status_code != 200:
             return html.Label(f'Meteogram could not be loaded: {response.reason}')
@@ -26,12 +27,12 @@ class MeteogramComponent(DashboardComponent):
         image_url = response_data.get('data', {}).get('link', {}).get('href')
         if not image_url:
             return html.Label('Meteogram could not be loaded: '
-                              'No mage url in reponse from ECMWF')
+                              'No image url in reponse from ECMWF')
         return html.Img(src=image_url)
 
     def _get_params(self, lon: float, lat: float,
-                       meteogram_type: str='classical_wave', time: str = None
-                       ) -> Dict[str, str]:
+                    meteogram_type: str = 'classical_wave', time: str = None
+                    ) -> Dict[str, str]:
         params = deepcopy(BASE_PARAMS)
         params['lon'] = lon
         params['lat'] = lat

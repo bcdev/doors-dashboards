@@ -7,14 +7,10 @@ from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
 
 DASHBOARD_ID = 'bulgarian_ports'
-BULGARIA_PORTS_POINTS = [
-    (27.479, 42.486, 'Terminal East'),
-    (27.47, 42.486, 'Terminal Bulk Cargoes'),
-    (27.467, 42.48, 'Terminal 2A'),
-    (27.457, 42.485, 'Terminal West'),
-    (27.53, 42.45, 'Terminal Rosenets'),
-    (27.728, 42.657, 'Terminal Nessebar'),
-    (27.687, 42.42, 'Terminal Sozopol')
+ROMANIA_POINTS = [
+    (29.66, 45.19, 'Golful Musura'),
+    (29.05, 44.6, 'Danube Delta'),
+    (28.7, 44.15, 'Constanța')
 ]
 METEROGRAM_ID = 'ecmwf-img'
 
@@ -22,9 +18,10 @@ METEROGRAM_ID = 'ecmwf-img'
 def _create_app() -> Dash:
     app = Dash(__name__)
 
-    scattermap = ScatterMapComponent().get(DASHBOARD_ID, BULGARIA_PORTS_POINTS)
-    coastline_central = BULGARIA_PORTS_POINTS[0]
+    scattermap = ScatterMapComponent().get(DASHBOARD_ID, ROMANIA_POINTS)
+    coastline_central = ROMANIA_POINTS[0]
     marker_label_default = coastline_central[2]
+    print(marker_label_default)
     meteogram = MeteogramComponent().get(coastline_central[0], coastline_central[1])
     current_date = datetime.now().date()
     min_date_allowed = current_date - timedelta(days=10)
@@ -66,7 +63,7 @@ def _create_app() -> Dash:
                     'fontSize': 'xx-large',
                     'fontWeight': 'bold',
                     'color': 'black',
-                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
+                    'font-family': 'Roboto, Helvetica, Arial, sans-serif'
                 }
             )],
         style={
