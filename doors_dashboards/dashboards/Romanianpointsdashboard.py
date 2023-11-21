@@ -30,7 +30,7 @@ def _create_app() -> Dash:
         [
             # Header Div
             html.Div(
-                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png',style={'width': '200px'}),
+                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
@@ -44,7 +44,9 @@ def _create_app() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            html.Div("Select date: ", style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px', 'fontFamily': 'Roboto, Helvetica, Arial, sans-serif' }),
+                            html.Div("Select date: ",
+                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px', 'paddingLeft': '10px',
+                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
                             dcc.DatePickerSingle(
                                 id='my-date-picker-single',
                                 min_date_allowed=min_date_allowed,
@@ -52,8 +54,23 @@ def _create_app() -> Dash:
                                 initial_visible_month=current_date,
                                 date=current_date
                             ),
+                            html.Div("Select wave Type: ",
+                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px','paddingLeft': '45px',
+                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                            dcc.Dropdown(
+                                id='my-dropdown',
+                                options=[
+                                    {'label': 'classical_10d', 'value': 'classical_10d'},
+                                    {'label': 'classical_15d', 'value': 'classical_15d'},
+                                    {'label': 'classical_15d_with_climate', 'value': 'classical_15d_with_climate'},
+                                    {'label': 'classical_plume', 'value': 'classical_plume'},
+                                    {'label': 'classical_wave', 'value': 'classical_wave'},
+                                ],
+                                value='option1',  # Default selected value
+                                style={'width': '200px', 'marginLeft': '10px'}
+                            ),
                         ],
-                        style={'display': 'flex', 'alignItems': 'center', 'paddingLeft': '300px', 'paddingTop': '10px'}
+                        style={'display': 'flex', 'alignItems': 'center',  'paddingTop': '10px'}
                     ),
 
                     # Map and Meteogram Divs side by side
