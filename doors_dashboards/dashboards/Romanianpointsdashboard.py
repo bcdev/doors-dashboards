@@ -21,7 +21,6 @@ def _create_app() -> Dash:
     scattermap = ScatterMapComponent().get(DASHBOARD_ID, ROMANIA_POINTS)
     coastline_central = ROMANIA_POINTS[0]
     marker_label_default = coastline_central[2]
-    print(marker_label_default)
     meteogram = MeteogramComponent().get(coastline_central[0], coastline_central[1])
     current_date = datetime.now().date()
     min_date_allowed = current_date - timedelta(days=10)
@@ -29,49 +28,77 @@ def _create_app() -> Dash:
 
     app.layout = html.Div(
         [
+            # Header Div
             html.Div(
-                children=[
-                    html.Div(dcc.DatePickerSingle(
-                        id='my-date-picker-single',
-                        min_date_allowed=min_date_allowed,
-                        max_date_allowed=max_date_allowed,
-                        initial_visible_month=current_date,
-                        date=current_date
-                    )),
-                    scattermap
-                ],
+                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png',style={'width': '200px'}),
                 style={
-                    'display': 'flex',
-                    'flexDirection': 'column',
-                    'width': '100vh',
-                    'height': '1000px',
-                    'alignItems': 'center',
-                    # rgb(12, 80, 111)
+                    'backgroundColor': 'rgb(12, 80, 111)',
+                    'padding': '15px',
+                    'textAlign': 'left',
                 }
             ),
-            # scattermap,
+
+            # Main content Div
             html.Div(
-                id=METEROGRAM_ID,
                 children=[
-                    meteogram,
+                    # Date Picker Div
+                    html.Div(
+                        [
+                            html.Div("Select date: ", style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px', 'fontFamily': 'Roboto, Helvetica, Arial, sans-serif' }),
+                            dcc.DatePickerSingle(
+                                id='my-date-picker-single',
+                                min_date_allowed=min_date_allowed,
+                                max_date_allowed=max_date_allowed,
+                                initial_visible_month=current_date,
+                                date=current_date
+                            ),
+                        ],
+                        style={'display': 'flex', 'alignItems': 'center', 'paddingLeft': '300px', 'paddingTop': '10px'}
+                    ),
+
+                    # Map and Meteogram Divs side by side
+                    html.Div(
+                        children=[
+                            # Map Div
+                            html.Div(
+                                scattermap,
+                                style={
+                                    'flex': '1',
+                                    'margin': '10px',
+                                    'alignItems': 'center',
+                                }
+                            ),
+
+                            # Meteogram Div
+                            html.Div(
+                                id=METEROGRAM_ID,
+                                children=[
+                                    meteogram,
+                                ],
+                                style={
+                                    'flex': '1',
+                                    'margin': '-34px 0 0 0',
+                                    'display': 'flex',
+                                    'flexDirection': 'column',
+                                    'alignItems': 'center',
+                                    'fontSize': 'xx-large',
+                                    'fontWeight': 'bold',
+                                    'color': 'black',
+                                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
+                                }
+                            ),
+                        ],
+                        style={'display': 'flex'}
+                    ),
                 ],
                 style={
                     'display': 'flex',
-                    'flexDirection': 'column',
-                    'height': '50vh',
-                    'alignItems': 'center',
-                    'fontSize': 'xx-large',
-                    'fontWeight': 'bold',
-                    'color': 'black',
-                    'font-family': 'Roboto, Helvetica, Arial, sans-serif'
+                    'flexDirection': 'column',  # Adjust to column layout
+                    'width': '100%',
+                    'height': '100vh',
                 }
-            )],
-        style={
-            'display': 'flex',
-            'flexDirection': 'row',
-            'width': '100%',
-            'height': '100vh'
-        }
+            ),
+        ]
     )
 
     @app.callback(

@@ -18,7 +18,6 @@ BASE_PARAMS = {
 class MeteogramComponent(DashboardComponent):
 
     def get(self, lon: float, lat: float, time: str = None, **kwargs) -> Component:
-        print(time)
         params = self._get_params(lon, lat, 'classical_wave', time, **kwargs)
         response = requests.get(METEOGRAM_ENDPOINT, params=params, headers=HEADERS)
         if response.status_code != 200:
