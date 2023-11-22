@@ -17,8 +17,8 @@ BASE_PARAMS = {
 
 class MeteogramComponent(DashboardComponent):
 
-    def get(self, lon: float, lat: float, time: str = None, **kwargs) -> Component:
-        params = self._get_params(lon, lat, 'classical_wave', time, **kwargs)
+    def get(self, lon: float, lat: float, time: str = None, meteogram_type: str = 'classical_wave', **kwargs) -> Component:
+        params = self._get_params(lon, lat, meteogram_type, time, **kwargs)
         response = requests.get(METEOGRAM_ENDPOINT, params=params, headers=HEADERS)
         if response.status_code != 200:
             return html.Label(f'Meteogram could not be loaded: {response.reason}')
