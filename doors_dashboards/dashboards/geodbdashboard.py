@@ -1,10 +1,10 @@
-import pandas as pd
 from dash import html, dcc, Output, Input
 from dash import Dash
 from doors_dashboards.core.geodbaccess import get_points_from_geodb
 from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
 
-DASHBOARD_ID = 'bulgarian_optical_data'
+DASHBOARD_ID = 'Geodb_optical_data'
+MAP_ID = 'geodb_data'
 
 
 def _create_app() -> Dash:
@@ -54,7 +54,7 @@ def _create_app() -> Dash:
                     ),
                     # Map
                     html.Div(
-                        id=DASHBOARD_ID,
+                        id=MAP_ID,
                         children=[
                             # Map Div
                             scattermap,
@@ -72,16 +72,15 @@ def _create_app() -> Dash:
     )
 
     @app.callback(
-        Output(DASHBOARD_ID, 'children'),
-        [Input('variable-dropdown', 'value')]
+        Output(MAP_ID, 'children'),
+        [Input('variable-dropdown', 'value')],
+        prevent_initial_call=True
     )
     def update_scattermap(selected_variable):
-        print(selected_variable)
         if selected_variable != 'chl-a [mg/m3]':
             updated_scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable)
             return updated_scattermap
         else:
-            print('default', selected_variable_default)
             return GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
 
     return app
