@@ -1,5 +1,6 @@
 from dash import dcc
 from dash.development.base_component import Component
+import math
 import os
 import plotly.graph_objs as go
 from typing import List
@@ -23,13 +24,15 @@ def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
 
 
 def get_zoom_level(
-        lons: List[float], lats: List[float], center_lon: float, center_lat:float
+        lons: List[float], lats: List[float], center_lon: float, center_lat: float
 ) -> float:
     max_distance = max(
         abs(lat - center_lat) + abs(lon - center_lon)
         for lat, lon in zip(lats, lons)
-    ) * 6
-    return 8 + max_distance
+    )
+    log = math.log(max_distance, 2)
+    zoom_level = math.floor(8 - log)
+    return zoom_level
 
 
 class ScatterMapComponent(DashboardComponent):
@@ -72,5 +75,6 @@ class ScatterMapComponent(DashboardComponent):
 
         return dcc.Graph(
             id=graph_id,
-            figure=figure
+            figure=figure,
+            style={'height': '1000px'}
         )
