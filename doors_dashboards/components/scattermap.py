@@ -1,5 +1,6 @@
 from dash import dcc
 from dash.development.base_component import Component
+import math
 import os
 import plotly.graph_objs as go
 from typing import List
@@ -28,8 +29,10 @@ def get_zoom_level(
     max_distance = max(
         abs(lat - center_lat) + abs(lon - center_lon)
         for lat, lon in zip(lats, lons)
-    ) * 6
-    return 8 + max_distance
+    )
+    log = math.log(max_distance, 2)
+    zoom_level = math.floor(8 - log)
+    return zoom_level
 
 
 class ScatterMapComponent(DashboardComponent):
