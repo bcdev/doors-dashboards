@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from dash_material_ui import FormLabel
 
 from dash import html, Input, Output, dcc
 from dash import Dash
@@ -32,6 +33,10 @@ def _create_app() -> Dash:
 
     app.layout = html.Div(
         [
+            html.Link(
+                rel='stylesheet',
+                href='/dashboards/style.css'  # Update the path accordingly
+            ),
             # Header Div
             html.Div(
                 html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
@@ -48,10 +53,7 @@ def _create_app() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            html.Div("Select date: ",
-                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px',
-                                            'paddingLeft': '10px',
-                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                            FormLabel("Select Date: "),
                             dcc.DatePickerSingle(
                                 id='my-date-picker-single',
                                 min_date_allowed=min_date_allowed,
@@ -59,10 +61,7 @@ def _create_app() -> Dash:
                                 initial_visible_month=current_date,
                                 date=current_date
                             ),
-                            html.Div("Select wave Type: ",
-                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px',
-                                            'paddingLeft': '45px',
-                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                            FormLabel("Select Wave Type: ", style={'marginLeft': '10px'}),
                             dcc.Dropdown(
                                 id='my-dropdown',
                                 options=[
@@ -76,7 +75,7 @@ def _create_app() -> Dash:
                                 style={'width': '230px', 'marginLeft': '10px'}
                             ),
                         ],
-                        style={'display': 'flex', 'alignItems': 'center', 'paddingTop': '10px'}
+                        style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 0px 0px 11px'}
                     ),
 
                     # Map and Meteogram Divs side by side
@@ -104,10 +103,10 @@ def _create_app() -> Dash:
                                     'display': 'flex',
                                     'flexDirection': 'column',
                                     'alignItems': 'center',
-                                    'fontSize': 'xx-large',
-                                    'fontWeight': 'bold',
-                                    'color': 'black',
-                                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
+                                    'color': 'rgba(0, 0, 0, 0.54)',
+                                    'fontSize': '1rem',
+                                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif',
+                                    'fontWeight': '400',
                                 }
                             ),
                         ],
@@ -131,8 +130,6 @@ def _create_app() -> Dash:
         Input('my-dropdown', 'value')
     )
     def update_ecmwf_image(click_data, date_value, selected_dropdown_value):
-        print(selected_dropdown_value)
-        print(click_data)
         if date_value is not None and click_data is None and selected_dropdown_value != 'classical_wave':
             marker_label = marker_label_default
             date_object = date.fromisoformat(date_value)
@@ -152,21 +149,18 @@ def _create_app() -> Dash:
         elif click_data is not None:
             marker_label = click_data['points'][0]['text']
             if date_value is not None and selected_dropdown_value != 'classical_wave':
-                print('if', date_value)
                 date_object = date.fromisoformat(date_value)
                 date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
                 return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
                                                               click_data['points'][0]['lat'], date_string,
                                                               selected_dropdown_value)
             elif selected_dropdown_value == 'classical_wave' and date_value is not None:
-                print('elif')
                 date_object = date.fromisoformat(date_value)
                 date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
                 return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
                                                               click_data['points'][0]['lat'], date_string,
                                                               selected_dropdown_value)
             else:
-                print('else')
                 return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
                                                               click_data['points'][0]['lat'])
         else:
