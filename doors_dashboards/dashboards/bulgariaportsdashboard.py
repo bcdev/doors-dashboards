@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from dash_material_ui import FormLabel
+from dash_material_ui import FormLabel, FormControl
 
 from dash import html, Input, Output, dcc
 from dash import Dash
@@ -19,9 +19,10 @@ BULGARIA_PORTS_POINTS = [
 ]
 METEROGRAM_ID = 'ecmwf-img'
 
+external_stylesheets = ['style.css']
 
 def _create_app() -> Dash:
-    app = Dash(__name__)
+    app = Dash(__name__,external_stylesheets=external_stylesheets)
 
     scattermap = ScatterMapComponent().get(DASHBOARD_ID, BULGARIA_PORTS_POINTS)
     coastline_central = BULGARIA_PORTS_POINTS[0]
@@ -53,15 +54,16 @@ def _create_app() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            FormLabel("Select Date: "),
+                            FormLabel("Select Date: ",   style= { 'marginRight': '10px','fontSize': 'larger' }),
                             dcc.DatePickerSingle(
                                 id='my-date-picker-single',
                                 min_date_allowed=min_date_allowed,
                                 max_date_allowed=max_date_allowed,
                                 initial_visible_month=current_date,
-                                date=current_date
+                                date=current_date,
+                               # className =date_picker_style
                             ),
-                            FormLabel("Select Wave Type: ", style={'marginLeft': '10px'}),
+                            FormLabel("Select Wave Type: ", style={'marginLeft': '10px','fontSize': 'larger'}),
                             dcc.Dropdown(
                                 id='my-dropdown',
                                 options=[
@@ -104,7 +106,7 @@ def _create_app() -> Dash:
                                     'flexDirection': 'column',
                                     'alignItems': 'center',
                                     'color': 'rgba(0, 0, 0, 0.54)',
-                                    'fontSize': '1rem',
+                                    'fontSize': 'larger',
                                     'fontFamily': 'Roboto, Helvetica, Arial, sans-serif',
                                     'fontWeight': '400',
                                 }
