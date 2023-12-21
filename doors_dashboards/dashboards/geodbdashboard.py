@@ -1,24 +1,31 @@
 from dash import html, dcc, Output, Input
 from dash import Dash
-from doors_dashboards.core.geodbaccess import get_points_from_geodb
+from dash_material_ui import FormLabel
+
+from doors_dashboards.core.geodbaccess import get_points_from_geodb, get_dataframe_from_geodb
 from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
+from doors_dashboards.components.timeseries import TimeSeriesComponent
 
 DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
+TIMESERIES_ID = 'geo_timeseries'
+TIMEGRAPH_ID = 'geo_graph'
 
 
 def _create_app() -> Dash:
-    app = Dash(__name__,suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
-    points = get_points_from_geodb(
-        'bio-optical-data-K11_2019', 'io-bas',
-        variables=['chl-a [mg/m3]', 'temperature [°c]', 'salinity [psu]', 'secchi disk [m]', 'timestamp']
-    )
-
-    variables = ['chl-a [mg/m3]', 'temperature [°c]', 'salinity [psu]', 'secchi disk [m]']
+    variables = ['wind speed [m/s]', 'wind direction [deg]', 'significant wave height [m]']
     selected_variable_default = variables[0]
 
+    points = get_points_from_geodb('moorings_Burgas_Bay_wavebuoy', 'doors-io-bas',
+                                   variables=variables)
+
+    dataframe = get_dataframe_from_geodb('moorings_Burgas_Bay_wavebuoy', 'doors-io-bas',
+                                         variables=variables)
+
     scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
+    timeseries = TimeSeriesComponent().get(dataframe, variables, TIMESERIES_ID)
 
     app.layout = html.Div(
         [
@@ -38,10 +45,7 @@ def _create_app() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            html.Div("Select Type: ",
-                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px',
-                                            'paddingLeft': '10px',
-                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                            FormLabel("Select Type: ", style={ 'fontSize': 'larger'}),
                             dcc.Dropdown(
                                 id='variable-dropdown',
                                 options=[
@@ -51,14 +55,36 @@ def _create_app() -> Dash:
                                 style={'width': '300px', 'height': '30px'}
                             )
                         ]
+                        , style={
+                            'padding': '7px 0px 0px 36px'
+                        }
                     ),
-                    # Map
                     html.Div(
-                        id=MAP_ID,
-                        children=[
-                            # Map Div
-                            scattermap,
-                        ]
+                        [
+                            # Map
+                            html.Div(
+                                id=MAP_ID,
+                                children=[
+                                    # Map Div
+                                    scattermap,
+                                ], style={
+                                    'width': '100%',
+                                    'paddingTop': '20px'
+                                }
+                            ),
+                            html.Div(
+                                id=TIMEGRAPH_ID,
+                                children=[
+                                    # Map Div
+                                    timeseries,
+                                ], style={
+                                    'width': '100%',
+                                    'paddingTop': '20px',
+
+                                }
+                            ),
+                        ],
+                        style={'display': 'flex'}
                     ),
                 ],
                 style={
@@ -66,22 +92,29 @@ def _create_app() -> Dash:
                     'flexDirection': 'column',  # Adjust to column layout
                     'width': '100%',
                     'height': '100vh',
+                    'backgroundColor': 'rgb(228, 241, 245)',
                 }
             ),
-        ]
+        ],
+        style={
+            'width': '100%',
+            'height': '100vh'
+        }
     )
 
     @app.callback(
-        Output(MAP_ID, 'children'),
+        [Output(MAP_ID, 'children'), Output(TIMEGRAPH_ID, 'children')],
         [Input('variable-dropdown', 'value')],
         prevent_initial_call=True
     )
     def update_scattermap(selected_variable):
-        if selected_variable != 'chl-a [mg/m3]':
+        if selected_variable != variables[0]:
             updated_scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable)
-            return updated_scattermap
+            updated_timeseries = TimeSeriesComponent().get(dataframe, selected_variable, TIMESERIES_ID)
+            return updated_scattermap, updated_timeseries
         else:
-            return GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
+            return (GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default),
+                    TimeSeriesComponent().get(dataframe, selected_variable_default, TIMESERIES_ID))
 
     return app
 
