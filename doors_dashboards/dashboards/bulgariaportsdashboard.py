@@ -54,7 +54,7 @@ def _create_app() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            FormLabel("Select Date: ",   style= { 'marginRight': '10px','fontSize': 'larger' }),
+                            FormLabel("Select Date: ",   style= { 'marginRight': '10px','fontSize': 'x-large','fontWeight':'bold' }),
                             dcc.DatePickerSingle(
                                 id='my-date-picker-single',
                                 min_date_allowed=min_date_allowed,
@@ -63,7 +63,7 @@ def _create_app() -> Dash:
                                 date=current_date,
                                # className =date_picker_style
                             ),
-                            FormLabel("Select Wave Type: ", style={'marginLeft': '10px','fontSize': 'larger'}),
+                            FormLabel("Select Wave Type: ", style={'marginLeft': '10px','fontSize': 'x-large','fontWeight':'bold'}),
                             dcc.Dropdown(
                                 id='my-dropdown',
                                 options=[
@@ -106,9 +106,9 @@ def _create_app() -> Dash:
                                     'flexDirection': 'column',
                                     'alignItems': 'center',
                                     'color': 'rgba(0, 0, 0, 0.54)',
-                                    'fontSize': 'larger',
+                                    'fontSize': 'x-large',
                                     'fontFamily': 'Roboto, Helvetica, Arial, sans-serif',
-                                    'fontWeight': '400',
+                                    'fontWeight':'bold'
                                 }
                             ),
                         ],
@@ -122,7 +122,17 @@ def _create_app() -> Dash:
                     'height': '100vh',
                 }
             ),
-        ]
+            # Footer
+            html.Footer(
+                style={'backgroundColor': 'rgb(12, 80, 111)', 'color': 'white', 'padding': '10px',
+                       'position': 'fixed',
+                       'bottom': '0', 'width': '100%'},
+                children=[
+                    html.P('© 2023 Brockmann Consultants. All rights reserved.'),
+                ]
+            ),
+        ],
+        style={'backgroundColor': 'aliceblue', 'height': '100vh', 'width': '100%' }
     )
 
     @app.callback(
