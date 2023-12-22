@@ -1,17 +1,21 @@
 from dash import html, dcc, Output, Input
 from dash import Dash
+
 from dash_material_ui import FormLabel
 
 from doors_dashboards.core.geodbaccess import get_points_from_geodb, get_dataframe_from_geodb
+
 from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
 
 DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
+
 TIMESERIES_ID = 'geo_timeseries'
 TIMEGRAPH_ID = 'geo_graph'
 COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
 DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
+
 
 
 def _create_app() -> Dash:
@@ -112,7 +116,9 @@ def _create_app() -> Dash:
     )
 
     @app.callback(
+
         [Output(MAP_ID, 'children'), Output(TIMEGRAPH_ID, 'children')],
+
         [Input('variable-dropdown', 'value')],
         prevent_initial_call=True
     )
@@ -124,6 +130,7 @@ def _create_app() -> Dash:
         else:
             return (GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default),
                     TimeSeriesComponent().get(dataframe, variables[0], TIMESERIES_ID))
+
 
     return app
 

@@ -4,6 +4,9 @@ from copy import deepcopy
 from datetime import datetime
 import requests
 from typing import Dict
+import base64
+from PIL import Image
+from io import BytesIO
 
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
