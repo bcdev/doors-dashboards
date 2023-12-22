@@ -99,7 +99,7 @@ def _create_app() -> Dash:
 
     @app.callback(
 
-        [Output(MAP_ID, 'children'), Output(TIMEGRAPH_ID, 'children')],
+        [Output(MAP_ID, 'children')],
 
         [Input('variable-dropdown', 'value')],
         prevent_initial_call=True
@@ -107,11 +107,12 @@ def _create_app() -> Dash:
     def update_scattermap(selected_variable):
         if selected_variable != variables[0]:
             updated_scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable)
-            updated_timeseries = TimeSeriesComponent().get(dataframe, selected_variable, TIMESERIES_ID)
-            return updated_scattermap, updated_timeseries
+            # updated_timeseries = TimeSeriesComponent().get(dataframe, selected_variable, TIMESERIES_ID)
+            return updated_scattermap
+            # updated_timeseries
         else:
-            return (GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default),
-                    TimeSeriesComponent().get(dataframe, variables[0], TIMESERIES_ID))
+            return GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
+            # TimeSeriesComponent().get(dataframe, variables[0], TIMESERIES_ID))
 
     return app
 
