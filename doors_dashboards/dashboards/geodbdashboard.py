@@ -1,14 +1,18 @@
 from dash import html, dcc, Output, Input
 from dash import Dash
+from plotly.subplots import make_subplots
+from pygments.lexers import go
+
 from doors_dashboards.core.geodbaccess import get_points_from_geodb
 from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
 
 DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
+TIMESERIES_ID = 'timeseries'
 
 
 def _create_app() -> Dash:
-    app = Dash(__name__,suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     points = get_points_from_geodb(
         'bio-optical-data-K11_2019', 'io-bas',
@@ -52,7 +56,7 @@ def _create_app() -> Dash:
                             )
                         ]
                     ),
-                    # Map
+                    # Map Div
                     html.Div(
                         id=MAP_ID,
                         children=[
@@ -73,15 +77,18 @@ def _create_app() -> Dash:
 
     @app.callback(
         Output(MAP_ID, 'children'),
+        # Output(TIMESERIES_ID, 'figure')],
         [Input('variable-dropdown', 'value')],
         prevent_initial_call=True
     )
     def update_scattermap(selected_variable):
         if selected_variable != 'chl-a [mg/m3]':
             updated_scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable)
-            return updated_scattermap
+
         else:
-            return GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
+            updated_scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
+
+        return updated_scattermap
 
     return app
 
