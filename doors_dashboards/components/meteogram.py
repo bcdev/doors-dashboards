@@ -8,6 +8,7 @@ import base64
 from PIL import Image
 from io import BytesIO
 
+
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 
 METEOGRAM_ENDPOINT = \

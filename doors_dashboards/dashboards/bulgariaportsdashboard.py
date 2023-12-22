@@ -40,7 +40,12 @@ def _create_app() -> Dash:
             ),
             # Header Div
             html.Div(
-                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
+                [
+                    html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
+                    FormLabel("Burgas Port Dashboard",
+                              style={'marginRight': '100px', 'fontSize': '50px','color':'white'}),
+                ],
+
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
@@ -77,7 +82,7 @@ def _create_app() -> Dash:
                                 style={'width': '230px', 'marginLeft': '10px'}
                             ),
                         ],
-                        style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 0px 0px 11px'}
+                        style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 0px 0px 30px'}
                     ),
 
                     # Map and Meteogram Divs side by side
@@ -128,7 +133,7 @@ def _create_app() -> Dash:
                        'position': 'fixed',
                        'bottom': '0', 'width': '100%'},
                 children=[
-                    html.P('© 2023 Brockmann Consultants. All rights reserved.'),
+                    html.P('© 2023 Brockmann Consult GmbH. All rights reserved.'),
                 ]
             ),
         ],
