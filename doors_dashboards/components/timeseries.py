@@ -16,9 +16,23 @@ class TimeSeriesComponent(DashboardComponent):
             plot_bgcolor='aliceblue'
         )
         fig.update_xaxes(
-            dtick="M1",
+            dtick="D1",
             tickformat="%b\n%Y",
             ticklabelmode="period")
+
+        fig.update_xaxes(
+            rangeslider_visible=True,
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1, label="1d", step="day", stepmode="backward"),
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(count=1, label="YTD", step="year", stepmode="todate"),
+                    dict(count=1, label="1y", step="year", stepmode="backward"),
+                    dict(step="all")
+                ])
+            )
+        )
 
         return dcc.Graph(
             id=timeseries_id,
