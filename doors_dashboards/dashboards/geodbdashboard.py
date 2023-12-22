@@ -11,7 +11,7 @@ MAP_ID = 'geodb_data'
 TIMESERIES_ID = 'geo_timeseries'
 TIMEGRAPH_ID = 'geo_graph'
 COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
-DASHBOARD_TITLE = 'Moornings Burgas Bay WaveBuoy'
+DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
 
 
 def _create_app() -> Dash:
@@ -105,7 +105,7 @@ def _create_app() -> Dash:
                        'position': 'fixed',
                        'bottom': '0', 'width': '100%'},
                 children=[
-                    html.P('© 2023 Brockmann Consultants. All rights reserved.'),
+                    html.P('© 2023 Brockmann Consult GmbH. All rights reserved.'),
                 ]
             ),
         ]
