@@ -10,6 +10,8 @@ DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
 TIMESERIES_ID = 'geo_timeseries'
 TIMEGRAPH_ID = 'geo_graph'
+COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
+DASHBOARD_TITLE = 'Moornings Burgas Bay WaveBuoy'
 
 
 def _create_app() -> Dash:
@@ -18,88 +20,95 @@ def _create_app() -> Dash:
     variables = ['wind speed [m/s]', 'wind direction [deg]', 'significant wave height [m]']
     selected_variable_default = variables[0]
 
-    points = get_points_from_geodb('moorings_Burgas_Bay_wavebuoy', 'doors-io-bas',
+    points = get_points_from_geodb(COLLECTION_NAME, 'doors-io-bas',
                                    variables=variables)
 
-    dataframe = get_dataframe_from_geodb('moorings_Burgas_Bay_wavebuoy', 'doors-io-bas',
+    dataframe = get_dataframe_from_geodb(COLLECTION_NAME, 'doors-io-bas',
                                          variables=variables)
 
     scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
     timeseries = TimeSeriesComponent().get(dataframe, variables, TIMESERIES_ID)
 
     app.layout = html.Div(
-        [
-            # Header Div
-            html.Div(
+        style={'backgroundColor': 'aliceblue', 'height': '100vh', 'width': '100%', },
+        children=[
+            # Header
+            html.Header(
                 html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
                     'textAlign': 'left',
+                    'width': '100%'
                 }
             ),
 
-            # Main content Div
+            # Row below header with dropdown on the left
+            html.Header(
+                [
+                    FormLabel("Select Type: ",
+                              style={'fontWeight': 'bold', 'fontSize': 'x-large', 'padding': '6px 0px 0px 0px'}),
+                    dcc.Dropdown(
+                        id='variable-dropdown',
+                        options=[
+                            {'label': variable, 'value': variable} for variable in variables
+                        ],
+                        value=selected_variable_default,
+                        style={
+                            'width': '300px',  # Set the width as needed
+                            'height': '40px',  # Increase the height
+                            'fontSize': '16px',
+                            'margin': '0 0 0 5px'
+                        }
+                    ),
+                    FormLabel(DASHBOARD_TITLE, style={'fontSize': '-webkit-xxx-large', 'margin': '0 0 0 1000px'})
+                ]
+                , style={
+                    'padding': '20px 0px 0px 36px', 'width': '100%', 'display': 'flex'
+                }
+            ),
+
+            # Main content with scattermap on the left and graph on the right
             html.Div(
+                style={'display': 'flex'},
                 children=[
-                    # Date Picker Div
                     html.Div(
-                        [
-                            FormLabel("Select Type: ", style={ 'fontSize': 'larger'}),
-                            dcc.Dropdown(
-                                id='variable-dropdown',
-                                options=[
-                                    {'label': variable, 'value': variable} for variable in variables
-                                ],
-                                value=selected_variable_default,
-                                style={'width': '300px', 'height': '30px'}
-                            )
-                        ]
-                        , style={
-                            'padding': '7px 0px 0px 36px'
+                        id=MAP_ID,
+                        children=[
+                            # Map Div
+                            scattermap,
+                        ], style={
+                            'width': '100%',
+                            'paddingTop': '20px',
+                            'height': '100vh'
                         }
                     ),
                     html.Div(
-                        [
-                            # Map
-                            html.Div(
-                                id=MAP_ID,
-                                children=[
-                                    # Map Div
-                                    scattermap,
-                                ], style={
-                                    'width': '100%',
-                                    'paddingTop': '20px'
-                                }
-                            ),
-                            html.Div(
-                                id=TIMEGRAPH_ID,
-                                children=[
-                                    # Map Div
-                                    timeseries,
-                                ], style={
-                                    'width': '100%',
-                                    'paddingTop': '20px',
+                        id=TIMEGRAPH_ID,
+                        children=[
+                            # Map Div
+                            timeseries,
+                        ], style={
+                            'width': '80%',
+                            'paddingTop': '20px',
+                            'height': '100vh',
+                            'marginBottom': '50px',
 
-                                }
-                            ),
-                        ],
-                        style={'display': 'flex'}
+                        }
                     ),
-                ],
-                style={
-                    'display': 'flex',
-                    'flexDirection': 'column',  # Adjust to column layout
-                    'width': '100%',
-                    'height': '100vh',
-                    'backgroundColor': 'rgb(228, 241, 245)',
-                }
+                ]
             ),
-        ],
-        style={
-            'width': '100%',
-            'height': '100vh'
-        }
+
+            # Footer
+            html.Footer(
+                style={'backgroundColor': 'rgb(12, 80, 111)', 'color': 'white', 'padding': '10px',
+                       'position': 'fixed',
+                       'bottom': '0', 'width': '100%'},
+                children=[
+                    html.P('© 2023 Brockmann Consultants. All rights reserved.'),
+                ]
+            ),
+        ]
     )
 
     @app.callback(
@@ -114,7 +123,7 @@ def _create_app() -> Dash:
             return updated_scattermap, updated_timeseries
         else:
             return (GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default),
-                    TimeSeriesComponent().get(dataframe, selected_variable_default, TIMESERIES_ID))
+                    TimeSeriesComponent().get(dataframe, variables[0], TIMESERIES_ID))
 
     return app
 

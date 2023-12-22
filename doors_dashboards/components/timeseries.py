@@ -12,6 +12,9 @@ class TimeSeriesComponent(DashboardComponent):
         fig = px.line(df, x=df.timestamp, y=selected_variable,
                       hover_data={"timestamp": "|%B %d, %Y"},
                       )
+        fig.update_layout(
+            plot_bgcolor='aliceblue'
+        )
         fig.update_xaxes(
             dtick="M1",
             tickformat="%b\n%Y",
@@ -20,5 +23,5 @@ class TimeSeriesComponent(DashboardComponent):
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
-            style={'height': '1000px','width': '100%' },
+            style={'height': '1000px', 'width': '100%'},
         )
