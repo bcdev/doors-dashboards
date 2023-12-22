@@ -8,7 +8,7 @@ from doors_dashboards.core.dashboardcomponent import DashboardComponent
 
 class TimeSeriesComponent(DashboardComponent):
 
-    def get(self, df: pd.DataFrame, selected_variable: list[str], timeseries_id: str, **kwargs) -> Component:
+    def get(self, df: pd.DataFrame, selected_variable: str, timeseries_id: str, **kwargs) -> Component:
         fig = px.line(df, x=df.timestamp, y=selected_variable,
                       hover_data={"timestamp": "|%B %d, %Y"},
                       )
@@ -23,5 +23,5 @@ class TimeSeriesComponent(DashboardComponent):
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
-            style={'height': '1000px', 'width': '100%'},
+            style={'height': '300px', 'width': '100%'},
         )

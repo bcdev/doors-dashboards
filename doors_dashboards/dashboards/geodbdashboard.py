@@ -11,11 +11,12 @@ from doors_dashboards.components.timeseries import TimeSeriesComponent
 DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
 
-TIMESERIES_ID = 'geo_timeseries'
+WINDSPEED_ID = 'windspeed_timeseries'
+WINDDIRECTION_ID = 'winddirection_timeseries'
+WAVEHEIGHT_ID = 'waveheight_timeseries'
 TIMEGRAPH_ID = 'geo_graph'
 COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
 DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
-
 
 
 def _create_app() -> Dash:
@@ -31,14 +32,20 @@ def _create_app() -> Dash:
                                          variables=variables)
 
     scattermap = GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default)
-    timeseries = TimeSeriesComponent().get(dataframe, variables, TIMESERIES_ID)
+    windspeed = TimeSeriesComponent().get(dataframe, variables[0], WINDSPEED_ID)
+    winddirection = TimeSeriesComponent().get(dataframe, variables[1], WINDDIRECTION_ID)
+    waveheight = TimeSeriesComponent().get(dataframe, variables[2], WAVEHEIGHT_ID)
 
     app.layout = html.Div(
-        style={'backgroundColor': 'aliceblue', 'height': '100vh', 'width': '100%', },
+        # style={'backgroundColor': 'aliceblue', 'height': '100vh', 'width': '100%', },
         children=[
             # Header
             html.Header(
-                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
+                [
+                    html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
+                    FormLabel(DASHBOARD_TITLE,
+                              style={'fontSize': '-webkit-xxx-large', 'margin': '0 0 0 100px', 'color': 'white'})
+                ],
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
@@ -46,32 +53,6 @@ def _create_app() -> Dash:
                     'width': '100%'
                 }
             ),
-
-            # Row below header with dropdown on the left
-            html.Header(
-                [
-                    FormLabel("Select Type: ",
-                              style={'fontWeight': 'bold', 'fontSize': 'x-large', 'padding': '6px 0px 0px 0px'}),
-                    dcc.Dropdown(
-                        id='variable-dropdown',
-                        options=[
-                            {'label': variable, 'value': variable} for variable in variables
-                        ],
-                        value=selected_variable_default,
-                        style={
-                            'width': '300px',  # Set the width as needed
-                            'height': '40px',  # Increase the height
-                            'fontSize': '16px',
-                            'margin': '0 0 0 5px'
-                        }
-                    ),
-                    FormLabel(DASHBOARD_TITLE, style={'fontSize': '-webkit-xxx-large', 'margin': '0 0 0 1000px'})
-                ]
-                , style={
-                    'padding': '20px 0px 0px 36px', 'width': '100%', 'display': 'flex'
-                }
-            ),
-
             # Main content with scattermap on the left and graph on the right
             html.Div(
                 style={'display': 'flex'},
@@ -82,7 +63,7 @@ def _create_app() -> Dash:
                             # Map Div
                             scattermap,
                         ], style={
-                            'width': '100%',
+                            'width': '50%',
                             'paddingTop': '20px',
                             'height': '100vh'
                         }
@@ -91,11 +72,12 @@ def _create_app() -> Dash:
                         id=TIMEGRAPH_ID,
                         children=[
                             # Map Div
-                            timeseries,
+                            windspeed,
+                            winddirection,
+                            waveheight
                         ], style={
-                            'width': '80%',
+                            'width': '50%',
                             'paddingTop': '20px',
-                            'height': '100vh',
                             'marginBottom': '50px',
 
                         }
@@ -130,7 +112,6 @@ def _create_app() -> Dash:
         else:
             return (GeoScatterMapComponent().get(DASHBOARD_ID, points, selected_variable_default),
                     TimeSeriesComponent().get(dataframe, variables[0], TIMESERIES_ID))
-
 
     return app
 
