@@ -91,7 +91,7 @@ def _create_app() -> Dash:
                        'position': 'fixed',
                        'bottom': '0', 'width': '100%'},
                 children=[
-                    html.P('© 2023 Brockmann Consult GmbH. All rights reserved.'),
+                    html.P('© 2024 Brockmann Consult GmbH. All rights reserved.'),
                 ]
             ),
         ]
