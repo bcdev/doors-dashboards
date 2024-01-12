@@ -9,3 +9,4 @@ dependencies:
   - dash
   - plotly
   - xcube >=1.3.0
+  - xcube_geodb
