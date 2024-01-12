@@ -6,22 +6,24 @@ from dash import Dash
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
 
-DASHBOARD_ID = 'bulgarian_ports'
+DASHBOARD_ID = 'RO1'
 ROMANIA_POINTS = [
     (29.66, 45.19, 'Golful Musura'),
     (29.05, 44.6, 'Danube Delta'),
     (28.7, 44.15, 'Constanța')
 ]
-METEROGRAM_ID = 'ecmwf-img'
+METEOGRAM_ID = 'ecmwf-img'
 
 
-def _create_app() -> Dash:
+def _create_dashboard() -> Dash:
     app = Dash(__name__)
 
     scattermap = ScatterMapComponent().get(DASHBOARD_ID, ROMANIA_POINTS)
     coastline_central = ROMANIA_POINTS[0]
     marker_label_default = coastline_central[2]
-    meteogram = MeteogramComponent().get(coastline_central[0], coastline_central[1])
+    meteogram = MeteogramComponent().get(
+        coastline_central[0], coastline_central[1]
+    )
     current_date = datetime.now().date()
     min_date_allowed = current_date - timedelta(days=10)
     max_date_allowed = current_date
@@ -30,7 +32,7 @@ def _create_app() -> Dash:
         [
             # Header Div
             html.Div(
-                html.Img(src='https://doors.viewer.brockmann-consult.de/config/logo.png', style={'width': '200px'}),
+                html.Img("src=assets/logo.png", style={'width': '200px'}),
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
@@ -45,9 +47,14 @@ def _create_app() -> Dash:
                     html.Div(
                         [
                             html.Div("Select date: ",
-                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px',
-                                            'paddingLeft': '10px',
-                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                                     style={
+                                         'fontSize': 'large',
+                                         'fontWeight': 'bold',
+                                         'paddingRight': '10px',
+                                         'paddingLeft': '10px',
+                                         'fontFamily': 'Roboto, Helvetica, '
+                                                       'Arial, sans-serif'}
+                                     ),
                             dcc.DatePickerSingle(
                                 id='my-date-picker-single',
                                 min_date_allowed=min_date_allowed,
@@ -56,23 +63,35 @@ def _create_app() -> Dash:
                                 date=current_date
                             ),
                             html.Div("Select wave Type: ",
-                                     style={'fontSize': 'large', 'fontWeight': 'bold', 'paddingRight': '10px',
+                                     style={'fontSize': 'large',
+                                            'fontWeight': 'bold',
+                                            'paddingRight': '10px',
                                             'paddingLeft': '45px',
-                                            'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'}),
+                                            'fontFamily': 'Roboto, Helvetica, '
+                                                          'Arial, sans-serif'}
+                                     ),
                             dcc.Dropdown(
                                 id='my-dropdown',
                                 options=[
-                                    {'label': 'classical_10d', 'value': 'classical_10d'},
-                                    {'label': 'classical_15d', 'value': 'classical_15d'},
-                                    {'label': 'classical_15d_with_climate', 'value': 'classical_15d_with_climate'},
-                                    {'label': 'classical_plume', 'value': 'classical_plume'},
-                                    {'label': 'classical_wave', 'value': 'classical_wave'},
+                                    {'label': 'classical_10d',
+                                     'value': 'classical_10d'},
+                                    {'label': 'classical_15d',
+                                     'value': 'classical_15d'},
+                                    {'label': 'classical_15d_with_climate',
+                                     'value': 'classical_15d_with_climate'},
+                                    {'label': 'classical_plume',
+                                     'value': 'classical_plume'},
+                                    {'label': 'classical_wave',
+                                     'value': 'classical_wave'},
                                 ],
-                                value='classical_wave',  # Default selected value
+                                value='classical_wave',  # default value
                                 style={'width': '230px', 'marginLeft': '10px'}
                             ),
                         ],
-                        style={'display': 'flex', 'alignItems': 'center', 'paddingTop': '10px'}
+                        style={
+                            'display': 'flex', 'alignItems': 'center',
+                            'paddingTop': '10px'
+                        }
                     ),
 
                     # Map and Meteogram Divs side by side
@@ -90,7 +109,7 @@ def _create_app() -> Dash:
 
                             # Meteogram Div
                             html.Div(
-                                id=METEROGRAM_ID,
+                                id=METEOGRAM_ID,
                                 children=[
                                     meteogram,
                                 ],
@@ -103,7 +122,8 @@ def _create_app() -> Dash:
                                     'fontSize': 'xx-large',
                                     'fontWeight': 'bold',
                                     'color': 'black',
-                                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
+                                    'fontFamily': 'Roboto, Helvetica, '
+                                                  'Arial, sans-serif'
                                 }
                             ),
                         ],
@@ -121,7 +141,7 @@ def _create_app() -> Dash:
     )
 
     @app.callback(
-        Output(METEROGRAM_ID, 'children'),
+        Output(METEOGRAM_ID, 'children'),
         Input(DASHBOARD_ID, 'clickData'),
         Input('my-date-picker-single', 'date'),
         Input('my-dropdown', 'value')
@@ -129,41 +149,56 @@ def _create_app() -> Dash:
     def update_ecmwf_image(click_data, date_value, selected_dropdown_value):
         print(selected_dropdown_value)
         print(click_data)
-        if date_value is not None and click_data is None and selected_dropdown_value != 'classical_wave':
+        if date_value is not None and click_data is None \
+                and selected_dropdown_value != 'classical_wave':
             marker_label = marker_label_default
             date_object = date.fromisoformat(date_value)
             date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-            return marker_label, MeteogramComponent().get(coastline_central[0], coastline_central[1],
-                                                          date_string, selected_dropdown_value)
-        elif date_value is None and click_data is None and selected_dropdown_value != 'classical_wave':
+            return marker_label, MeteogramComponent().get(
+                coastline_central[0], coastline_central[1], date_string,
+                selected_dropdown_value
+            )
+        elif date_value is None and click_data is None \
+                and selected_dropdown_value != 'classical_wave':
             marker_label = marker_label_default
-            return marker_label, MeteogramComponent().get(coastline_central[0], coastline_central[1],
-                                                          None, selected_dropdown_value)
-        elif date_value is not None and click_data is None and selected_dropdown_value == 'classical_wave':
+            return marker_label, MeteogramComponent().get(
+                coastline_central[0], coastline_central[1], None,
+                selected_dropdown_value
+            )
+        elif date_value is not None and click_data is None \
+                and selected_dropdown_value == 'classical_wave':
             marker_label = marker_label_default
             date_object = date.fromisoformat(date_value)
             date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-            return marker_label, MeteogramComponent().get(coastline_central[0], coastline_central[1],
-                                                          date_string)
+            return marker_label, MeteogramComponent().get(
+                coastline_central[0], coastline_central[1], date_string
+            )
         elif click_data is not None:
             marker_label = click_data['points'][0]['text']
-            if date_value is not None and selected_dropdown_value != 'classical_wave':
+            if date_value is not None \
+                    and selected_dropdown_value != 'classical_wave':
                 print('if', date_value)
                 date_object = date.fromisoformat(date_value)
                 date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
-                                                              click_data['points'][0]['lat'], date_string,selected_dropdown_value)
-            elif selected_dropdown_value == 'classical_wave' and date_value is not None:
-                print('elif')
+                return marker_label, MeteogramComponent().get(
+                    click_data['points'][0]['lon'],
+                    click_data['points'][0]['lat'],
+                    date_string,selected_dropdown_value
+                )
+            elif selected_dropdown_value == 'classical_wave' \
+                    and date_value is not None:
                 date_object = date.fromisoformat(date_value)
                 date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
-                                                              click_data['points'][0]['lat'], date_string,
-                                                              selected_dropdown_value)
+                return marker_label, MeteogramComponent().get(
+                    click_data['points'][0]['lon'],
+                    click_data['points'][0]['lat'],
+                    date_string, selected_dropdown_value
+                )
             else:
-                print('else')
-                return marker_label, MeteogramComponent().get(click_data['points'][0]['lon'],
-                                                              click_data['points'][0]['lat'])
+                return marker_label, MeteogramComponent().get(
+                    click_data['points'][0]['lon'],
+                    click_data['points'][0]['lat']
+                )
         else:
             marker_label = marker_label_default
             return marker_label, meteogram
@@ -172,5 +207,5 @@ def _create_app() -> Dash:
 
 
 if __name__ == '__main__':
-    app = _create_app()
-    app.run_server(debug=True)
+    dashboard = _create_dashboard()
+    dashboard.run_server(debug=True)
