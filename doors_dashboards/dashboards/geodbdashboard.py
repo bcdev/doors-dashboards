@@ -16,6 +16,7 @@ WAVEHEIGHT_ID = 'waveheight_timeseries'
 TIMEGRAPH_ID = 'geo_graph'
 COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
 DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
+FONT_COLOR = "#cedce2"
 
 
 def _create_dashboard() -> Dash:
@@ -53,14 +54,14 @@ def _create_dashboard() -> Dash:
                     FormLabel(DASHBOARD_TITLE,
                               style={'fontSize': '-webkit-xxx-large',
                                      'margin': '0 0 0 100px',
-                                     'color': '#cedce2'}
+                                     'color': FONT_COLOR}
                               )
                 ],
                 style={
+                    "display": "flex",
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
-                    'textAlign': 'left',
-                    'width': '100%'
+                    "alignItems": "left",
                 }
             ),
             # Main content with scattermap on the left and graph on the right
@@ -98,9 +99,10 @@ def _create_dashboard() -> Dash:
             # Footer
             html.Footer(
                 style={
-                    'backgroundColor': 'rgb(12, 80, 111)', 'color': 'white',
+                    'backgroundColor': 'rgb(12, 80, 111)', 'color': FONT_COLOR,
                     'padding': '10px', 'position': 'fixed', 'bottom': '0',
-                    'width': '100%'
+                    'width': '100%',
+                    'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
                 },
                 children=[
                     html.P(
