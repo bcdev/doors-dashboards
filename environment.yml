@@ -7,6 +7,9 @@ dependencies:
   - python >=3.8
   #Required
   - dash
+  - pip
   - plotly
   - xcube >=1.3.0
   - xcube_geodb
+  - pip:
+    - dash-material-ui
