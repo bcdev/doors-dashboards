@@ -46,13 +46,14 @@ def _create_dashboard() -> Dash:
                 [
                     html.Img(src="assets/logo.png", style={'width': '200px'}),
                     FormLabel("Burgas Port Dashboard",
-                              style={'marginRight': '100px',
-                                     'fontSize': '50px',
+                              style={'fontSize': '-webkit-xxx-large',
+                                     'margin': '0 0 0 100px',
                                      'color': '#cedce2'}
                               ),
                 ],
 
                 style={
+                    "display": "flex",
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
                     'textAlign': 'left',
