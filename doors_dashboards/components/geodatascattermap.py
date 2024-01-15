@@ -86,5 +86,8 @@ class GeoScatterMapComponent(DashboardComponent):
         return dcc.Graph(
             id=graph_id,
             figure=figure,
-            style={'height': '1000px'},
+            style={
+                'width': '100%',
+                'height': '100%'
+            },
         )
