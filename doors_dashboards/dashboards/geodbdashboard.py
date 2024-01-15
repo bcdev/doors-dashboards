@@ -1,11 +1,16 @@
-from dash import html
 from dash import Dash
+from dash import html
+from dash import Input
+from dash import Output
 from dash_material_ui import FormLabel
+from dash.exceptions import PreventUpdate
+import pandas as pd
 
 from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
 from doors_dashboards.core.geodbaccess import get_points_from_geodb
 from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
+from doors_dashboards.components.timeslider import TimeSliderComponent
 
 DASHBOARD_ID = 'Geodb_optical_data'
 MAP_ID = 'geodb_data'
@@ -13,7 +18,11 @@ MAP_ID = 'geodb_data'
 WINDSPEED_ID = 'windspeed_timeseries'
 WINDDIRECTION_ID = 'winddirection_timeseries'
 WAVEHEIGHT_ID = 'waveheight_timeseries'
+TIMEGRAPHS_ID = 'timegraphs'
 TIMEGRAPH_ID = 'geo_graph'
+TIMEPLOT_ID = 'timeplot'
+TIMESLIDERDIV_ID = 'timeslider_div'
+TIMESLIDER_ID = 'timeslider'
 COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
 DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
 FONT_COLOR = "#cedce2"
@@ -37,15 +46,13 @@ def _create_dashboard() -> Dash:
     scattermap = GeoScatterMapComponent().get(
         DASHBOARD_ID, points, selected_variable_default
     )
-    windspeed = TimeSeriesComponent().get(dataframe, variables[0], WINDSPEED_ID)
-    winddirection = TimeSeriesComponent().get(
-        dataframe, variables[1], WINDDIRECTION_ID
-    )
-    waveheight = TimeSeriesComponent().get(
-        dataframe, variables[2], WAVEHEIGHT_ID
-    )
+    line_plots = TimeSeriesComponent().get(dataframe, variables, TIMEPLOT_ID)
+    line_slider = TimeSliderComponent().get(dataframe, TIMESLIDER_ID)
 
     app.layout = html.Div(
+        style={
+            'height': '80vh',
+        },
         children=[
             # Header
             html.Header(
@@ -66,7 +73,10 @@ def _create_dashboard() -> Dash:
             ),
             # Main content with scattermap on the left and graph on the right
             html.Div(
-                style={'display': 'flex'},
+                style={
+                    'display': 'flex',
+                    'height': '80vh',
+                },
                 children=[
                     html.Div(
                         id=MAP_ID,
@@ -76,21 +86,35 @@ def _create_dashboard() -> Dash:
                         ], style={
                             'width': '50%',
                             'paddingTop': '20px',
-                            'height': '100vh'
+                            'height': '90%'
                         }
                     ),
                     html.Div(
-                        id=TIMEGRAPH_ID,
+                        id = TIMEGRAPHS_ID,
                         children=[
-                            # Map Div
-                            windspeed,
-                            winddirection,
-                            waveheight
+                            html.Div(
+                                id=TIMEGRAPH_ID,
+                                children=[
+                                    line_plots
+                                ], style={
+                                    "margin": "10px",
+                                    "height": "80%"
+                                }
+                            ),
+                            html.Div(
+                                id=TIMESLIDERDIV_ID,
+                                children=[
+                                    line_slider
+                                ], style={
+                                    "margin": "10px",
+                                    "paddingLeft": "6.5%",
+                                    "paddingRight": "6.5%",
+                                    "height": "10%"
+                                }
+                            )
                         ], style={
                             'width': '50%',
                             'paddingTop': '20px',
-                            'marginBottom': '50px',
-
                         }
                     ),
                 ]
@@ -112,6 +136,34 @@ def _create_dashboard() -> Dash:
             ),
         ]
     )
+
+    @app.callback(
+        Output(TIMEGRAPH_ID, 'children'),
+        Input(TIMESLIDER_ID, 'value')
+    )
+    def update_timeplots(value):
+        if value is None:
+            raise PreventUpdate
+        timestamp_range = [pd.Timestamp.fromordinal(int(v)) for v in value]
+        line_plots.figure.update_xaxes(
+            range=timestamp_range
+        )
+        return line_plots
+
+    @app.callback(
+        Output(TIMESLIDER_ID, 'value'),
+        Input(TIMEPLOT_ID, 'relayoutData')
+    )
+    def update_timeslider(relayout_data):
+        if relayout_data is None or \
+                'xaxis.range[0]' not in relayout_data or \
+                'xaxis.range[1]' not in relayout_data:
+            raise PreventUpdate
+        print(relayout_data)
+        start = pd.Timestamp(relayout_data['xaxis.range[0]']).toordinal()
+        end = pd.Timestamp(relayout_data['xaxis.range[1]']).toordinal()
+        return [start, end]
+
     return app
 
 

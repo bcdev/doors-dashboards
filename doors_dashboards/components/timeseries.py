@@ -1,20 +1,27 @@
-import pandas as pd
-import plotly.express as px
 from dash import dcc
 from dash.development.base_component import Component
+import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from typing import List
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 
 
 class TimeSeriesComponent(DashboardComponent):
 
-    def get(self, df: pd.DataFrame, selected_variable: str, timeseries_id: str,
-            **kwargs) -> Component:
-        fig = px.line(df, x=df.timestamp, y=selected_variable,
-                      hover_data={"timestamp": "|%B %d, %Y %H:%M"},
-                      )
+    def get(self, df: pd.DataFrame, selected_variables: List[str],
+            timeseries_id: str, **kwargs) -> Component:
+        fig = make_subplots(
+            cols=1, rows=len(selected_variables), shared_xaxes='all',
+        )
+        for i, selected_variable in enumerate(selected_variables):
+            fig.add_trace(
+                go.Scatter(x=df.timestamp, y=df[selected_variable]),
+                col=1, row=i + 1)
         fig.update_layout(
-            plot_bgcolor='aliceblue'
+            plot_bgcolor='aliceblue',
+            showlegend=False
         )
 
         fig.update_layout(
@@ -29,7 +36,15 @@ class TimeSeriesComponent(DashboardComponent):
         )
 
         fig.update_xaxes(
-            rangeslider_visible=True,
+            showticklabels=True,
+            showgrid=False
+        )
+        fig.update_yaxes(
+            showticklabels=True,
+            showgrid=False
+        )
+        fig.update_xaxes(
+            row = 1,
             rangeselector=dict(
                 buttons=list([
                     dict(count=1, label="1h", step="hour", stepmode="backward"),
@@ -42,8 +57,7 @@ class TimeSeriesComponent(DashboardComponent):
                         count=6, label="6m", step="month", stepmode="backward"
                     ),
                     dict(count=1, label="YTD", step="year", stepmode="todate"),
-                    dict(count=1, label="1y", step="year", stepmode="backward"),
-                    dict(step="all")
+                    dict(count=1, label="1y", step="year", stepmode="backward")
                 ])
             )
         )
@@ -51,5 +65,8 @@ class TimeSeriesComponent(DashboardComponent):
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
-            style={'height': '300px', 'width': '100%'},
+            style={
+                'width': '100%',
+                'height': '100%'
+            },
         )
