@@ -10,7 +10,8 @@ from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.point import Point
 
 
-def convert_points(points: List[Point]) -> Tuple[List[float], List[float], List[str]]:
+def convert_points(points: List[Point]) \
+        -> Tuple[List[float], List[float], List[str]]:
     lons = [item[0] for item in points]
     lats = [item[1] for item in points]
     labels = [item[2] for item in points]
@@ -23,9 +24,8 @@ def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
     return center_lon, center_lat
 
 
-def get_zoom_level(
-        lons: List[float], lats: List[float], center_lon: float, center_lat: float
-) -> float:
+def get_zoom_level(lons: List[float], lats: List[float],
+                   center_lon: float, center_lat: float) -> float:
     max_distance = max(
         abs(lat - center_lat) + abs(lon - center_lon)
         for lat, lon in zip(lats, lons)
@@ -43,7 +43,9 @@ class ScatterMapComponent(DashboardComponent):
             marker_size: int = 9,
             marker_color: str = 'blue',
             mapbox_style: str = 'open-street-map',
+            selected_variable: str = None,
             **kwargs) -> Component:
+
         lons, lats, labels = convert_points(points)
 
         center_lon, center_lat = get_center(lons, lats)
@@ -52,15 +54,18 @@ class ScatterMapComponent(DashboardComponent):
 
         mapbox_token = os.environ.get("MAPBOX_TOKEN")
 
-        figure = go.Figure(
-            go.Scattermapbox(
+        variable_values = []
+        variable_values = [point[3].get(selected_variable) for point in points]
+
+        figure = go.Figure()
+        figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
                 marker=go.scattermapbox.Marker(
                     size=marker_size, color=marker_color
                 ),
                 text=labels
-            )
-        )
+        ))
+
         mapbox = dict(
             zoom=zoom,
             accesstoken=mapbox_token,
@@ -68,13 +73,20 @@ class ScatterMapComponent(DashboardComponent):
         )
         figure.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
-            legend=dict(x=0.01, y=0.05, traceorder="normal"),
-            mapbox_style=mapbox_style
+            mapbox_style=mapbox_style,
+            hoverlabel=dict(
+                bgcolor="white",
+                font_color="black",
+                font_family='Roboto, Helvetica, Arial, sans-serif'
+            )
         )
         figure.update_layout(mapbox=mapbox)
 
         return dcc.Graph(
             id=graph_id,
             figure=figure,
-            style={'height': '1000px'}
+            style={
+                'width': '100%',
+                'height': '100%'
+            },
         )
