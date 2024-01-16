@@ -32,7 +32,7 @@ def _create_dashboard() -> Dash:
         [
             # Header Div
             html.Div(
-                html.Img("src=assets/logo.png", style={'width': '200px'}),
+                html.Img(src="assets/logo.png", style={'width': '200px'}),
                 style={
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
@@ -62,7 +62,7 @@ def _create_dashboard() -> Dash:
                                 initial_visible_month=current_date,
                                 date=current_date
                             ),
-                            html.Div("Select wave Type: ",
+                            html.Div("Forecast: ",
                                      style={'fontSize': 'large',
                                             'fontWeight': 'bold',
                                             'paddingRight': '10px',
