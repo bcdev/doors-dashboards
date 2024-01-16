@@ -1,5 +1,5 @@
 from typing import Dict
 from typing import Tuple
 
-# order: lon, lat, name
+# order: lon, lat, values for representation, values
 Point = Tuple[float, float, str, Dict]
