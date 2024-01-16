@@ -10,11 +10,11 @@ _GEODB_CLIENT = None
 
 
 def _get_client() -> GeoDBClient:
+    global _GEODB_CLIENT
     if _GEODB_CLIENT is None:
         _GEODB_CLIENT = GeoDBClient(
             auth_aud='https://xcube-users.brockmann-consult.de/api/v2'
         )
-    global _GEODB_CLIENT
     return _GEODB_CLIENT
 
 
