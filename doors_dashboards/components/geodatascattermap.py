@@ -65,9 +65,7 @@ class GeoScatterMapComponent(DashboardComponent):
             lat=lats, lon=lons, mode='markers',
             marker=go.scattermapbox.Marker(
                 size=9,
-                color=variable_values,
-                colorscale='Viridis',
-                colorbar=dict(title=selected_variable)
+                color='black'
             ),
             text=labels
         ))
@@ -79,7 +77,12 @@ class GeoScatterMapComponent(DashboardComponent):
         )
         figure.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
-            mapbox_style='open-street-map'
+            mapbox_style='open-street-map',
+            hoverlabel=dict(
+                bgcolor="white",
+                font_color="black",
+                font_family='Roboto, Helvetica, Arial, sans-serif'
+            )
         )
         figure.update_layout(mapbox=mapbox)
 
