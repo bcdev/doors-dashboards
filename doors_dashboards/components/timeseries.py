@@ -14,10 +14,15 @@ class TimeSeriesComponent(DashboardComponent):
             timeseries_id: str, **kwargs) -> Component:
         fig = make_subplots(
             cols=1, rows=len(selected_variables), shared_xaxes='all',
+            subplot_titles=selected_variables
         )
         for i, selected_variable in enumerate(selected_variables):
             fig.add_trace(
-                go.Scatter(x=df.timestamp, y=df[selected_variable]),
+                go.Scatter(x=df.timestamp, y=df[selected_variable],
+                           name=selected_variable,
+                           textfont={
+                               'family': 'Roboto, Helvetica, Arial, sans-serif',
+                           }),
                 col=1, row=i + 1)
         fig.update_layout(
             plot_bgcolor='aliceblue',
