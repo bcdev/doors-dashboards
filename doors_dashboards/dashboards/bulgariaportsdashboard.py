@@ -22,7 +22,7 @@ METEROGRAM_ID = 'ecmwf-img'
 external_stylesheets = ['style.css']
 
 
-def _create_dashboard() -> Dash:
+def create_dashboard() -> Dash:
     app = Dash(__name__,external_stylesheets=external_stylesheets)
 
     scattermap = ScatterMapComponent().get(DASHBOARD_ID, BULGARIA_PORTS_POINTS)
@@ -233,5 +233,5 @@ def _create_dashboard() -> Dash:
 
 
 if __name__ == '__main__':
-    dashboard = _create_dashboard()
+    dashboard = create_dashboard()
     dashboard.run_server(debug=True)

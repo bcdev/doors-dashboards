@@ -15,7 +15,7 @@ ROMANIA_POINTS = [
 METEOGRAM_ID = 'ecmwf-img'
 
 
-def _create_dashboard() -> Dash:
+def create_dashboard() -> Dash:
     app = Dash(__name__)
 
     scattermap = ScatterMapComponent().get(DASHBOARD_ID, ROMANIA_POINTS)
@@ -147,8 +147,6 @@ def _create_dashboard() -> Dash:
         Input('my-dropdown', 'value')
     )
     def update_ecmwf_image(click_data, date_value, selected_dropdown_value):
-        print(selected_dropdown_value)
-        print(click_data)
         if date_value is not None and click_data is None \
                 and selected_dropdown_value != 'classical_wave':
             marker_label = marker_label_default
@@ -177,7 +175,6 @@ def _create_dashboard() -> Dash:
             marker_label = click_data['points'][0]['text']
             if date_value is not None \
                     and selected_dropdown_value != 'classical_wave':
-                print('if', date_value)
                 date_object = date.fromisoformat(date_value)
                 date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
                 return marker_label, MeteogramComponent().get(
@@ -207,5 +204,5 @@ def _create_dashboard() -> Dash:
 
 
 if __name__ == '__main__':
-    dashboard = _create_dashboard()
+    dashboard = create_dashboard()
     dashboard.run_server(debug=True)

@@ -28,7 +28,7 @@ DASHBOARD_TITLE = 'Bio-optical Data K11 2019'
 FONT_COLOR = "#cedce2"
 
 
-def _create_dashboard() -> Dash:
+def create_dashboard() -> Dash:
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     variables = [
@@ -166,5 +166,5 @@ def _create_dashboard() -> Dash:
 
 
 if __name__ == '__main__':
-    dashboard = _create_dashboard()
-    dashboard.run_server(debug=True)
+    dashboard = create_dashboard()
+    dashboard.run(debug=True)
