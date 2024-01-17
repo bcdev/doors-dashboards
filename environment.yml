@@ -11,5 +11,6 @@ dependencies:
   - plotly
   - xcube >=1.3.0
   - xcube_geodb
+  - waitress
   - pip:
     - dash-material-ui
