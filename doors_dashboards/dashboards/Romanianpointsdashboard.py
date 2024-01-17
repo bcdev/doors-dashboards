@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 from dash import html, Input, Output, dcc
 from dash import Dash
+from dash_material_ui import FormLabel
 
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
@@ -31,9 +32,16 @@ def create_dashboard() -> Dash:
     app.layout = html.Div(
         [
             # Header Div
-            html.Div(
+            html.Div([
                 html.Img(src="assets/logo.png", style={'width': '200px'}),
+                FormLabel("Romanian Meteograms",
+                    style={'fontSize': '-webkit-xxx-large',
+                           'margin': '0 0 0 100px',
+                           'color': '#cedce2'}
+                    ),
+                ],
                 style={
+                    "display": "flex",
                     'backgroundColor': 'rgb(12, 80, 111)',
                     'padding': '15px',
                     'textAlign': 'left',
