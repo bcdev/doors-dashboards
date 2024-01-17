@@ -46,7 +46,7 @@ def create_dashboard() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            html.Div("Select date: ",
+                            html.Div("Date: ",
                                      style={
                                          'fontSize': 'large',
                                          'fontWeight': 'bold',

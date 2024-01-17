@@ -66,7 +66,7 @@ def create_dashboard() -> Dash:
                     # Date Picker Div
                     html.Div(
                         [
-                            FormLabel("Select Date: ",
+                            FormLabel("Date: ",
                                       style= {'marginRight': '10px',
                                               'fontSize': 'x-large',
                                               'fontWeight':'bold' }
@@ -78,7 +78,7 @@ def create_dashboard() -> Dash:
                                 initial_visible_month=current_date,
                                 date=current_date,
                             ),
-                            FormLabel("Select Wave Type: ",
+                            FormLabel("Forecast: ",
                                       style={'marginLeft': '10px',
                                              'fontSize': 'x-large',
                                              'fontWeight':'bold'}
