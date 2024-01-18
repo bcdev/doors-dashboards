@@ -1,8 +1,10 @@
+from dash import Dash
 from dash import dcc
 from dash.development.base_component import Component
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from typing import Dict
 from typing import List
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
@@ -75,3 +77,6 @@ class TimeSeriesComponent(DashboardComponent):
                 'height': '100%'
             },
         )
+
+    def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+        pass

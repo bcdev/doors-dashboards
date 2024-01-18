@@ -8,7 +8,7 @@ import pandas as pd
 
 from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
 from doors_dashboards.core.geodbaccess import get_points_from_geodb
-from doors_dashboards.components.geodatascattermap import GeoScatterMapComponent
+from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
 from doors_dashboards.components.timeslider import TimeSliderComponent
 
@@ -43,8 +43,8 @@ def _create_dashboard() -> Dash:
     dataframe = get_dataframe_from_geodb(COLLECTION_NAME, 'doors-io-bas',
                                          variables=variables)
 
-    scattermap = GeoScatterMapComponent().get(
-        DASHBOARD_ID, points, selected_variable_default
+    scattermap = ScatterMapComponent().get(
+        DASHBOARD_ID, points, selected_variable=selected_variable_default
     )
     line_plots = TimeSeriesComponent().get(dataframe, variables, TIMEPLOT_ID)
     line_slider = TimeSliderComponent().get(dataframe, TIMESLIDER_ID)
@@ -90,7 +90,7 @@ def _create_dashboard() -> Dash:
                         }
                     ),
                     html.Div(
-                        id = TIMEGRAPHS_ID,
+                        id=TIMEGRAPHS_ID,
                         children=[
                             html.Div(
                                 id=TIMEGRAPH_ID,

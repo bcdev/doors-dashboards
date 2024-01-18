@@ -9,13 +9,13 @@ from doors_dashboards.components.meteogram import MeteogramComponent
 
 DASHBOARD_ID = 'bulgarian_ports'
 BULGARIA_PORTS_POINTS = [
-    (27.479, 42.486, 'Terminal East'),
-    (27.47, 42.486, 'Terminal Bulk Cargoes'),
-    (27.467, 42.48, 'Terminal 2A'),
-    (27.457, 42.485, 'Terminal West'),
-    (27.53, 42.45, 'Terminal Rosenets'),
-    (27.728, 42.657, 'Terminal Nessebar'),
-    (27.687, 42.42, 'Terminal Sozopol')
+    (27.479, 42.486, 'Terminal East', {}),
+    (27.47, 42.486, 'Terminal Bulk Cargoes', {}),
+    (27.467, 42.48, 'Terminal 2A', {}),
+    (27.457, 42.485, 'Terminal West', {}),
+    (27.53, 42.45, 'Terminal Rosenets', {}),
+    (27.728, 42.657, 'Terminal Nessebar', {}),
+    (27.687, 42.42, 'Terminal Sozopol', {})
 ]
 METEROGRAM_ID = 'ecmwf-img'
 
@@ -25,7 +25,9 @@ external_stylesheets = ['style.css']
 def _create_dashboard() -> Dash:
     app = Dash(__name__,external_stylesheets=external_stylesheets)
 
-    scattermap = ScatterMapComponent().get(DASHBOARD_ID, BULGARIA_PORTS_POINTS)
+    scattermap = ScatterMapComponent().get(
+        DASHBOARD_ID, points=BULGARIA_PORTS_POINTS
+    )
     coastline_central = BULGARIA_PORTS_POINTS[0]
     marker_label_default = coastline_central[2]
     meteogram = MeteogramComponent().get(

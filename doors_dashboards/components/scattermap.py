@@ -1,8 +1,10 @@
+from dash import Dash
 from dash import dcc
 from dash.development.base_component import Component
 import math
 import os
 import plotly.graph_objs as go
+from typing import Dict
 from typing import List
 from typing import Tuple
 
@@ -90,3 +92,6 @@ class ScatterMapComponent(DashboardComponent):
                 'height': '100%'
             },
         )
+
+    def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+        pass

@@ -1,6 +1,8 @@
+from dash import Dash
 from dash import dcc
 from dash.development.base_component import Component
 import pandas as pd
+from typing import Dict
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 
@@ -23,3 +25,6 @@ class TimeSliderComponent(DashboardComponent):
             id=id
         )
         return slider
+
+    def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+        pass

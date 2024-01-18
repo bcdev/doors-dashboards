@@ -8,9 +8,9 @@ from doors_dashboards.components.meteogram import MeteogramComponent
 
 DASHBOARD_ID = 'RO1'
 ROMANIA_POINTS = [
-    (29.66, 45.19, 'Golful Musura'),
-    (29.05, 44.6, 'Danube Delta'),
-    (28.7, 44.15, 'Constanța')
+    (29.66, 45.19, 'Golful Musura', {}),
+    (29.05, 44.6, 'Danube Delta', {}),
+    (28.7, 44.15, 'Constanța', {})
 ]
 METEOGRAM_ID = 'ecmwf-img'
 
