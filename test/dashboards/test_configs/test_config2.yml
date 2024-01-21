@@ -1,0 +1,14 @@
+id: test_dashboard
+title: The Title
+features:
+  file: "../../data/locations/bulgaria_ports_points.csv"
+  label: label
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  meteogram:
+    meteogram_selection:
+      placement: top
+    meteogram_image:
+      placement: right

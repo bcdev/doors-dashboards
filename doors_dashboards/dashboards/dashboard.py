@@ -1,65 +1,117 @@
 from dash import Dash
-from dash import dcc
 from dash import html
-from dash import Input
-from dash import Output
 from dash_material_ui import FormLabel
-from dash.exceptions import PreventUpdate
-import pandas as pd
-from typing import Dict, List
+from typing import Dict
+from typing import List
 
-from doors_dashboards.core.geodbaccess import get_collection_names_from_geodb
-from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
-from doors_dashboards.core.geodbaccess import get_points_from_geodb
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
-from doors_dashboards.components.timeslider import TimeSliderComponent
+from doors_dashboards.core.featurehandler import FeatureHandler
 
-DASHBOARD_ID = 'Geodb_optical_data'
-MAP_ID = 'geodb_data'
-
-GEODB_COLLECTION_DROPDOWN_ID = 'geodb_collection_dropdown'
-WINDSPEED_ID = 'windspeed_timeseries'
-WINDDIRECTION_ID = 'winddirection_timeseries'
-WAVEHEIGHT_ID = 'waveheight_timeseries'
-TIMEGRAPHS_ID = 'timegraphs'
-TIMEGRAPH_ID = 'geo_graph'
-TIMEPLOT_ID = 'timeplot'
-TIMESLIDERDIV_ID = 'timeslider_div'
-TIMESLIDER_ID = 'timeslider'
-COLLECTION_NAME = 'moorings_Burgas_Bay_wavebuoy'
-DASHBOARD_TITLE = 'Moorings Burgas Bay Wave Buoy'
+_COMPONENTS = {
+    'scattermap': ScatterMapComponent,
+    'meteogram': MeteogramComponent,
+    'timeplots': TimeSeriesComponent
+}
 FONT_COLOR = "#cedce2"
+BACKGROUND_COLOR = 'rgb(12, 80, 111)'
+
+COLUMN_STYLE = {"flex": "1", 'paddingTop': '20px', 'height': '90%'}
+ROW_STYLE = {'display': 'flex', "flex-direction": "row"}
 
 
-def _convert_to_label_value_dict(names: List[str]) -> List[Dict[str, str]]:
-    converted = [dict(label=name, value=name) for name in names]
-    return converted
+def _get_style(placement: str, component_placements: Dict) -> Dict:
+    if placement in ["top", "bottom"]:
+        return ROW_STYLE
+    style = COLUMN_STYLE.copy()
+    if component_placements["right"] and component_placements["left"]:
+        style["width"] = "50%"
+    else:
+        style["width"] = "100%"
+    return style
 
 
-def _create_dashboard() -> Dash:
+def _order_main(main: Dict) -> List:
+    res = []
+    if "top" in main:
+        res.append(main["top"])
+    if "middle" in main:
+        res.append(main["middle"])
+    if "bottom" in main:
+        res.append(main["bottom"])
+    return res
+
+
+def _order_middle(middle: Dict) -> List:
+    res = []
+    if "left" in middle:
+        res.append(middle["left"])
+    if "right" in middle:
+        res.append(middle["right"])
+    return res
+
+
+def create_dashboard(config: Dict) -> Dash:
     app = Dash(__name__, suppress_callback_exceptions=True)
 
-    variables = [
-        'wind speed [m/s]', 'wind direction [deg]',
-        'significant wave height [m]'
-    ]
-    selected_variable_default = variables[0]
-
-    collection_names = get_collection_names_from_geodb()
-
-    points = get_points_from_geodb(COLLECTION_NAME, 'doors-io-bas',
-                                   variables=variables)
-
-    dataframe = get_dataframe_from_geodb(COLLECTION_NAME, 'doors-io-bas',
-                                         variables=variables)
-
-    scattermap = ScatterMapComponent().get(
-        DASHBOARD_ID, points, selected_variable=selected_variable_default
+    components = {}
+    component_placements = dict(
+        top=[],
+        left=[],
+        right=[],
+        bottom=[]
     )
-    line_plots = TimeSeriesComponent().get(dataframe, variables, TIMEPLOT_ID)
-    line_slider = TimeSliderComponent().get(dataframe, TIMESLIDER_ID)
+    dashboard_id = config.get("id")
+    dashboard_title = config.get("title")
+
+    feature_handler = FeatureHandler(config.get("features"))
+
+    for component, component_dict in config.get("components", []).items():
+        components[component] = _COMPONENTS[component]()
+        components[component].set_feature_handler(feature_handler)
+        for component_part, component_part_dict in component_dict.items():
+            component_placements[component_part_dict['placement']].\
+                append((component, component_part))
+
+
+    main_children = {}
+    middle_children = {}
+    for placement, components_at_placement in component_placements.items():
+        if not components_at_placement:
+            continue
+        style = _get_style(placement, component_placements)
+        place_children = []
+        for component_at_placement in components_at_placement:
+            main_component = component_at_placement[0]
+            sub_component = component_at_placement[1]
+            sub_component_params = config.get("components", {}).\
+                get(main_component, {}).get(sub_component)
+            component_div = components[main_component].get(
+                sub_component,
+                f"{sub_component}_{dashboard_id}",
+                sub_component_params
+            )
+            place_children.append(component_div)
+        if placement == "top" or placement == "bottom":
+            main_children[placement] = html.Div(
+                style=style, children=place_children
+            )
+        else:
+            middle_children[placement] = html.Div(
+                style=style, children=place_children
+            )
+    if len(middle_children) > 0:
+        middle = _order_middle(middle_children)
+        main_children['middle'] = html.Div(
+            style={
+                'display': 'flex',
+                'height': '80vh',
+                "flex-direction": "row"
+            },
+            children=middle
+        )
+    main = _order_main(main_children)
 
     app.layout = html.Div(
         style={
@@ -70,7 +122,7 @@ def _create_dashboard() -> Dash:
             html.Header(
                 [
                     html.Img(src="assets/logo.png", style={'width': '200px'}),
-                    FormLabel(DASHBOARD_TITLE,
+                    FormLabel(dashboard_title,
                               style={'fontSize': '-webkit-xxx-large',
                                      'margin': '0 0 0 100px',
                                      'color': FONT_COLOR}
@@ -78,142 +130,24 @@ def _create_dashboard() -> Dash:
                 ],
                 style={
                     "display": "flex",
-                    'backgroundColor': 'rgb(12, 80, 111)',
+                    'backgroundColor': BACKGROUND_COLOR,
                     'padding': '15px',
                     "alignItems": "left",
                 }
             ),
-            # Main content with scattermap on the left and graph on the right
+            # Main body
             html.Div(
                 style={
                     'display': 'flex',
-                    # 'height': '80vh',
                     "flex-direction": "column"
                 },
-                children=[
-                    html.Div(
-                        style={
-                            'display': 'flex',
-                            # 'height': '80vh',
-                            "flex-direction": "row"
-                        },
-                        children=[
-                            # Date Picker Div
-                            html.Div(
-                                [
-                                    FormLabel("Select GeoDB Collection: ",
-                                              style={'marginLeft': '10px',
-                                                     'fontSize': 'x-large',
-                                                     'fontWeight': 'bold'}
-                                              ),
-                                    dcc.Dropdown(
-                                        id=GEODB_COLLECTION_DROPDOWN_ID,
-                                        options=[
-                                            {'label': 'classical_10d',
-                                             'value': 'classical_10d'},
-                                            {'label': 'classical_15d',
-                                             'value': 'classical_15d'},
-                                            {'label': 'classical_15d_with_climate',
-                                             'value': 'classical_15d_with_climate'},
-                                            {'label': 'classical_plume',
-                                             'value': 'classical_plume'},
-                                            {'label': 'classical_wave',
-                                             'value': 'classical_wave'},
-                                        ],
-                                        value='classical_wave',
-                                        # Default selected value
-                                        style={'width': '230px',
-                                               'marginLeft': '10px'}
-                                    ),
-                                    FormLabel("Select Wave Type: ",
-                                              style={'marginLeft': '10px',
-                                                     'fontSize': 'x-large',
-                                                     'fontWeight': 'bold'}
-                                              ),
-                                    dcc.Dropdown(
-                                        id='my-second-dropdown',
-                                        options=[
-                                            {'label': 'classical_10d',
-                                             'value': 'classical_10d'},
-                                            {'label': 'classical_15d',
-                                             'value': 'classical_15d'},
-                                            {'label': 'classical_15d_with_climate',
-                                             'value': 'classical_15d_with_climate'},
-                                            {'label': 'classical_plume',
-                                             'value': 'classical_plume'},
-                                            {'label': 'classical_wave',
-                                             'value': 'classical_wave'},
-                                        ],
-                                        value='classical_wave',
-                                        # Default selected value
-                                        style={'width': '230px',
-                                               'marginLeft': '10px'}
-                                    ),
-                                ],
-                                style={'display': 'flex',
-                                       'alignItems': 'center',
-                                       'padding': '10px 0px 0px 30px',
-                                       "width": "100%"
-                                       }
-                            )
-                        ]
-                    ),
-                    html.Div(
-                        style={
-                            'display': 'flex',
-                            'height': '80vh',
-                            "flex-direction": "row"
-                        },
-                        children=[
-                            html.Div(
-                                id=MAP_ID,
-                                children=[
-                                    # Map Div
-                                    scattermap,
-                                ], style={
-                                    "flex": "1",
-                                    'width': '50%',
-                                    'paddingTop': '20px',
-                                    'height': '90%'
-                                }
-                            ),
-                            html.Div(
-                                id = TIMEGRAPHS_ID,
-                                children=[
-                                    html.Div(
-                                        id=TIMEGRAPH_ID,
-                                        children=[
-                                            line_plots
-                                        ], style={
-                                            "margin": "10px",
-                                            "height": "80%"
-                                        }
-                                    ),
-                                    html.Div(
-                                        id=TIMESLIDERDIV_ID,
-                                        children=[
-                                            line_slider
-                                        ], style={
-                                            "margin": "10px",
-                                            "paddingLeft": "6.5%",
-                                            "paddingRight": "6.5%",
-                                            "height": "10%"
-                                        }
-                                    )
-                                ], style={
-                                    'width': '50%',
-                                    'paddingTop': '20px',
-                                }
-                            ),
-                        ]
-                    ),
-                ]
+                children=main,
             ),
-
             # Footer
             html.Footer(
                 style={
-                    'backgroundColor': 'rgb(12, 80, 111)', 'color': FONT_COLOR,
+                    'backgroundColor': BACKGROUND_COLOR,
+                    'color': FONT_COLOR,
                     'padding': '10px', 'position': 'fixed', 'bottom': '0',
                     'width': '100%',
                     'fontFamily': 'Roboto, Helvetica, Arial, sans-serif'
@@ -227,35 +161,7 @@ def _create_dashboard() -> Dash:
         ]
     )
 
-    @app.callback(
-        Output(TIMEGRAPH_ID, 'children'),
-        Input(TIMESLIDER_ID, 'value')
-    )
-    def update_timeplots(value):
-        if value is None:
-            raise PreventUpdate
-        timestamp_range = [pd.Timestamp.fromordinal(int(v)) for v in value]
-        line_plots.figure.update_xaxes(
-            range=timestamp_range
-        )
-        return line_plots
-
-    @app.callback(
-        Output(TIMESLIDER_ID, 'value'),
-        Input(TIMEPLOT_ID, 'relayoutData')
-    )
-    def update_timeslider(relayout_data):
-        if relayout_data is None or \
-                'xaxis.range[0]' not in relayout_data or \
-                'xaxis.range[1]' not in relayout_data:
-            raise PreventUpdate
-        start = pd.Timestamp(relayout_data['xaxis.range[0]']).toordinal()
-        end = pd.Timestamp(relayout_data['xaxis.range[1]']).toordinal()
-        return [start, end]
+    for component in components.values():
+        component.register_callbacks(app, list(components.keys()))
 
     return app
-
-
-if __name__ == '__main__':
-    dashboard = _create_dashboard()
-    dashboard.run_server(debug=True)

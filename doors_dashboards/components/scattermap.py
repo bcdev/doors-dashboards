@@ -1,5 +1,6 @@
 from dash import Dash
 from dash import dcc
+from dash import html
 from dash.development.base_component import Component
 import math
 import os
@@ -9,15 +10,7 @@ from typing import List
 from typing import Tuple
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
-from doors_dashboards.core.point import Point
-
-
-def convert_points(points: List[Point]) \
-        -> Tuple[List[float], List[float], List[str]]:
-    lons = [item[0] for item in points]
-    lats = [item[1] for item in points]
-    labels = [item[2] for item in points]
-    return lons, lats, labels
+from doors_dashboards.core.featurehandler import FeatureHandler
 
 
 def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
@@ -39,16 +32,19 @@ def get_zoom_level(lons: List[float], lats: List[float],
 
 class ScatterMapComponent(DashboardComponent):
 
-    def get(self,
-            graph_id: str,
-            points: List[Point],
-            marker_size: int = 9,
-            marker_color: str = 'blue',
-            mapbox_style: str = 'open-street-map',
-            selected_variable: str = None,
-            **kwargs) -> Component:
+    def __init__(self):
+        self.feature_handler = None
 
-        lons, lats, labels = convert_points(points)
+    def get(self,
+            sub_component: str, sub_component_id: str, sub_config: Dict
+    ) -> Component:
+        points = sub_config.get("points")
+        marker_size = sub_config.get("marker_size", 9)
+        marker_color = sub_config.get("marker_color", "blue")
+        mapbox_style = sub_config.get("mapbox_style", "open-street-map")
+        selected_variable = sub_config.get("selected_variable", "")
+
+        lons, lats, labels = self.feature_handler.get_points_as_tuples()
 
         center_lon, center_lat = get_center(lons, lats)
 
@@ -56,8 +52,10 @@ class ScatterMapComponent(DashboardComponent):
 
         mapbox_token = os.environ.get("MAPBOX_TOKEN")
 
-        variable_values = []
-        variable_values = [point[3].get(selected_variable) for point in points]
+        if selected_variable:
+            variable_values = [
+                point[3].get(selected_variable) for point in points
+            ]
 
         figure = go.Figure()
         figure.add_trace(go.Scattermapbox(
@@ -84,14 +82,25 @@ class ScatterMapComponent(DashboardComponent):
         )
         figure.update_layout(mapbox=mapbox)
 
-        return dcc.Graph(
-            id=graph_id,
+        scattermap_graph = dcc.Graph(
+            id=sub_component_id,
             figure=figure,
             style={
                 'width': '100%',
                 'height': '100%'
             },
         )
+        return html.Div(
+            scattermap_graph,
+            style={
+                'flex': '1',
+                'margin': '10px',
+                'alignItems': 'center',
+            }
+        )
+
+    def set_feature_handler(self, feature_handler: FeatureHandler):
+        self.feature_handler = feature_handler
 
     def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
         pass

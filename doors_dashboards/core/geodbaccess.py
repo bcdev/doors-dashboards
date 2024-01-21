@@ -3,7 +3,6 @@ from typing import List
 
 from xcube_geodb.core.geodb import GeoDBClient
 
-from .point import Point
 
 
 _GEODB_CLIENT = None
@@ -23,26 +22,6 @@ def get_collection_names_from_geodb():
     df = geodb.get_my_collections()
     doors_collections = df[df["database"].str.contains("doors") == True]
     return list(doors_collections.collection)
-
-
-def get_points_from_geodb(
-        collection: str, database: str, variables: List[str],
-        name_of_time_column: str = 'timestamp'
-) -> List[Point] :
-    sub_gdf = get_dataframe_from_geodb(
-        collection, database, variables, name_of_time_column
-    )
-
-    points = []
-
-    for i, row in sub_gdf.iterrows():
-        dic = row.to_dict()
-        res = ''
-        for k, v in dic.items():
-            res += f'{k}: {v}<br>'
-        points.append((row.lon, row.lat, res[:-4], dic))
-
-    return points
 
 
 def get_dataframe_from_geodb(
