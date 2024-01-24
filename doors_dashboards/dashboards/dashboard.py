@@ -70,9 +70,9 @@ def create_dashboard(config: Dict) -> Dash:
     for component, component_dict in config.get("components", []).items():
         components[component] = _COMPONENTS[component]()
         components[component].set_feature_handler(feature_handler)
-        for component_part, component_part_dict in component_dict.items():
-            component_placements[component_part_dict['placement']].\
-                append((component, component_part))
+        for sub_component, sub_component_config in component_dict.items():
+            component_placements[sub_component_config['placement']].\
+                append((component, sub_component))
 
 
     main_children = {}
@@ -88,9 +88,7 @@ def create_dashboard(config: Dict) -> Dash:
             sub_component_params = config.get("components", {}).\
                 get(main_component, {}).get(sub_component)
             component_div = components[main_component].get(
-                sub_component,
-                f"{sub_component}_{dashboard_id}",
-                sub_component_params
+                sub_component, sub_component, sub_component_params
             )
             place_children.append(component_div)
         if placement == "top" or placement == "bottom":
