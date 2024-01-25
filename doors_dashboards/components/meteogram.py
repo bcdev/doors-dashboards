@@ -150,9 +150,9 @@ class MeteogramComponent(DashboardComponent):
             return
 
         points = self._feature_handler.get_points_as_tuples()
-        lon = points[0]
-        lat = points[1]
-        label = points[1]
+        lon = points[0][0]
+        lat = points[1][0]
+        label = points[2][0]
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
