@@ -21,14 +21,8 @@
 
 from typing import List
 
-import doors_dashboards.dashboards as db
-
 _AVAILABLE_DASHBOARDS = \
     {
-        "Bulgaria Ports": db.bg1_cdb,
-        "Bulgaria GeoDB": db.bg2_cdb,
-        "Romania GeoDB": db.ro1_cdb,
-        "Romania Meteograms": db.ro2_cdb,
     }
 _SUPPORTED_MODES=[None, 'jupyterlab', 'tab']
 
