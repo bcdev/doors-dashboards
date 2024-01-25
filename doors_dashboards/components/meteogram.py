@@ -12,6 +12,7 @@ from datetime import timedelta
 import requests
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
@@ -31,17 +32,20 @@ METEOGRAM_CHOOSER_ID = "meteogram_chooser"
 class MeteogramComponent(DashboardComponent):
 
     def __init__(self):
+        self._default_tuple = None
         self._feature_handler = None
         self._meteogram_image = None
+        self._previous_images = dict()
 
     def get(
             self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
         if sub_component == METEOGRAM_IMAGE_ID:
-            self._meteogram_image = self._get_meteogram_image(
+            default_lon, default_lat, _ = self._get_default_tuple()
+            self._meteogram_image = self._get_wrapped_meteogram_image(
                 sub_component_id,
-                sub_config.get("lon"),
-                sub_config.get("lat"),
+                sub_config.get("lon", default_lon),
+                sub_config.get("lat", default_lat),
                 sub_config.get("time"),
                 sub_config.get("meteogram_type", "classical_wave")
             )
@@ -52,23 +56,22 @@ class MeteogramComponent(DashboardComponent):
                          f"'meteogram'. Must be one of 'meteogram_image', "
                          f"'meteogram_selection'.")
 
-    def _get_meteogram_image(self, sub_component_id: str,
-                             lon: float, lat: float, time: str = None,
-                             meteogram_type: str = 'classical_wave') -> Component:
-        params = self._get_params(lon, lat, meteogram_type, time)
-        response = requests.get(
-            METEOGRAM_ENDPOINT, params=params, headers=HEADERS
+    def _get_default_tuple(self) -> Tuple[float, float, str]:
+        if not self._default_tuple:
+            points = self._feature_handler.get_points_as_tuples()
+            lon = points[0][0]
+            lat = points[1][0]
+            label = points[2][0]
+            self._default_tuple = lon, lat, label
+        return self._default_tuple
+
+    def _get_wrapped_meteogram_image(
+            self, sub_component_id: str, lon: float, lat: float,
+            time: str = None, meteogram_type: str = 'classical_wave'
+    ) -> Component:
+        meteogram_image = self._get_meteogram_image(
+            lon, lat, time, meteogram_type
         )
-        if response.status_code != 200:
-            return html.Label(
-                f'Meteogram could not be loaded: {response.reason}'
-            )
-        response_data = response.json()
-        image_url = response_data.get('data', {}).get('link', {}).get('href')
-        if not image_url:
-            return html.Label('Meteogram could not be loaded: '
-                              'No image url in reponse from ECMWF')
-        meteogram_image = html.Img(src=image_url, style={'padding': '20px'})
         return html.Div(
             id=sub_component_id,
             children=[
@@ -88,7 +91,32 @@ class MeteogramComponent(DashboardComponent):
             }
         )
 
-    def _get_params(self, lon: float, lat: float,
+    def _get_meteogram_image(
+            self, lon: float, lat: float, time: str = None,
+            meteogram_type: str = 'classical_wave'
+    ) -> html.Img:
+        params = self._get_params(lon, lat, meteogram_type, time)
+        key = ",".join(str(e) for e in list(params.values()))
+        if key in self._previous_images:
+            return self._previous_images[key]
+        response = requests.get(
+            METEOGRAM_ENDPOINT, params=params, headers=HEADERS
+        )
+        if response.status_code != 200:
+            return html.Label(
+                f'Meteogram could not be loaded: {response.reason}'
+            )
+        response_data = response.json()
+        image_url = response_data.get('data', {}).get('link', {}).get('href')
+        if not image_url:
+            return html.Label('Meteogram could not be loaded: '
+                              'No image url in reponse from ECMWF')
+        image = html.Img(src=image_url, style={'padding': '20px'})
+        self._previous_images[key] = image
+        return image
+
+    @staticmethod
+    def _get_params(lon: float, lat: float,
                     meteogram_type: str = 'classical_wave', time: str = None
                     ) -> Dict[str, str]:
         params = deepcopy(BASE_PARAMS)
@@ -100,28 +128,30 @@ class MeteogramComponent(DashboardComponent):
         params['base_time'] = time
         return params
 
-    def _get_meteogram_selection(self):
+    @staticmethod
+    def _get_meteogram_selection():
         current_date = datetime.now().date()
         min_date_allowed = current_date - timedelta(days=10)
         max_date_allowed = current_date
         return html.Div([
             FormLabel("Select Date: ",
-                       style= {'marginRight': '10px',
-                               'fontSize': 'x-large','fontWeight':'bold'}
-                       ),
-             dcc.DatePickerSingle(
+                      style={'marginRight': '10px',
+                             'fontSize': 'x-large',
+                             'fontWeight': 'bold'}
+                      ),
+            dcc.DatePickerSingle(
                  id=METEOGRAM_DATE_PICKER_ID,
                  min_date_allowed=min_date_allowed,
                  max_date_allowed=max_date_allowed,
                  initial_visible_month=current_date,
                  date=current_date,
-             ),
-             FormLabel("Select Wave Type: ",
-                       style={'marginLeft': '10px',
-                              'fontSize': 'x-large',
-                              'fontWeight':'bold'}
-                       ),
-             dcc.Dropdown(
+            ),
+            FormLabel("Select Forecast Type: ",
+                      style={'marginLeft': '10px',
+                             'fontSize': 'x-large',
+                             'fontWeight': 'bold'}
+                      ),
+            dcc.Dropdown(
                  id=METEOGRAM_CHOOSER_ID,
                  options=[
                      {'label': 'classical_10d', 'value': 'classical_10d'},
@@ -146,13 +176,9 @@ class MeteogramComponent(DashboardComponent):
         self._feature_handler = feature_handler
 
     def register_callbacks(self, app: Dash, component_ids: List[str]):
-        if "scattermap" not in component_ids:
-            return
-
-        points = self._feature_handler.get_points_as_tuples()
-        lon = points[0][0]
-        lat = points[1][0]
-        label = points[2][0]
+        lon = self._get_default_tuple()[0]
+        lat = self._get_default_tuple()[1]
+        label = self._get_default_tuple()[2]
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
@@ -160,58 +186,13 @@ class MeteogramComponent(DashboardComponent):
             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
             Input(METEOGRAM_CHOOSER_ID, 'value')
         )
-        def update_ecmwf_image(click_data, date_value, selected_dropdown_value):
-            if date_value is not None and click_data is None \
-                    and selected_dropdown_value != 'classical_wave':
-                marker_label = label
-                date_object = date.fromisoformat(date_value)
-                date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                return marker_label, self._get_meteogram_image(
-                    METEOGRAM_IMAGE_ID, lon, lat, date_string,
-                    selected_dropdown_value
-                )
-            elif date_value is None and click_data is None \
-                    and selected_dropdown_value != 'classical_wave':
-                marker_label = label
-                return marker_label, self._get_meteogram_image(
-                    METEOGRAM_IMAGE_ID, lon, lat, None, selected_dropdown_value
-                )
-            elif date_value is not None and click_data is None and \
-                    selected_dropdown_value == 'classical_wave':
-                marker_label = label
-                date_object = date.fromisoformat(date_value)
-                date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                return marker_label, self._get_meteogram_image(
-                    METEOGRAM_IMAGE_ID, lon, lat, date_string
-                )
-            elif click_data is not None:
-                marker_label = click_data['points'][0]['text']
-                if date_value is not None \
-                        and selected_dropdown_value != 'classical_wave':
-                    date_object = date.fromisoformat(date_value)
-                    date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                    return marker_label, self._get_meteogram_image(
-                        METEOGRAM_IMAGE_ID,
-                        click_data['points'][0]['lon'],
-                        click_data['points'][0]['lat'],
-                        date_string, selected_dropdown_value
-                    )
-                elif selected_dropdown_value == 'classical_wave' \
-                        and date_value is not None:
-                    date_object = date.fromisoformat(date_value)
-                    date_string = date_object.strftime('%Y-%m-%dT00:00:00Z')
-                    return marker_label, self._get_meteogram_image(
-                        METEOGRAM_IMAGE_ID,
-                        click_data['points'][0]['lon'],
-                        click_data['points'][0]['lat'],
-                        date_string, selected_dropdown_value
-                    )
-                else:
-                    return marker_label, self._get_meteogram_image(
-                        METEOGRAM_IMAGE_ID,
-                        click_data['points'][0]['lon'],
-                        click_data['points'][0]['lat']
-                    )
-            else:
-                marker_label = label
-                return marker_label, self._meteogram_image
+        def update_meteogram_image(click_data, date_value, forecast_value):
+            meteo_lon = click_data['points'][0]['lon'] if click_data else lon
+            meteo_lat = click_data['points'][0]['lat'] if click_data else lat
+            meteo_label = click_data['points'][0]['text'] if click_data \
+                else label
+            date_string = date.fromisoformat(date_value).\
+                strftime('%Y-%m-%dT00:00:00Z') if date_value else None
+            return meteo_label, self._get_meteogram_image(
+                meteo_lon, meteo_lat, date_string, forecast_value
+            )
