@@ -33,15 +33,22 @@ class FeatureHandler:
         variables = self._configs.get(collection, {}).get("variables")
         if variables is None:
             variables = list(self.get_df(collection).columns)
-            for r in ["lat", "lon", "timestamp"]:
-                variables.remove(r)
+            to_be_removed = ["lat", "lon", "timestamp"]
+            label = self._get_label_column_name(collection)
+            if label:
+                to_be_removed.append(label)
+            to_be_removed.extend(self.get_levels(collection))
+            for r in to_be_removed:
+                if r in variables:
+                    variables.remove(r)
         return variables
 
     def _get_label_column_name(self, collection: str):
         return self._configs.get(collection, {}).get("params", {}).get("label")
 
-    def get_levels(self, collection: str):
-        return self._configs.get(collection, {}).get("params", {}).get("levels")
+    def get_levels(self, collection: str) -> List[str]:
+        return self._configs.get(collection, {}).get("params", {}).\
+            get("levels", [])
 
     def _get_unique_values(self, collection: str, column: str) -> List[str]:
         return list(self.get_df(collection)[column].unique())
@@ -50,7 +57,7 @@ class FeatureHandler:
             self, gdf: pd.DataFrame, levels: List[str]
     ) -> Union[List[str], Dict[str, Any]]:
         level = levels[0]
-        level_keys = gdf[level].unique()
+        level_keys = list(gdf[level].unique())
         if len(levels) == 1:
             return level_keys
         level_dict = dict()
@@ -59,6 +66,7 @@ class FeatureHandler:
             level_dict[level_key] = self._get_nested_level_values(
                 sub_gdf, levels[1:]
             )
+        return level_dict
 
     def get_nested_level_values(self, collection: str) \
             -> Optional[Union[List[str], Dict[str, Any]]]:

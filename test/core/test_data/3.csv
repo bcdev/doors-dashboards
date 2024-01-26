@@ -1,0 +1,8 @@
+lon,lat,label,station,timestamp,chlorophyll,temperature
+27.479,42.486,Terminal East,Terminal East,2019-07-28 12:00:00,0.747,19.38
+27.47,42.486,Terminal Bulk Cargoes,Terminal Bulk Cargoes,2019-07-28 12:00:00,8.7893,4.3605
+27.467,42.48,Terminal 2A,Terminal 2A,2019-07-30 12:00:00,0.5,1.938
+27.457,42.485,Terminal West,Terminal West,2019-07-31 12:00:00,0.5,47.481
+27.53,42.45,Terminal Rosenets,Terminal Rosenets,2019-08-01 12:00:00,0.5,23.7405
+27.728,42.657,Terminal Nessebar,Terminal Nessebar,2019-08-02 12:00:00,0.5,37.791
+27.687,42.42,Terminal Sozopol,Terminal Sozopol,2019-08-03 12:00:00,0.5,1.938
