@@ -1,8 +1,11 @@
 id: test_dashboard
 title: The Title
 features:
-  file: "../../data/locations/bulgaria_ports_points.csv"
-  label: label
+  - id: bulgaria_ports_points
+    type: local
+    params:
+      file: "../../data/locations/bulgaria_ports_points.csv"
+      label: label
 components:
   scattermap:
     scattermap:

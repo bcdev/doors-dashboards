@@ -1,0 +1,22 @@
+id: test_dashboard_1
+title: The other Title
+features:
+  - id: moorings_Burgas_Bay_wavebuoy
+    type: geodb
+    params:
+      title: Burgas Bay Wavebuoy
+      collection: moorings_Burgas_Bay_wavebuoy
+      database: doors-io-bas
+      variables:
+        - "wind speed [m/s]"
+        - "wind direction [deg]"
+        - "significant wave height [m]"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  timeplots:
+    timeplots:
+      placement: right
+    timeslider:
+      placement: right

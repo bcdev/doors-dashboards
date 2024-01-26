@@ -55,8 +55,9 @@ class TimeSeriesComponent(DashboardComponent):
                          f"'timeslider'.")
 
     def _get_timeplots(self, timeseries_id: str) -> Component:
-        df = self.feature_handler.df
-        variables = self.feature_handler.variables
+        collection = self.feature_handler.get_collections()[0]
+        df = self.feature_handler.get_df(collection)
+        variables = self.feature_handler.get_variables(collection)
         fig = make_subplots(
             cols=1, rows=len(variables), shared_xaxes='all',
             subplot_titles=variables
@@ -123,7 +124,8 @@ class TimeSeriesComponent(DashboardComponent):
         )
 
     def _get_time_slider(self, time_slider_id: str) -> Component:
-        df = self.feature_handler.df
+        collection = self.feature_handler.get_collections()[0]
+        df = self.feature_handler.get_df(collection)
         min_time = pd.Timestamp(min(df.timestamp))
         max_time = pd.Timestamp(max(df.timestamp))
         delta = (max_time - min_time) / 5
