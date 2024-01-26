@@ -17,7 +17,7 @@ _COMPONENTS = {
 FONT_COLOR = "#cedce2"
 BACKGROUND_COLOR = 'rgb(12, 80, 111)'
 
-COLUMN_STYLE = {"flex": "1", 'paddingTop': '20px'}
+COLUMN_STYLE = {"flex": "1"}
 ROW_STYLE = {'display': 'flex', "flexDirection": "row"}
 
 

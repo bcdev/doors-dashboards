@@ -119,7 +119,7 @@ class TimeSeriesComponent(DashboardComponent):
             figure=fig,
             style={
                 'width': '100%',
-                'height': '100%'
+                'height': '80vh'
             },
         )
 
