@@ -17,8 +17,8 @@ _COMPONENTS = {
 FONT_COLOR = "#cedce2"
 BACKGROUND_COLOR = 'rgb(12, 80, 111)'
 
-COLUMN_STYLE = {"flex": "1", 'paddingTop': '20px', 'height': '90%'}
-ROW_STYLE = {'display': 'flex', "flex-direction": "row"}
+COLUMN_STYLE = {"flex": "1", 'paddingTop': '20px'}
+ROW_STYLE = {'display': 'flex', "flexDirection": "row"}
 
 
 def _get_style(placement: str, component_placements: Dict) -> Dict:
@@ -105,10 +105,13 @@ def create_dashboard(config: Dict) -> Dash:
             style={
                 'display': 'flex',
                 'height': '80vh',
-                "flex-direction": "row"
+                "flexDirection": "row",
+                "flex": "1"
             },
             children=middle
         )
+
+
     main = _order_main(main_children)
 
     app.layout = html.Div(
@@ -137,7 +140,7 @@ def create_dashboard(config: Dict) -> Dash:
             html.Div(
                 style={
                     'display': 'flex',
-                    "flex-direction": "column"
+                    "flexDirection": "column"
                 },
                 children=main,
             ),
