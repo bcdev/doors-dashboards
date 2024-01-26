@@ -73,6 +73,7 @@ class ScatterMapComponent(DashboardComponent):
         )
         figure.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
+            autosize=True,
             mapbox_style=mapbox_style,
             hoverlabel=dict(
                 bgcolor="white",
@@ -87,7 +88,7 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '100%'
+                'height': '80vh'
             },
         )
         return html.Div(
