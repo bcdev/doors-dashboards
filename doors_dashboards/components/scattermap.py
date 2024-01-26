@@ -44,27 +44,39 @@ class ScatterMapComponent(DashboardComponent):
         mapbox_style = sub_config.get("mapbox_style", "open-street-map")
         selected_variable = sub_config.get("selected_variable", "")
 
-        lons, lats, labels = self.feature_handler.get_points_as_tuples()
-
-        center_lon, center_lat = get_center(lons, lats)
-
-        zoom = get_zoom_level(lons, lats, center_lon, center_lat)
-
-        mapbox_token = os.environ.get("MAPBOX_TOKEN")
-
-        if selected_variable:
-            variable_values = [
-                point[3].get(selected_variable) for point in points
-            ]
-
         figure = go.Figure()
-        figure.add_trace(go.Scattermapbox(
+
+        all_lons = []
+        all_lats = []
+        all_labels = []
+
+        for collection in self.feature_handler.get_collections():
+
+            lons, lats, labels = self.feature_handler.get_points_as_tuples(
+                collection
+            )
+            all_lons.extend(lons)
+            all_lats.extend(lats)
+            all_labels.extend(labels)
+
+            if selected_variable:
+                variable_values = [
+                    point[3].get(selected_variable) for point in points
+                ]
+
+            figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
                 marker=go.scattermapbox.Marker(
                     size=marker_size, color=marker_color
                 ),
                 text=labels
         ))
+
+        center_lon, center_lat = get_center(all_lons, all_lats)
+
+        zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat)
+
+        mapbox_token = os.environ.get("MAPBOX_TOKEN")
 
         mapbox = dict(
             zoom=zoom,

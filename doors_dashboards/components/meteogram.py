@@ -58,7 +58,8 @@ class MeteogramComponent(DashboardComponent):
 
     def _get_default_tuple(self) -> Tuple[float, float, str]:
         if not self._default_tuple:
-            points = self._feature_handler.get_points_as_tuples()
+            collection = self._feature_handler.get_collections()[0]
+            points = self._feature_handler.get_points_as_tuples(collection)
             lon = points[0][0]
             lat = points[1][0]
             label = points[2][0]
