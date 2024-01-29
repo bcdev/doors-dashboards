@@ -1,0 +1,62 @@
+id: ge1
+title: Georgia MAFs
+features:
+  - id: EMBLAS_CHL_2016_2019
+    type: geodb
+    params:
+      title: EMBLAS Chlorophyll 2016-2019
+      collection: EMBLAS_CHL_2016_2019
+      database: water-quality
+      levels:
+        - "cruise"
+        - "station"
+        - "sampling depth [m]"
+      label: station
+      variables:
+        - "chl-a"
+  - id: EMBLAS_Nutrients_2016_2019
+    type: geodb
+    params:
+      title: EMBLAS Nutrients 2016-2019
+      collection: EMBLAS_CHL_2016_2019
+      database: water-quality
+      levels:
+        - "cruise"
+        - "station"
+        - "sampling depth [m]"
+      label: station
+      convert_from_parameters:
+        keys:
+          - "station"
+          - "sampling depth [m]"
+        value: "value"
+        parameter: "parameter"
+      variables:
+        - "Ammonia nitrogen"
+        - "Nitrate nitrogen"
+        - "Nitrite nitrogen"
+        - "Phosphate"
+        - "Silicon"
+        - "Total nitrogen"
+        - "Total phosphorus"
+  - id: EMBLAS_Physics_2016_2019
+    type: geodb
+    params:
+      title: EMBLAS Physics 2016-2019
+      collection: EMBLAS_Physics_2016_2019
+      database: water-quality
+      levels:
+        - "cruise"
+        - "station"
+        - "sampling depth [m]"
+      label: station
+      variables:
+        - "salinity [psu]"
+        - "temperature [°c]"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+#  scatterplot:
+#    scatterplot:
+#      placement: right
