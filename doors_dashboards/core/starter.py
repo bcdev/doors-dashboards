@@ -19,28 +19,62 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+import os
+import sys
+import yaml
+from typing import Dict
 from typing import List
 
-_AVAILABLE_DASHBOARDS = \
-    {
-    }
+from doors_dashboards.dashboards.dashboard import create_dashboard
+
+_CONFIGS_PATH = "../../configs"
 _SUPPORTED_MODES=[None, 'jupyterlab', 'tab']
 
 
+def _read_config(id: str) -> Dict:
+    return _read_config_file(f"{id}.yml")
+
+
+def _read_config_file(config_filename: str) -> Dict:
+    config_path = os.path.join(_CONFIGS_PATH, config_filename)
+    with open(config_path, "r") as config_stream:
+        return yaml.safe_load(config_stream)
+
+
 def list_dashboards() -> List[str]:
-    return list(_AVAILABLE_DASHBOARDS.keys())
+    config_filenames = os.listdir(_CONFIGS_PATH)
+    available_dashboards = []
+    for config in config_filenames:
+        if not config.endswith(".yml"):
+            continue
+        config = _read_config_file(config)
+        available_dashboards.append(config.get("id"))
+    return available_dashboards
 
 
-def start_dashboard(dashboard_name: str, mode: str = 'jupyterlab'):
-    if dashboard_name not in list_dashboards():
+def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):
+    if dashboard_id not in list_dashboards():
         available_dashboards = ", ".join(list_dashboards())
         raise ValueError(
-            f"Dashboard '{dashboard_name}' not one of {available_dashboards}"
+            f"Dashboard '{dashboard_id}' not one of {available_dashboards}"
         )
     if mode not in _SUPPORTED_MODES:
         available_modes = ", ".join(_SUPPORTED_MODES)
         raise ValueError(
             f"Mode '{mode}' not one of {available_modes}"
         )
-    dashboard = _AVAILABLE_DASHBOARDS.get(dashboard_name)()
+    dashboard_config = _read_config(dashboard_id)
+    dashboard = create_dashboard(dashboard_config)
     dashboard.run(jupyter_mode=mode)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        raise ValueError("Must pass at least dashboard id")
+    if len(sys.argv) > 3:
+        raise ValueError("Must pass not more than two parameters")
+    dashboard_id = sys.argv[1]
+    mode = None
+    if len(sys.argv) == 3:
+        mode = sys.argv[2]
+    start_dashboard(dashboard_id, mode)
