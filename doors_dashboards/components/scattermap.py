@@ -100,7 +100,7 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '60vh'
+                'height': '70vh'
             },
         )
         return html.Div(

@@ -10,10 +10,11 @@ features:
       label: "station"
       levels:
         -  "station"
+        -   "cruise"
       variables:
         - "salinity [psu]"
         - "temperature [°c]"
-        - depth
+        - "sampling depth [m]"
 components:
   scattermap:
     scattermap:
