@@ -1,5 +1,6 @@
 id: ge1
 title: Georgia MAFs
+eez: GE_eez
 features:
   - id: EMBLAS_CHL_2016_2019
     type: geodb
@@ -48,15 +49,20 @@ features:
       levels:
         - "cruise"
         - "station"
-        - "sampling depth [m]"
       label: station
       variables:
         - "salinity [psu]"
         - "temperature [°c]"
+        - "sampling depth [m]"
 components:
   scattermap:
     scattermap:
       placement: left
-#  scatterplot:
-#    scatterplot:
-#      placement: right
+  selectcollection:
+    selectcollection:
+     placement: top
+  scatterplot:
+    scatterplot_selection:
+      placement: top
+    scatterplot:
+      placement: right

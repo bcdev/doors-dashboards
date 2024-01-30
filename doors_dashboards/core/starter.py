@@ -37,7 +37,7 @@ def _read_config(id: str) -> Dict:
 
 def _read_config_file(config_filename: str) -> Dict:
     config_path = os.path.join(_CONFIGS_PATH, config_filename)
-    with open(config_path, "r") as config_stream:
+    with open(config_path, "r", encoding="utf-8") as config_stream:
         return yaml.safe_load(config_stream)
 
 

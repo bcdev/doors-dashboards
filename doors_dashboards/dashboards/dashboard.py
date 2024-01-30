@@ -6,19 +6,23 @@ from typing import List
 
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
+from doors_dashboards.components.scatterplot import ScatterplotComponent
+from doors_dashboards.components.selectcollection import SelectCollectionComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 _COMPONENTS = {
     'scattermap': ScatterMapComponent,
     'meteogram': MeteogramComponent,
-    'timeplots': TimeSeriesComponent
+    'timeplots': TimeSeriesComponent,
+    'scatterplot': ScatterplotComponent,
+    'selectcollection': SelectCollectionComponent
 }
 FONT_COLOR = "#cedce2"
 BACKGROUND_COLOR = 'rgb(12, 80, 111)'
 
-COLUMN_STYLE = {"flex": "1", 'paddingTop': '20px', 'height': '90%'}
-ROW_STYLE = {'display': 'flex', "flex-direction": "row"}
+COLUMN_STYLE = {"flex": "1",'margin-top':'50px'}
+ROW_STYLE = {'display': 'flex', "flexDirection": "row"}
 
 
 def _get_style(placement: str, component_placements: Dict) -> Dict:
@@ -65,7 +69,7 @@ def create_dashboard(config: Dict) -> Dash:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
 
-    feature_handler = FeatureHandler(config.get("features"))
+    feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
     for component, component_dict in config.get("components", []).items():
         components[component] = _COMPONENTS[component]()
@@ -105,13 +109,17 @@ def create_dashboard(config: Dict) -> Dash:
             style={
                 'display': 'flex',
                 'height': '80vh',
-                "flex-direction": "row"
+                "flexDirection": "row",
+                "flex": "1"
             },
             children=middle
         )
+
+
     main = _order_main(main_children)
 
     app.layout = html.Div(
+        id=dashboard_id,
         style={
             'height': '80vh',
         },
@@ -137,7 +145,7 @@ def create_dashboard(config: Dict) -> Dash:
             html.Div(
                 style={
                     'display': 'flex',
-                    "flex-direction": "column"
+                    "flexDirection": "column"
                 },
                 children=main,
             ),
