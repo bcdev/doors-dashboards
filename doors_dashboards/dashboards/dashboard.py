@@ -67,7 +67,7 @@ def create_dashboard(config: Dict) -> Dash:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
 
-    feature_handler = FeatureHandler(config.get("features"))
+    feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
     for component, component_dict in config.get("components", []).items():
         components[component] = _COMPONENTS[component]()
@@ -117,6 +117,7 @@ def create_dashboard(config: Dict) -> Dash:
     main = _order_main(main_children)
 
     app.layout = html.Div(
+        id=dashboard_id,
         style={
             'height': '80vh',
         },

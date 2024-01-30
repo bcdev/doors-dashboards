@@ -31,10 +31,14 @@ def get_dataframe_from_geodb(
         name_of_time_column: str = 'timestamp',
         convert_from_parameters: Dict[str, Any] = None,
         label: str = None,
-        levels: List[str] = None
+        levels: List[str] = None,
+        mask: gpd.GeoDataFrame = None
 ) -> gpd.GeoDataFrame :
     geodb = _get_client()
     gdf = geodb.get_collection(collection, database=database)
+
+    if mask is not None:
+        gdf = gdf.clip(mask)
 
     if convert_from_parameters:
         keys = convert_from_parameters.get("keys")
