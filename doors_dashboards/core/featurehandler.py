@@ -90,7 +90,9 @@ class FeatureHandler:
                 variables=params.get("variables"),
                 convert_from_parameters=params.get(
                     "convert_from_parameters", None
-                )
+                ),
+                label=params.get("label"),
+                levels=params.get("levels")
             )
 
     def get_points_as_tuples(self, collection: str) -> \

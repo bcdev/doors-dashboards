@@ -29,7 +29,9 @@ def get_collection_names_from_geodb():
 def get_dataframe_from_geodb(
         collection: str, database: str, variables: List[str],
         name_of_time_column: str = 'timestamp',
-        convert_from_parameters: Dict[str, Any] = None
+        convert_from_parameters: Dict[str, Any] = None,
+        label: str = None,
+        levels: List[str] = None
 ) -> gpd.GeoDataFrame :
     geodb = _get_client()
     gdf = geodb.get_collection(collection, database=database)
@@ -52,6 +54,10 @@ def get_dataframe_from_geodb(
     points_gdf['lat'] = points_gdf.geometry.apply(lambda p: p.y)
 
     sub_gdf_list = ['lat', 'lon', name_of_time_column] + variables
+    if levels:
+        sub_gdf_list.extend(levels)
+    if label and label not in levels:
+        sub_gdf_list.append(label)
     sub_gdf = points_gdf[sub_gdf_list]
 
     sub_gdf = sub_gdf.drop_duplicates()
