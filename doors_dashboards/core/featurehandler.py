@@ -1,4 +1,5 @@
 import pandas as pd
+import geopandas as gpd
 from typing import Any
 from typing import Dict
 from typing import List
@@ -11,9 +12,15 @@ from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
 
 class FeatureHandler:
 
-    def __init__(self, configs: List):
+    def __init__(self, configs: List, eez: str=None):
         self._configs = {c["id"]: c for c in configs}
         self._dfs = {}
+        self._eez_frame = self._load_eez(eez)
+
+    def _load_eez(self, eez: str=None):
+        if eez:
+            extended_eez_path = f"../../data/eez/{eez}/{eez}.shp"
+            return gpd.read_file(extended_eez_path, driver='ESRI Shapefile')
 
     def get_collections(self) -> List[str]:
         return list(self._configs.keys())
@@ -76,12 +83,18 @@ class FeatureHandler:
         gdf = self.get_df(collection)
         return self._get_nested_level_values(gdf, levels)
 
-    @staticmethod
-    def _read_features(features: Dict) -> pd.DataFrame:
+    def _read_features(self, features: Dict) -> pd.DataFrame:
         if features.get("type") == "local":
             filepath = features.get("params").get("file")
             with open(filepath, "r") as points_file:
-                return pd.read_csv(points_file)
+                df = pd.read_csv(points_file)
+                if self._eez_frame is not None:
+                    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(
+                        df["lon"], df["lat"], crs="EPSG:4326"
+                    ))
+                    gdf = gdf.clip(self._eez_frame)
+                    df = gdf.drop("geometry", axis=1)
+                return df
         if features.get("type") == "geodb":
             params = features.get("params")
             return get_dataframe_from_geodb(
@@ -92,7 +105,8 @@ class FeatureHandler:
                     "convert_from_parameters", None
                 ),
                 label=params.get("label"),
-                levels=params.get("levels")
+                levels=params.get("levels"),
+                mask=self._eez_frame
             )
 
     def get_points_as_tuples(self, collection: str) -> \

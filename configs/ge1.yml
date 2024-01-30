@@ -1,5 +1,6 @@
 id: ge1
 title: Georgia MAFs
+eez: GE_eez
 features:
   - id: EMBLAS_CHL_2016_2019
     type: geodb

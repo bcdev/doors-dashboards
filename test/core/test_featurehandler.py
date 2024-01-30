@@ -101,16 +101,16 @@ class FeatureHandlerClass(TestCase):
 
     def test_get_points_as_tuples_1(self):
         lons, lats, labels = self.feature_handler.get_points_as_tuples("1")
-        self.assertEqual([20.5, 21.5, 22.5], lons)
+        self.assertEqual([20.5, 28.5, 22.5], lons)
         self.assertEqual([22.2, 42.2, 62.2], lats)
         self.assertEqual(["x", "y", "z"], labels)
 
     def test_get_points_as_tuples_2(self):
         lons, lats, labels = self.feature_handler.get_points_as_tuples("2")
-        self.assertEqual([20.1, 10.2, -10.3], lons)
-        self.assertEqual([65.4, 55.3, 45.2], lats)
+        self.assertEqual([28.1, 10.2, -10.3], lons)
+        self.assertEqual([42.4, 55.3, 45.2], lats)
         self.assertEqual([
-            "lon: 20.1<br>lat: 65.4<br>chlorophyll: 0.001<br>"
+            "lon: 28.1<br>lat: 42.4<br>chlorophyll: 0.001<br>"
             "temperature: 20.1<br>timestamp: 2007-10-12T23:01:02",
             "lon: 10.2<br>lat: 55.3<br>chlorophyll: 0.005<br>"
             "temperature: 10.1<br>timestamp: 2007-10-13T22:01:02",
@@ -146,5 +146,27 @@ class FeatureHandlerClass(TestCase):
             ["JBSS GE-UA - 1A", "JBSS GE-UA - 1A", "JBSS GE-UA - 2A",
              "JBSS GE-UA - 2A", "JOSS GE-UA - 13", "JOSS GE-UA - 13",
              "JOSS GE-UA - 21", "JOSS GE-UA - 21"],
+            labels
+        )
+
+
+class FeatureHandlerClassWithEez(TestCase):
+
+    def setUp(self) -> None:
+        self.feature_handler = FeatureHandler(_TEST_CONFIG, "BG_eez")
+
+    def test_feature_handler_with_eez_1(self):
+        lons, lats, labels = self.feature_handler.get_points_as_tuples("1")
+        self.assertEqual([28.5], lons)
+        self.assertEqual([42.2], lats)
+        self.assertEqual(["y"], labels)
+
+    def test_feature_handler_with_eez_2(self):
+        lons, lats, labels = self.feature_handler.get_points_as_tuples("2")
+        self.assertEqual([28.1], lons)
+        self.assertEqual([42.4], lats)
+        self.assertEqual([
+            "lon: 28.1<br>lat: 42.4<br>chlorophyll: 0.001<br>"
+            "temperature: 20.1<br>timestamp: 2007-10-12T23:01:02"],
             labels
         )
