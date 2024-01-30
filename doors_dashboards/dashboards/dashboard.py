@@ -6,13 +6,15 @@ from typing import List
 
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
+from doors_dashboards.components.scatterplot import ScatterplotComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 _COMPONENTS = {
     'scattermap': ScatterMapComponent,
     'meteogram': MeteogramComponent,
-    'timeplots': TimeSeriesComponent
+    'timeplots': TimeSeriesComponent,
+    'scatterplot': ScatterplotComponent
 }
 FONT_COLOR = "#cedce2"
 BACKGROUND_COLOR = 'rgb(12, 80, 111)'

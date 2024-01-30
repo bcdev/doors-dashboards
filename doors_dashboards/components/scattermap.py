@@ -100,14 +100,14 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '80vh'
+                'height': '60vh'
             },
         )
         return html.Div(
             scattermap_graph,
             style={
                 'flex': '1',
-                'margin': '10px',
+                'margin': '50px',
                 'alignItems': 'center',
             }
         )

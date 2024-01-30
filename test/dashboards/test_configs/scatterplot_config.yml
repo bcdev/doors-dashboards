@@ -1,0 +1,25 @@
+id: scatterplot_dashboard
+title: Georgia Dashboard
+features:
+  - id: emblas_physics_2016_2019
+    type: geodb
+    params:
+      title: Water Quality
+      collection: EMBLAS_Physics_2016_2019
+      database: water-quality
+      label: "station"
+      levels:
+        -  "station"
+      variables:
+        - "salinity [psu]"
+        - "temperature [°c]"
+        - depth
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  scatterplot:
+    scatterplot_selection:
+      placement: top
+    scatterplot:
+      placement: right
