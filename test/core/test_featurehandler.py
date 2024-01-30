@@ -64,18 +64,18 @@ class FeatureHandlerClass(TestCase):
     def test_get_variables(self):
         self.assertEqual([], self.feature_handler.get_variables("1"))
         self.assertEqual(["chlorophyll", "temperature"],
-                          self.feature_handler.get_variables("2"))
+                         self.feature_handler.get_variables("2"))
         self.assertEqual(["chlorophyll", "temperature"],
-                          self.feature_handler.get_variables("3"))
+                         self.feature_handler.get_variables("3"))
         self.assertEqual(["chlorophyll", "temperature"],
-                          self.feature_handler.get_variables("4"))
+                         self.feature_handler.get_variables("4"))
 
     def test_get_levels(self):
         self.assertEqual([], self.feature_handler.get_levels("1"))
         self.assertEqual([], self.feature_handler.get_levels("2"))
         self.assertEqual(["station"], self.feature_handler.get_levels("3"))
         self.assertEqual(["cruise", "station", "sampling_depth"],
-                          self.feature_handler.get_levels("4"))
+                         self.feature_handler.get_levels("4"))
 
     def test_get_nested_level_values(self):
         self.assertIsNone(self.feature_handler.get_nested_level_values("1"))
@@ -97,7 +97,7 @@ class FeatureHandlerClass(TestCase):
             },
         }
         self.assertEqual(nested_levels_4,
-                          self.feature_handler.get_nested_level_values("4"))
+                         self.feature_handler.get_nested_level_values("4"))
 
     def test_get_points_as_tuples_1(self):
         lons, lats, labels = self.feature_handler.get_points_as_tuples("1")
@@ -128,9 +128,9 @@ class FeatureHandlerClass(TestCase):
             [42.486, 42.486, 42.48, 42.485, 42.45, 42.657, 42.42], lats
         )
         self.assertEqual(["Terminal East", "Terminal Bulk Cargoes",
-                           "Terminal 2A", "Terminal West", "Terminal Rosenets",
-                           "Terminal Nessebar", "Terminal Sozopol"],
-                          labels)
+                          "Terminal 2A", "Terminal West", "Terminal Rosenets",
+                          "Terminal Nessebar", "Terminal Sozopol"],
+                         labels)
 
     def test_get_points_as_tuples_4(self):
         lons, lats, labels = self.feature_handler.get_points_as_tuples("4")
@@ -148,6 +148,25 @@ class FeatureHandlerClass(TestCase):
              "JOSS GE-UA - 21", "JOSS GE-UA - 21"],
             labels
         )
+
+    def _test_methods(self, exp: str):
+        self.assertEqual(exp,
+                         self.feature_handler.get_selected_collection())
+        self.assertEqual(self.feature_handler.get_levels(exp),
+                         self.feature_handler.get_levels())
+        self.assertEqual(self.feature_handler.get_variables(exp),
+                         self.feature_handler.get_variables())
+        self.assertEqual(self.feature_handler.get_points_as_tuples(exp),
+                         self.feature_handler.get_points_as_tuples())
+        self.assertEqual(self.feature_handler.get_nested_level_values(exp),
+                         self.feature_handler.get_nested_level_values())
+
+    def test_select_and_get_selected(self):
+        self._test_methods("1")
+        self.feature_handler.select_collection("2")
+        self._test_methods("2")
+        self.feature_handler.select_collection("3")
+        self._test_methods("3")
 
 
 class FeatureHandlerClassWithEez(TestCase):

@@ -16,8 +16,19 @@ class FeatureHandler:
         self._configs = {c["id"]: c for c in configs}
         self._dfs = {}
         self._eez_frame = self._load_eez(eez)
+        self._selected_collection = self.get_collections()[0] \
+            if len(self.get_collections()) > 0 else None
 
-    def _load_eez(self, eez: str=None):
+    def select_collection(self, collection_name: str):
+        if collection_name not in self.get_collections():
+            raise ValueError(f"Unknown collection {collection_name}")
+        self._selected_collection = collection_name
+
+    def get_selected_collection(self) -> Optional[str]:
+        return self._selected_collection
+
+    @staticmethod
+    def _load_eez(eez: str = None):
         if eez:
             extended_eez_path = f"../../data/eez/{eez}/{eez}.shp"
             return gpd.read_file(extended_eez_path, driver='ESRI Shapefile')
@@ -25,7 +36,8 @@ class FeatureHandler:
     def get_collections(self) -> List[str]:
         return list(self._configs.keys())
 
-    def get_df(self, collection: str):
+    def get_df(self, collection: str = None):
+        collection = self._selected_collection if not collection else collection
         if collection not in self._dfs:
             if collection not in self._configs:
                 raise ValueError(
@@ -36,7 +48,8 @@ class FeatureHandler:
             )
         return self._dfs[collection]
 
-    def get_variables(self, collection: str):
+    def get_variables(self, collection: str = None):
+        collection = self._selected_collection if not collection else collection
         variables = self._configs.get(collection, {}).get("variables")
         if variables is None:
             variables = list(self.get_df(collection).columns)
@@ -53,7 +66,8 @@ class FeatureHandler:
     def _get_label_column_name(self, collection: str):
         return self._configs.get(collection, {}).get("params", {}).get("label")
 
-    def get_levels(self, collection: str) -> List[str]:
+    def get_levels(self, collection: str = None) -> List[str]:
+        collection = self._selected_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
             get("levels", [])
 
@@ -75,8 +89,9 @@ class FeatureHandler:
             )
         return level_dict
 
-    def get_nested_level_values(self, collection: str) \
+    def get_nested_level_values(self, collection: str = None) \
             -> Optional[Union[List[str], Dict[str, Any]]]:
+        collection = self._selected_collection if not collection else collection
         levels = self.get_levels(collection)
         if not levels:
             return None
@@ -109,8 +124,9 @@ class FeatureHandler:
                 mask=self._eez_frame
             )
 
-    def get_points_as_tuples(self, collection: str) -> \
+    def get_points_as_tuples(self, collection: str = None) -> \
             Tuple[List[float], List[float], List[str]]:
+        collection = self._selected_collection if not collection else collection
         df = self.get_df(collection)
         lons = list(df["lon"])
         lats = list(df["lat"])
