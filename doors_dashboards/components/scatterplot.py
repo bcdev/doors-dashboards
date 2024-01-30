@@ -29,19 +29,20 @@ class ScatterplotComponent(DashboardComponent):
     def get(self, sub_component: str, sub_component_id_str, sub_config: Dict) -> Component:
         collection = self.feature_handler.get_collections()[0]
         df = self.feature_handler.get_df(collection)
-        fig = px.scatter(
-            df,
-            x='temperature [°c]',
-            y='salinity [psu]',
-            color='sampling depth [m]',
-            color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
-            labels={'temperature [°c]': 'Temperature (°C)', 'salinity [psu]': 'Salinity (psu)'},
+        variables = self.feature_handler.get_variables(collection)
+        if len(variables) > 1:
+            fig = px.scatter(
+                df,
+                x=variables[0],
+                y=variables[1],
+                color='sampling depth [m]',
+                color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
+                #labels={'temperature [°c]': 'Temperature (°C)', 'salinity [psu]': 'Salinity (psu)'},
 
-        )
-        fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
-        fig.update_traces(marker_size=10)
-        fig.layout.plot_bgcolor = PLOT_BGCOLOR
-        # fig.update_traces(textposition="bottom right")
+            )
+            fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
+            fig.update_traces(marker_size=10)
+            fig.layout.plot_bgcolor = PLOT_BGCOLOR
         if sub_component == "scatterplot_selection":
             return self._get_selection(self, collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
@@ -80,20 +81,20 @@ class ScatterplotComponent(DashboardComponent):
 
     def get_line_scatter_plot(self, collection: List[str]):
         df = self.feature_handler.get_df(collection)
+        variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
-            x='temperature [°c]',
+            x=variable,
             y='sampling depth [m]',
             color='station',
             color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
-            labels={'temperature [°c]': 'Temperature (°C)', 'sampling depth [m]': 'Sampling depth [m]'},
+            #labels={'temperature [°c]': 'Temperature (°C)', 'sampling depth [m]': 'Sampling depth [m]'},
 
         )
         fig.update_yaxes(autorange='reversed')
         fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
         fig.update_traces(marker_size=10)
         fig.layout.plot_bgcolor = PLOT_BGCOLOR
-        # fig.update_traces(textposition="bottom right")
         return fig
 
     @staticmethod

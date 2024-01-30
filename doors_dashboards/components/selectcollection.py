@@ -7,12 +7,7 @@ from dash_material_ui import FormLabel
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-SCATTER_PLOT_ID = 'scatter-plot'
-SCATTER_PLOT_LINE_ID = 'scatter-plot'
-SELECT_CRUISE_DRP = 'cruise-drpdown'
-SELECT_STATION_DRP = 'station-drpdwn'
-PLOT_BGCOLOR = 'rgb(91,157,181)'
-
+SELECT_COLLECTION_DRP = 'collection-drp'
 
 class SelectCollectionComponent(DashboardComponent):
 
@@ -35,7 +30,7 @@ class SelectCollectionComponent(DashboardComponent):
                              'fontWeight': 'bold'}
                       ),
             dcc.Dropdown(
-                id=SELECT_CRUISE_DRP,
+                id=SELECT_COLLECTION_DRP,
                 options=collections,
                 value=default_value,
                 style={'width': '300px', 'fontSize': 'x-large'}
