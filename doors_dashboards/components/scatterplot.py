@@ -2,7 +2,6 @@ from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output
 import plotly.express as px
 from dash.development.base_component import Component
-import dash_bootstrap_components as dbc
 from dash_material_ui import FormLabel
 
 from doors_dashboards.components.constant import SELECT_CRUISE_DRP, SELECT_STATION_DRP
@@ -28,6 +27,7 @@ class ScatterplotComponent(DashboardComponent):
     def get(self, sub_component: str, sub_component_id_str, sub_config: Dict) -> Component:
         collection = self.feature_handler.get_selected_collection()
         df = self.feature_handler.get_df(collection)
+        # df = df[df["cruise"] == "JOSS GE-UA 2016"]
         variables = self.feature_handler.get_variables(collection)
         if len(variables) > 1:
             fig = px.scatter(
@@ -36,8 +36,6 @@ class ScatterplotComponent(DashboardComponent):
                 y=variables[1],
                 color='sampling depth [m]',
                 color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
-                # labels={'temperature [°c]': 'Temperature (°C)', 'salinity [psu]': 'Salinity (psu)'},
-
             )
             fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
             fig.update_traces(marker_size=10)
@@ -80,6 +78,7 @@ class ScatterplotComponent(DashboardComponent):
 
     def get_line_scatter_plot(self, collection: List[str]):
         df = self.feature_handler.get_df(collection)
+        # df = df[df["cruise"] == "NPMS GE 2016"]
         variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
@@ -100,7 +99,9 @@ class ScatterplotComponent(DashboardComponent):
     def _get_selection(self, collection: List[str]):
         nested_level_values = self.feature_handler.get_nested_level_values(collection)
         cruises = list(nested_level_values.keys())
+        cruises.sort()
         stations = list(nested_level_values.get(cruises[0]).keys())
+        stations.sort()
 
         return html.Div(
             [
