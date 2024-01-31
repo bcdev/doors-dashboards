@@ -60,8 +60,9 @@ def get_dataframe_from_geodb(
     sub_gdf_list = ['lat', 'lon', name_of_time_column] + variables
     if levels:
         sub_gdf_list.extend(levels)
-    if label and label not in levels:
+    if label:
         sub_gdf_list.append(label)
+    sub_gdf_list = list(set(sub_gdf_list))
     sub_gdf = points_gdf[sub_gdf_list]
 
     sub_gdf = sub_gdf.drop_duplicates()
