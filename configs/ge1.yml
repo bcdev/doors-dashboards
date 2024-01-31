@@ -49,6 +49,7 @@ features:
       levels:
         - "cruise"
         - "station"
+        - "sampling depth [m]"
       label: station
       variables:
         - "salinity [psu]"
