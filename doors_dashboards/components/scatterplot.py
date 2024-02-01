@@ -2,6 +2,7 @@ from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
 import plotly.express as px
 from dash.development.base_component import Component
+from dash.html import Figure
 from dash_material_ui import FormLabel
 
 from doors_dashboards.components.constant import SELECT_CRUISE_DRP, SELECT_STATION_DRP, SCATTER_PLOT_ID, \
@@ -9,7 +10,6 @@ from doors_dashboards.components.constant import SELECT_CRUISE_DRP, SELECT_STATI
 from doors_dashboards.components.selectcollection import SELECT_COLLECTION_DRP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
-
 
 PLOT_BGCOLOR = 'rgb(173,206,218)'
 
@@ -35,7 +35,25 @@ class ScatterplotComponent(DashboardComponent):
             stations.sort()
             return stations, stations[0]
 
-
+        @app.callback(
+            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
+            [Input(SELECT_COLLECTION_DRP, 'value'),
+             Input(SELECT_STATION_DRP, 'value')],
+            prevent_initial_call=True
+        )
+        def update_scatterplots(selected_collection, selected_station):
+            variables = self.feature_handler.get_variables(selected_collection)
+            if len(variables) > 1:
+                pointplot_fig = self.get_point_scatter_plot(selected_collection, selected_station)
+                lineplot_fig = self.get_line_scatter_plot(selected_collection, selected_station)
+                plot_style = {'height': '35vh'}
+                return pointplot_fig, lineplot_fig, plot_style
+            else:
+                plot_style = {'height': '35vh', 'display': 'none'}
+                pointplot_fig = Figure()
+                lineplot_fig = self.get_line_scatter_plot(selected_collection, selected_station)
+                return lineplot_fig, plot_style,pointplot_fig
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
@@ -48,21 +66,16 @@ class ScatterplotComponent(DashboardComponent):
             return self._get_selection(self, collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
         if len(self.feature_handler.get_variables(collection)) > 1:
+            display_style = {'height': '35vh'}
             return html.Div(
                 [
                     dcc.Graph(
                         id=SCATTER_PLOT_ID,
                         figure=pointplot_fig,
-                        style={
-                            'height': '40vh'
-                        },
                     ),
                     dcc.Graph(
                         id=SCATTER_PLOT_LINE_ID,
                         figure=lineplot_fig,
-                        style={
-                            'height': '40vh'
-                        },
                     )
                 ],
                 style={
@@ -72,16 +85,30 @@ class ScatterplotComponent(DashboardComponent):
                 }
             )
         else:
-            return dcc.Graph(
-                id=SCATTER_PLOT_LINE_ID,
-                figure=lineplot_fig,
+            display_style = {'height': '35vh', 'display': 'none'}
+            return html.Div(
+                [
+                    dcc.Graph(
+                        id=SCATTER_PLOT_ID,
+                        style=display_style,
+                        figure=pointplot_fig
+                    ),
+                    dcc.Graph(
+                        id=SCATTER_PLOT_LINE_ID,
+                        figure=lineplot_fig,
+                        style={'height': '35vh'},
+                    )
+                ],
                 style={
-                    'height': '40vh'
-                },
+                    'display': 'flex',
+                    "flexDirection": "column"
+                }
             )
 
-    def get_point_scatter_plot(self, collection: List[str]):
+    def get_point_scatter_plot(self, collection: List[str], selected_station: str = ""):
         df = self.feature_handler.get_df(collection)
+        if selected_station != "":
+            df = df[df['station'] == selected_station]
         variables = self.feature_handler.get_variables(collection)
         if len(variables) > 1:
             fig = px.scatter(
@@ -95,10 +122,13 @@ class ScatterplotComponent(DashboardComponent):
             fig.update_traces(marker_size=10)
             fig.layout.plot_bgcolor = PLOT_BGCOLOR
             return fig
+        else:
+            return Figure()
 
-    def get_line_scatter_plot(self, collection: List[str]):
+    def get_line_scatter_plot(self, collection: List[str], selected_station: str = ""):
         df = self.feature_handler.get_df(collection)
-        # df = df[df["cruise"] == "NPMS GE 2016"]
+        if selected_station != "":
+            df = df[df['station'] == selected_station]
         variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
