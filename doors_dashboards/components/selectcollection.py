@@ -1,5 +1,5 @@
 from typing import Dict, List
-from dash import dcc, html, Dash, Input, Output
+from dash import dcc, html, Dash, Input, Output, dash
 import plotly.express as px
 from dash.development.base_component import Component
 from dash_material_ui import FormLabel
@@ -19,9 +19,7 @@ class SelectCollectionComponent(DashboardComponent):
     def register_callbacks(self, app: Dash, component_ids: List[str]):
         @app.callback(
             [Output(SELECT_CRUISE_DRP, 'options'),
-             Output(SELECT_CRUISE_DRP, 'value'),
-             Output(SELECT_STATION_DRP, 'options'),
-             Output(SELECT_STATION_DRP, 'value')],
+             Output(SELECT_CRUISE_DRP, 'value')],
             [Input(SELECT_COLLECTION_DRP, 'value')],
 
         )
@@ -29,12 +27,7 @@ class SelectCollectionComponent(DashboardComponent):
             self.feature_handler.select_collection(selected_collection)
             nested_level_values = self.feature_handler.get_nested_level_values(selected_collection)
             cruises = list(nested_level_values.keys())
-            #nested_level_values_cruise = nested_level_values.get(cruises[0])
-            #if isinstance(nested_level_values_cruise, dict):
-                #stations = list(nested_level_values_cruise.keys())
-            #else:
-            stations = list(nested_level_values.get(cruises[0]).keys())
-            return cruises, cruises[0], stations, stations[0]
+            return cruises, cruises[0]
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
