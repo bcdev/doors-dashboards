@@ -2,19 +2,6 @@ id: ge1
 title: Georgia MAFs
 eez: GE_eez
 features:
-  - id: EMBLAS_CHL_2016_2019
-    type: geodb
-    params:
-      title: EMBLAS Chlorophyll 2016-2019
-      collection: EMBLAS_CHL_2016_2019
-      database: water-quality
-      levels:
-        - "cruise"
-        - "station"
-        - "sampling depth [m]"
-      label: station
-      variables:
-        - "chl-a [mg/m3]"
   - id: EMBLAS_Nutrients_2016_2019
     type: geodb
     params:
@@ -55,6 +42,19 @@ features:
         - "salinity [psu]"
         - "temperature [°c]"
         - "sampling depth [m]"
+  - id: EMBLAS_CHL_2016_2019
+    type: geodb
+    params:
+      title: EMBLAS Chlorophyll 2016-2019
+      collection: EMBLAS_CHL_2016_2019
+      database: water-quality
+      levels:
+        - "cruise"
+        - "station"
+        - "sampling depth [m]"
+      label: station
+      variables:
+        - "chl-a [mg/m3]"
 components:
   scattermap:
     scattermap:

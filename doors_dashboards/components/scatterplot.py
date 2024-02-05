@@ -12,6 +12,9 @@ from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 PLOT_BGCOLOR = 'rgb(173,206,218)'
+DISPLAY_STYLE = {'height': '35vh'}
+DEFAULT_STATION = ""
+DEFAULT_CRUISE = ""
 
 
 class ScatterplotComponent(DashboardComponent):
@@ -19,63 +22,29 @@ class ScatterplotComponent(DashboardComponent):
     def __init__(self):
         self.feature_handler = None
 
-    def register_callbacks(self, app: Dash, component_ids: List[str]):
-        @app.callback(
-            [Output(SELECT_STATION_DRP, 'options'),
-             Output(SELECT_STATION_DRP, 'value')],
-            [Input(SELECT_CRUISE_DRP, 'value')],
-            prevent_initial_call=True
-        )
-        def update_stations(selected_cruise):
-            collection = self.feature_handler.get_selected_collection()
-            nested_level_values = self.feature_handler.get_nested_level_values(collection)
-            cruises = list(nested_level_values.keys())
-            cruises.sort()
-            stations = list(nested_level_values.get(selected_cruise).keys())
-            stations.sort()
-            return stations, stations[0]
-
-        @app.callback(
-            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input(SELECT_COLLECTION_DRP, 'value'),
-             Input(SELECT_STATION_DRP, 'value')],
-            prevent_initial_call=True
-        )
-        def update_scatterplots(selected_collection, selected_station):
-            variables = self.feature_handler.get_variables(selected_collection)
-            if len(variables) > 1:
-                pointplot_fig = self.get_point_scatter_plot(selected_collection, selected_station)
-                lineplot_fig = self.get_line_scatter_plot(selected_collection, selected_station)
-                plot_style = {'height': '35vh'}
-                return pointplot_fig, lineplot_fig, plot_style
-            else:
-                plot_style = {'height': '35vh', 'display': 'none'}
-                pointplot_fig = Figure()
-                lineplot_fig = self.get_line_scatter_plot(selected_collection, selected_station)
-                return lineplot_fig, plot_style,pointplot_fig
-
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
     def get(self, sub_component: str, sub_component_id_str, sub_config: Dict) -> Component:
         collection = self.feature_handler.get_selected_collection()
-        df = self.feature_handler.get_df(collection)
-        pointplot_fig = self.get_point_scatter_plot(collection)
+        # For dropdown selection part
         if sub_component == "scatterplot_selection":
             return self._get_selection(self, collection)
+        # For rendering scatterplots
+        pointplot_fig = self.get_point_scatter_plot(collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
         if len(self.feature_handler.get_variables(collection)) > 1:
-            display_style = {'height': '35vh'}
             return html.Div(
                 [
                     dcc.Graph(
                         id=SCATTER_PLOT_ID,
                         figure=pointplot_fig,
+                        style=DISPLAY_STYLE,
                     ),
                     dcc.Graph(
                         id=SCATTER_PLOT_LINE_ID,
                         figure=lineplot_fig,
+                        style=DISPLAY_STYLE,
                     )
                 ],
                 style={
@@ -85,30 +54,28 @@ class ScatterplotComponent(DashboardComponent):
                 }
             )
         else:
-            display_style = {'height': '35vh', 'display': 'none'}
             return html.Div(
                 [
                     dcc.Graph(
                         id=SCATTER_PLOT_ID,
-                        style=display_style,
-                        figure=pointplot_fig
+                        figure=pointplot_fig,
+                        style={'display': 'None'},
                     ),
                     dcc.Graph(
                         id=SCATTER_PLOT_LINE_ID,
                         figure=lineplot_fig,
-                        style={'height': '35vh'},
+                        style=DISPLAY_STYLE,
                     )
                 ],
                 style={
                     'display': 'flex',
                     "flexDirection": "column"
+
                 }
             )
 
-    def get_point_scatter_plot(self, collection: List[str], selected_station: str = ""):
-        df = self.feature_handler.get_df(collection)
-        if selected_station != "":
-            df = df[df['station'] == selected_station]
+    def get_point_scatter_plot(self, collection: str, selected_station: str = "", selected_cruise: str = ""):
+        df = self.getdataframe(collection, selected_station, selected_cruise)
         variables = self.feature_handler.get_variables(collection)
         if len(variables) > 1:
             fig = px.scatter(
@@ -122,13 +89,9 @@ class ScatterplotComponent(DashboardComponent):
             fig.update_traces(marker_size=10)
             fig.layout.plot_bgcolor = PLOT_BGCOLOR
             return fig
-        else:
-            return Figure()
 
-    def get_line_scatter_plot(self, collection: List[str], selected_station: str = ""):
-        df = self.feature_handler.get_df(collection)
-        if selected_station != "":
-            df = df[df['station'] == selected_station]
+    def get_line_scatter_plot(self, collection: str, selected_cruise: str = "", selected_station: str = "", ):
+        df = self.getdataframe(collection, selected_station, selected_cruise)
         variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
@@ -145,6 +108,26 @@ class ScatterplotComponent(DashboardComponent):
         fig.layout.plot_bgcolor = PLOT_BGCOLOR
         return fig
 
+    def getdataframe(self, collection: str, selected_cruise: str, selected_station: str):
+        df = self.feature_handler.get_df(collection)
+        nested_level_values = self.feature_handler.get_nested_level_values(collection)
+        cruises = list(nested_level_values.keys())
+        cruises.sort()
+        stations = list(nested_level_values.get(cruises[0]).keys())
+        DEFAULT_CRUISE = cruises[0]
+        DEFAULT_STATION = stations[0]
+        if selected_cruise != "":
+            df = df[df['cruise'] == selected_cruise]
+        else:
+            selected_cruise = DEFAULT_CRUISE
+            df = df[df['cruise'] == selected_cruise]
+        if selected_station != "":
+            df = df[df['station'] == selected_station]
+        else:
+            selected_station = DEFAULT_STATION
+            df = df[df['station'] == selected_station]
+        return df
+
     @staticmethod
     def _get_selection(self, collection: List[str]):
         nested_level_values = self.feature_handler.get_nested_level_values(collection)
@@ -152,7 +135,6 @@ class ScatterplotComponent(DashboardComponent):
         cruises.sort()
         stations = list(nested_level_values.get(cruises[0]).keys())
         stations.sort()
-
         return html.Div(
             [
                 FormLabel("Select Cruise: ",
@@ -184,3 +166,36 @@ class ScatterplotComponent(DashboardComponent):
                    'padding': '30px 0px 0px 50px'
                    }
         )
+
+    def register_callbacks(self, app: Dash, component_ids: List[str]):
+        @app.callback(
+            [Output(SELECT_STATION_DRP, 'options'),
+             Output(SELECT_STATION_DRP, 'value')],
+            [Input(SELECT_CRUISE_DRP, 'value')],
+            prevent_initial_call=True
+        )
+        def update_stations(selected_cruise):
+            collection = self.feature_handler.get_selected_collection()
+            nested_level_values = self.feature_handler.get_nested_level_values(collection)
+            cruises = list(nested_level_values.keys())
+            cruises.sort()
+            stations = list(nested_level_values.get(selected_cruise).keys())
+            stations.sort()
+            return stations, stations[0]
+
+        @app.callback(
+            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
+            [Input(SELECT_COLLECTION_DRP, 'value'),
+             Input(SELECT_CRUISE_DRP, 'value'), Input(SELECT_STATION_DRP, 'value')],
+            prevent_initial_call=True
+        )
+        def update_scatterplots(selected_collection, selected_cruise, selected_station):
+            variables = self.feature_handler.get_variables(selected_collection)
+            if len(variables) > 1:
+                pointplot_fig = self.get_point_scatter_plot(selected_collection, selected_cruise, selected_station)
+                lineplot_fig = self.get_line_scatter_plot(selected_collection)
+            else:
+                pointplot_fig = None
+                lineplot_fig = self.get_line_scatter_plot(selected_collection)
+            return pointplot_fig, lineplot_fig
