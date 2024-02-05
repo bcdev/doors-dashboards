@@ -1,0 +1,23 @@
+id: ro1
+title: Romania Test
+#eez: GE_eez
+features:
+  - id: Bathymetry
+    type: geodb
+    params:
+      title: Bathymetry Romania
+      collection: Bathymetry
+      database: doors-geoecomar
+      variables:
+        - "raw depth (hi)"
+#        - "corrected depth"
+      time_column: time
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  timeplots:
+    timeplots:
+      placement: right
+    timeslider:
+      placement: right

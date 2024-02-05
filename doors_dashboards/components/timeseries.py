@@ -58,6 +58,7 @@ class TimeSeriesComponent(DashboardComponent):
         collection = self.feature_handler.get_collections()[0]
         df = self.feature_handler.get_df(collection)
         variables = self.feature_handler.get_variables(collection)
+        time_column = self.feature_handler.get_time_column_name(collection)
         fig = make_subplots(
             cols=1, rows=len(variables), shared_xaxes='all',
             subplot_titles=variables
@@ -65,7 +66,7 @@ class TimeSeriesComponent(DashboardComponent):
         for i, selected_variable in enumerate(variables):
             fig.add_trace(
                 go.Scatter(
-                    x=df.timestamp, y=df[selected_variable],
+                    x=df[time_column], y=df[selected_variable],
                     name=selected_variable,
                     textfont={
                         'family': 'Roboto, Helvetica, Arial, sans-serif',
@@ -126,17 +127,19 @@ class TimeSeriesComponent(DashboardComponent):
     def _get_time_slider(self, time_slider_id: str) -> Component:
         collection = self.feature_handler.get_collections()[0]
         df = self.feature_handler.get_df(collection)
-        min_time = pd.Timestamp(min(df.timestamp))
-        max_time = pd.Timestamp(max(df.timestamp))
+        time_column_name = self.feature_handler.get_time_column_name(collection)
+        dt_time = pd.to_datetime(df[time_column_name])
+        min_time = pd.Timestamp(min(dt_time))
+        max_time = pd.Timestamp(max(dt_time))
         delta = (max_time - min_time) / 5
         marks = {}
         for j in range(6):
             v = min_time + j * delta
-            marks[f'{v.toordinal()}'] = v.strftime("%Y-%m-%d")
+            marks[f'{v.to_datetime64()}'] = v.strftime("%Y-%m-%d")
 
         slider = dcc.RangeSlider(
-            min_time.toordinal(),
-            max_time.toordinal(),
+            min_time.to_datetime64(),
+            max_time.to_datetime64(),
             marks=marks,
             id=time_slider_id
         )
@@ -153,7 +156,7 @@ class TimeSeriesComponent(DashboardComponent):
         def update_timeplots(value):
             if value is None:
                 raise PreventUpdate
-            timestamp_range = [pd.Timestamp.fromordinal(int(v)) for v in value]
+            timestamp_range = [pd.Timestamp(v) for v in value]
             line_plots = self._get_timeplots(TIMEPLOTS_ID)
             line_plots.figure.update_xaxes(
                 range=timestamp_range
@@ -169,8 +172,8 @@ class TimeSeriesComponent(DashboardComponent):
                     'xaxis.range[0]' not in relayout_data or \
                     'xaxis.range[1]' not in relayout_data:
                 raise PreventUpdate
-            start = pd.Timestamp(relayout_data['xaxis.range[0]']).toordinal()
-            end = pd.Timestamp(relayout_data['xaxis.range[1]']).toordinal()
+            start = pd.Timestamp(relayout_data['xaxis.range[0]']).to_datetime64()
+            end = pd.Timestamp(relayout_data['xaxis.range[1]']).to_datetime64()
             return [start, end]
 
         return app
