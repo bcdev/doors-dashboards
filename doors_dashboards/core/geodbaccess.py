@@ -1,4 +1,5 @@
 import geopandas as gpd
+import pandas as pd
 from typing import Any
 from typing import Dict
 from typing import List
@@ -6,8 +7,8 @@ from typing import List
 from xcube_geodb.core.geodb import GeoDBClient
 
 
-
 _GEODB_CLIENT = None
+_PART_SIZE = 100000
 
 
 def _get_client() -> GeoDBClient:
@@ -22,7 +23,7 @@ def _get_client() -> GeoDBClient:
 def get_collection_names_from_geodb():
     geodb = _get_client()
     df = geodb.get_my_collections()
-    doors_collections = df[df["database"].str.contains("doors") == True]
+    doors_collections = df[df["database"].str.contains("doors")]
     return list(doors_collections.collection)
 
 
@@ -33,9 +34,20 @@ def get_dataframe_from_geodb(
         label: str = None,
         levels: List[str] = None,
         mask: gpd.GeoDataFrame = None
-) -> gpd.GeoDataFrame :
+) -> gpd.GeoDataFrame:
     geodb = _get_client()
-    gdf = geodb.get_collection(collection, database=database)
+    num_rows = geodb.count_collection_rows(collection, database=database)
+    gdf = None
+    for limit in range(_PART_SIZE, num_rows, _PART_SIZE):
+        print(limit)
+        gdf_part = geodb.get_collection(collection, database=database,
+                                        limit=_PART_SIZE, offset=limit)
+        if gdf is None:
+            gdf = gdf_part
+        else:
+            gdf = pd.concat([gdf, gdf_part])
+
+    gdf = gdf.sort_values('id')
 
     if mask is not None:
         gdf = gdf.clip(mask)
