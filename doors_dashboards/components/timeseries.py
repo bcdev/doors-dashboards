@@ -34,7 +34,7 @@ class TimeSeriesComponent(DashboardComponent):
                     time_plots
                 ], style={
                     "margin": "10px",
-                    "height": "80%"
+                    "height": "90%"
                 }
             )
         if sub_component == TIMESLIDER_ID:
@@ -66,7 +66,8 @@ class TimeSeriesComponent(DashboardComponent):
         for i, selected_variable in enumerate(variables):
             fig.add_trace(
                 go.Scatter(
-                    x=df[time_column], y=df[selected_variable],
+                    x=pd.to_datetime(df[time_column]),
+                    y=df[selected_variable],
                     name=selected_variable,
                     textfont={
                         'family': 'Roboto, Helvetica, Arial, sans-serif',
@@ -90,56 +91,67 @@ class TimeSeriesComponent(DashboardComponent):
 
         fig.update_xaxes(
             showticklabels=True,
-            showgrid=False
+            showgrid=False,
+            nticks=10,
+            type="date"
         )
         fig.update_yaxes(
             showticklabels=True,
             showgrid=False
         )
+        min_time, max_time = self.feature_handler.get_time_range()
+        delta = max_time - min_time
+        range_list = [
+            dict(count=1, label="1h", step="hour", stepmode="backward"),
+            dict(count=1, label="1d", step="day", stepmode="backward")
+        ]
+        if delta > pd.Timedelta(days=1):
+            range_list.append(
+                dict(count=7, label="1w", step="day", stepmode="backward")
+            )
+        if delta > pd.Timedelta(days=7):
+            range_list.append(
+                dict(count=1, label="1m", step="month", stepmode="backward")
+            )
+        if delta > pd.Timedelta(days=28):
+            range_list.append(
+                dict(count=6, label="6m", step="month", stepmode="backward")
+            )
+        if delta > pd.Timedelta(days=28):
+            range_list.append(
+                dict(count=6, label="6m", step="month", stepmode="backward")
+            )
+            range_list.append(
+                dict(count=1, label="YTD", step="year", stepmode="todate")
+            )
+            range_list.append(
+                dict(count=1, label="1y", step="year", stepmode="backward")
+            )
+
         fig.update_xaxes(
-            row = 1,
+            row=1,
             rangeselector=dict(
-                buttons=list([
-                    dict(count=1, label="1h", step="hour", stepmode="backward"),
-                    dict(count=1, label="1d", step="day", stepmode="backward"),
-                    dict(count=7, label="1w", step="day", stepmode="backward"),
-                    dict(
-                        count=1, label="1m", step="month", stepmode="backward"
-                    ),
-                    dict(
-                        count=6, label="6m", step="month", stepmode="backward"
-                    ),
-                    dict(count=1, label="YTD", step="year", stepmode="todate"),
-                    dict(count=1, label="1y", step="year", stepmode="backward")
-                ])
+                buttons=list(range_list)
             )
         )
 
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
-            style={
-                'width': '100%',
-                'height': '80vh'
-            },
         )
 
     def _get_time_slider(self, time_slider_id: str) -> Component:
-        collection = self.feature_handler.get_collections()[0]
-        df = self.feature_handler.get_df(collection)
-        time_column_name = self.feature_handler.get_time_column_name(collection)
-        dt_time = pd.to_datetime(df[time_column_name])
-        min_time = pd.Timestamp(min(dt_time))
-        max_time = pd.Timestamp(max(dt_time))
+        min_time, max_time = self.feature_handler.get_time_range()
         delta = (max_time - min_time) / 5
         marks = {}
         for j in range(6):
             v = min_time + j * delta
-            marks[f'{v.to_datetime64()}'] = v.strftime("%Y-%m-%d")
+            marks[(v - min_time).total_seconds()] = \
+                v.strftime("%Y-%m-%d %H:%M:%S")
 
         slider = dcc.RangeSlider(
-            min_time.to_datetime64(),
-            max_time.to_datetime64(),
+            0,
+            (max_time - min_time).total_seconds(),
             marks=marks,
             id=time_slider_id
         )
@@ -156,10 +168,12 @@ class TimeSeriesComponent(DashboardComponent):
         def update_timeplots(value):
             if value is None:
                 raise PreventUpdate
-            timestamp_range = [pd.Timestamp(v) for v in value]
+            min_time, _ = self.feature_handler.get_time_range()
+            timestamp_range = [min_time + pd.Timedelta(seconds=v)
+                               for v in value]
             line_plots = self._get_timeplots(TIMEPLOTS_ID)
             line_plots.figure.update_xaxes(
-                range=timestamp_range
+                range=timestamp_range,
             )
             return line_plots
 
@@ -172,8 +186,11 @@ class TimeSeriesComponent(DashboardComponent):
                     'xaxis.range[0]' not in relayout_data or \
                     'xaxis.range[1]' not in relayout_data:
                 raise PreventUpdate
-            start = pd.Timestamp(relayout_data['xaxis.range[0]']).to_datetime64()
-            end = pd.Timestamp(relayout_data['xaxis.range[1]']).to_datetime64()
+            min_time, _ = self.feature_handler.get_time_range()
+            start = (pd.Timestamp(relayout_data['xaxis.range[0]']) - min_time).\
+                total_seconds()
+            end = (pd.Timestamp(relayout_data['xaxis.range[1]']) - min_time).\
+                total_seconds()
             return [start, end]
 
         return app

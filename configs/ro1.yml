@@ -6,16 +6,15 @@ features:
     type: geodb
     params:
       title: Bathymetry Romania
-      collection: Bathymetry
+      collection: Bathymetry_good
       database: doors-geoecomar
       variables:
         - "raw depth (hi)"
-#        - "corrected depth"
-      time_column: time
+        - "corrected depth"
 components:
-  scattermap:
-    scattermap:
-      placement: left
+#  scattermap:
+#    scattermap:
+#      placement: left
   timeplots:
     timeplots:
       placement: right
