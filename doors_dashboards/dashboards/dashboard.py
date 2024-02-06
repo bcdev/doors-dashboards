@@ -19,7 +19,7 @@ _COMPONENTS = {
     'selectcollection': SelectCollectionComponent
 }
 FONT_COLOR = "#cedce2"
-BACKGROUND_COLOR = 'rgb(12, 80, 111)'
+BACKGROUND_COLOR = "#161B21"
 
 COLUMN_STYLE = {"flex": "1",'margin-top':'50px'}
 ROW_STYLE = {'display': 'flex', "flexDirection": "row"}

@@ -2,8 +2,7 @@ from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
 import plotly.express as px
 from dash.development.base_component import Component
-from dash.html import Figure
-from dash_material_ui import FormLabel
+import dash_bootstrap_components as dbc
 
 from doors_dashboards.components.constant import SELECT_CRUISE_DRP, SELECT_STATION_DRP, SCATTER_PLOT_ID, \
     SCATTER_PLOT_LINE_ID
@@ -11,8 +10,8 @@ from doors_dashboards.components.selectcollection import SELECT_COLLECTION_DRP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-PLOT_BGCOLOR = 'rgb(173,206,218)'
-DISPLAY_STYLE = {'height': '35vh'}
+PLOT_BGCOLOR = '#3B4758'
+DISPLAY_STYLE = {'height': '45vh', 'border-radius': '15px', 'backgroundColor': PLOT_BGCOLOR}
 DEFAULT_STATION = ""
 DEFAULT_CRUISE = ""
 
@@ -34,44 +33,51 @@ class ScatterplotComponent(DashboardComponent):
         pointplot_fig = self.get_point_scatter_plot(collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
         if len(self.feature_handler.get_variables(collection)) > 1:
-            return html.Div(
-                [
+            return dbc.Row([
+                dbc.Col(
                     dcc.Graph(
                         id=SCATTER_PLOT_ID,
                         figure=pointplot_fig,
                         style=DISPLAY_STYLE,
                     ),
+                    className='col-lg-12 rounded',
+                    style={'marginBottom': '15px'}
+                ),
+                html.Div(className="w-100"),
+                dbc.Col(
                     dcc.Graph(
                         id=SCATTER_PLOT_LINE_ID,
                         figure=lineplot_fig,
-                        style=DISPLAY_STYLE,
-                    )
-                ],
-                style={
-                    'display': 'flex',
-                    "flexDirection": "column"
-
-                }
+                        style=DISPLAY_STYLE
+                    ),
+                    width=4,
+                    className='col-lg-12 rounded',
+                    # style={'opacity': '0.5'}
+                ),
+            ]
             )
         else:
-            return html.Div(
+            return dbc.Row(
                 [
-                    dcc.Graph(
-                        id=SCATTER_PLOT_ID,
-                        figure=pointplot_fig,
-                        style={'display': 'None'},
+                    dbc.Col(
+                        dcc.Graph(
+                            id=SCATTER_PLOT_ID,
+                            figure=pointplot_fig,
+                            style={'display': 'None'},
+                        ),
+                        className='col-lg-12 rounded',
+                        # style={'opacity': '0.5'}
                     ),
-                    dcc.Graph(
-                        id=SCATTER_PLOT_LINE_ID,
-                        figure=lineplot_fig,
-                        style=DISPLAY_STYLE,
-                    )
+                    dbc.Col(
+                        dcc.Graph(
+                            id=SCATTER_PLOT_LINE_ID,
+                            figure=lineplot_fig,
+                            style=DISPLAY_STYLE
+                        ),
+                        className='col-lg-12 rounded',
+                        # style={'opacity': '0.5'}
+                    ),
                 ],
-                style={
-                    'display': 'flex',
-                    "flexDirection": "column"
-
-                }
             )
 
     def get_point_scatter_plot(self, collection: str, selected_station: str = "", selected_cruise: str = ""):
@@ -85,9 +91,11 @@ class ScatterplotComponent(DashboardComponent):
                 color='sampling depth [m]',
                 color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
             )
-            fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
+            fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="white"))
             fig.update_traces(marker_size=10)
-            fig.layout.plot_bgcolor = PLOT_BGCOLOR
+            fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
+            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
+            fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
             return fig
 
     def get_line_scatter_plot(self, collection: str, selected_cruise: str = "", selected_station: str = "", ):
@@ -97,15 +105,14 @@ class ScatterplotComponent(DashboardComponent):
             df,
             x=variable,
             y='sampling depth [m]',
-            color='station',
-            color_discrete_sequence=px.colors.qualitative.Set1,  # Use a qualitative color scale
-            # labels={'temperature [°c]': 'Temperature (°C)', 'sampling depth [m]': 'Sampling depth [m]'},
-
+            color='cruise',
         )
         fig.update_yaxes(autorange='reversed')
-        fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="rgb(0, 0, 0)"))
+        fig.update_layout(font=dict(family="Roboto, Helvetica, Arial, sans-serif", size=18, color="white"))
         fig.update_traces(marker_size=10)
-        fig.layout.plot_bgcolor = PLOT_BGCOLOR
+        fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
+        fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
         return fig
 
     def getdataframe(self, collection: str, selected_cruise: str, selected_station: str):
@@ -135,36 +142,36 @@ class ScatterplotComponent(DashboardComponent):
         cruises.sort()
         stations = list(nested_level_values.get(cruises[0]).keys())
         stations.sort()
-        return html.Div(
+        return dbc.Row(
             [
-                FormLabel("Select Cruise: ",
-                          style={'marginRight': '15px',
-                                 'fontSize': 'larger',
-                                 'fontWeight': 'bold'}
-                          ),
-                dcc.Dropdown(
-                    id=SELECT_CRUISE_DRP,
-                    options=cruises,
-                    value=cruises[0],  # Default selected value
-                    style={'width': '300px', 'height': '40px', 'fontSize': 'x-large'}
+                dbc.Col(
+                    [
+                        dbc.DropdownMenu(
+                            id=SELECT_CRUISE_DRP,
+                            label="Select Cruise",
+                            children=[dbc.DropdownMenuItem(cruise, id='cruise_drp_option', n_clicks=0) for cruise in cruises],
+                            style={'fontSize': 'x-large'},
+                            size="lg"
+                        )
+                    ],
+                    width=3,
+                    className='mb-2'
                 ),
-                FormLabel("Select Station: ",
-                          style={'marginLeft': '80px',
-                                 'fontSize': 'larger',
-                                 'fontWeight': 'bold'}
-                          ),
-                dcc.Dropdown(
-                    id=SELECT_STATION_DRP,
-                    options=stations,
-                    value=stations[0],  # Default selected value
-                    style={'marginLeft': '5px', 'width': '300px', 'height': '40px', 'fontSize': 'x-large'}
-                ),
-                # dcc.LogoutButton(id='btnVisualise', label="Visualise", style={'width': '300px', 'fontFamily': 'Roboto, Helvetica, Arial, sans-serif', 'marginLeft': '100px', 'font-size': 'larger', 'background-color': 'rgb(12, 80, 111)', 'border': 'none'})
+                dbc.Col(
+                    [
+                        dbc.Label("Select Station:", className='mr-2',
+                                  style={'fontSize': 'larger', 'fontWeight': 'bold', 'color': 'white'}),
+                        dcc.Dropdown(
+                            id=SELECT_STATION_DRP,
+                            options=stations,
+                            value=stations[0],  # Default selected value
+                            style={'fontSize': 'x-large'}  # 'width': '300px', 'height': '40px',
+                        ),
+                    ],
+                    width=3,
+                    className='mb-2'
+                )
             ],
-            style={'display': 'flex',
-                   'alignItems': 'center',
-                   'padding': '30px 0px 0px 50px'
-                   }
         )
 
     def register_callbacks(self, app: Dash, component_ids: List[str]):

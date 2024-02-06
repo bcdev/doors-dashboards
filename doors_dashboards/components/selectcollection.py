@@ -1,6 +1,6 @@
 from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
-import plotly.express as px
+import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 from dash_material_ui import FormLabel
 
@@ -35,21 +35,16 @@ class SelectCollectionComponent(DashboardComponent):
     def get(self, sub_component: str, sub_component_id_str, sub_config: Dict) -> Component:
         collections = self.feature_handler.get_collections()
         default_value = self.feature_handler.get_collections()[0]
-        return html.Div([
-            FormLabel("Select Data Collection: ",
-                      style={'marginRight': '20px',
-                             'fontSize': 'larger',
-                             'fontWeight': 'bold'}
-                      ),
-            dcc.Dropdown(
-                id=SELECT_COLLECTION_DRP,
-                options=collections,
-                value=default_value,
-                style={'width': '400px', 'fontSize': 'x-large'}
-            )
-        ],
-            style={'display': 'flex',
-                   'alignItems': 'center',
-                   'padding': '30px 0px 0px 50px'
-                   }
-        )
+        return dbc.Col([
+                    dbc.Label("Select Collection:", className='mr-2',
+                              style={'fontSize': 'larger', 'fontWeight': 'bold', 'color': 'white'}),  # 'marginRight': '20px',
+                    dcc.Dropdown(
+                        id=SELECT_COLLECTION_DRP,
+                        options=collections,
+                        value=default_value,
+                        style={'fontSize': 'x-large'}  # 'width': '400px'
+                    )
+                ],
+                    width=3,
+                    className='mb-2'
+                )

@@ -1,6 +1,6 @@
 from dash import Dash
 from dash import dcc
-from dash import html
+import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 import math
 import os
@@ -35,13 +35,11 @@ class ScatterMapComponent(DashboardComponent):
     def __init__(self):
         self.feature_handler = None
 
-    def get(self,
-            sub_component: str, sub_component_id: str, sub_config: Dict
-    ) -> Component:
+    def get(self, sub_component: str, sub_component_id: str, sub_config: Dict) -> Component:
         points = sub_config.get("points")
-        marker_size = sub_config.get("marker_size", 9)
+        marker_size = sub_config.get("marker_size", 10)
         marker_color = sub_config.get("marker_color", "blue")
-        mapbox_style = sub_config.get("mapbox_style", "open-street-map")
+        mapbox_style = sub_config.get("mapbox_style", "carto-darkmatter")
         selected_variable = sub_config.get("selected_variable", "")
 
         figure = go.Figure()
@@ -69,8 +67,9 @@ class ScatterMapComponent(DashboardComponent):
                 marker=go.scattermapbox.Marker(
                     size=marker_size, color=marker_color
                 ),
-                text=labels
-        ))
+                text=labels,
+                showlegend=False
+            ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
 
@@ -88,27 +87,28 @@ class ScatterMapComponent(DashboardComponent):
             autosize=True,
             mapbox_style=mapbox_style,
             hoverlabel=dict(
-                bgcolor="white",
-                font_color="black",
+                bgcolor="#7D8FA9",
+                font_color="white",
                 font_family='Roboto, Helvetica, Arial, sans-serif'
-            )
+            ),
         )
         figure.update_layout(mapbox=mapbox)
-
+        figure.update_layout()
         scattermap_graph = dcc.Graph(
             id=sub_component_id,
             figure=figure,
             style={
                 'width': '100%',
-                'height': '70vh'
+                'height': '70vh',
             },
         )
-        return html.Div(
+        return dbc.Col(
             scattermap_graph,
             style={
                 'flex': '1',
                 'margin': '50px',
                 'alignItems': 'center',
+
             }
         )
 

@@ -25,7 +25,7 @@ import yaml
 from typing import Dict
 from typing import List
 
-from doors_dashboards.dashboards.dashboard import create_dashboard
+from doors_dashboards.dashboards.dashboard_bootstrap import create_dashboard_bootstrap
 
 _CONFIGS_PATH = "../../configs"
 _SUPPORTED_MODES=[None, 'jupyterlab', 'tab']
@@ -64,7 +64,7 @@ def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):
             f"Mode '{mode}' not one of {available_modes}"
         )
     dashboard_config = _read_config(dashboard_id)
-    dashboard = create_dashboard(dashboard_config)
+    dashboard = create_dashboard_bootstrap(dashboard_config)
     dashboard.run(jupyter_mode=mode)
 
 
