@@ -9,6 +9,7 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+from doors_dashboards.components.constant import PLOT_BGCOLOR, FONT_FAMILY
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -39,7 +40,7 @@ class ScatterMapComponent(DashboardComponent):
         points = sub_config.get("points")
         marker_size = sub_config.get("marker_size", 10)
         marker_color = sub_config.get("marker_color", "blue")
-        mapbox_style = sub_config.get("mapbox_style", "carto-darkmatter")
+        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
         selected_variable = sub_config.get("selected_variable", "")
 
         figure = go.Figure()
@@ -89,7 +90,7 @@ class ScatterMapComponent(DashboardComponent):
             hoverlabel=dict(
                 bgcolor="#7D8FA9",
                 font_color="white",
-                font_family='Roboto, Helvetica, Arial, sans-serif'
+                font_family=FONT_FAMILY
             ),
         )
         figure.update_layout(mapbox=mapbox)
@@ -99,7 +100,7 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '70vh',
+                'height': '80vh',
             },
         )
         return dbc.Col(
@@ -108,7 +109,8 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '50px',
                 'alignItems': 'center',
-
+                'backgroundColor': PLOT_BGCOLOR, 'padding': '140px',
+                'border-radius': '15px'
             }
         )
 

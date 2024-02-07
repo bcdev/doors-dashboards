@@ -2,9 +2,9 @@ from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
-from dash_material_ui import FormLabel
 
-from doors_dashboards.components.constant import SELECT_CRUISE_DRP, SELECT_STATION_DRP
+from doors_dashboards.components.constant import SELECT_CRUISE_DRP, FONT_FAMILY, \
+    FONT_COLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -17,34 +17,71 @@ class SelectCollectionComponent(DashboardComponent):
         self.feature_handler = None
 
     def register_callbacks(self, app: Dash, component_ids: List[str]):
+        collections = self.feature_handler.get_collections()
+        dropdown_ids = [f'collection_drp_option_{i}' for i in range(len(collections))]
+
         @app.callback(
-            [Output(SELECT_CRUISE_DRP, 'options'),
-             Output(SELECT_CRUISE_DRP, 'value')],
-            [Input(SELECT_COLLECTION_DRP, 'value')],
+            [Output(SELECT_CRUISE_DRP, 'children'),
+             Output(SELECT_CRUISE_DRP, 'label')],
+            [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in dropdown_ids],
 
         )
-        def update_selected_value(selected_collection):
-            self.feature_handler.select_collection(selected_collection)
-            nested_level_values = self.feature_handler.get_nested_level_values(selected_collection)
-            cruises = list(nested_level_values.keys())
-            return cruises, cruises[0]
+        def update_selected_value(*timestamps):
+            if any(timestamps):  # Check if any timestamp is not None
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                selected_collection = collections[latest_timestamp_index]
+                self.feature_handler.select_collection(selected_collection)
+                nested_level_values = self.feature_handler.get_nested_level_values(
+                    selected_collection)
+                cruises = list(nested_level_values.keys())
+                cruise_dropdown_items = [
+                    dbc.DropdownMenuItem(cruise,
+                                         id=f'cruise_drp_option_{i}',
+                                         n_clicks=1) for i, cruise in enumerate(cruises)
+                ]
+                return cruise_dropdown_items, cruises[0] if cruises else None
+            else:
+                return dash.no_update
+
+        @app.callback(
+            Output(SELECT_COLLECTION_DRP, 'label'),
+            # Update the label of the dropdown menu
+            [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in dropdown_ids]
+        )
+        def update_label(*timestamps):
+            if any(timestamps):
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                selected_collection = collections[latest_timestamp_index]
+                return selected_collection
+            else:
+                return dash.no_update
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
-    def get(self, sub_component: str, sub_component_id_str, sub_config: Dict) -> Component:
+    def get(self, sub_component: str, sub_component_id_str,
+            sub_config: Dict) -> Component:
         collections = self.feature_handler.get_collections()
         default_value = self.feature_handler.get_collections()[0]
         return dbc.Col([
-                    dbc.Label("Select Collection:", className='mr-2',
-                              style={'fontSize': 'larger', 'fontWeight': 'bold', 'color': 'white'}),  # 'marginRight': '20px',
-                    dcc.Dropdown(
-                        id=SELECT_COLLECTION_DRP,
-                        options=collections,
-                        value=default_value,
-                        style={'fontSize': 'x-large'}  # 'width': '400px'
-                    )
+            dbc.DropdownMenu(
+                id=SELECT_COLLECTION_DRP,
+                label=default_value,
+                children=[
+                    dbc.DropdownMenuItem(collection,
+                                         id=f'collection_drp_option_{i}',
+                                         n_clicks=1) for i, collection in
+                    enumerate(collections)
                 ],
-                    width=3,
-                    className='mb-2'
-                )
+                style={'fontSize': 'x-large', 'fontFamily': FONT_FAMILY,
+                       'color': FONT_COLOR, 'width': '500px'},
+                className="m-4",
+                color="secondary"
+            )
+        ],
+            width=4,
+            className='mb-4',
+            style={'margin': '25px 0 0 54px'}
+        )

@@ -4,6 +4,8 @@ from typing import Dict
 from typing import List
 import dash_bootstrap_components as dbc
 
+from doors_dashboards.components.constant import HEADER_BGCOLOR, CONTAINER_BGCOLOR, \
+    FONT_COLOR
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.meteogram import MeteogramComponent
 from doors_dashboards.components.scatterplot import ScatterplotComponent
@@ -18,12 +20,11 @@ _COMPONENTS = {
     'scatterplot': ScatterplotComponent,
     'selectcollection': SelectCollectionComponent
 }
-FONT_COLOR = "#FFFFFF"
-BACKGROUND_COLOR = "#161B21"
 
 
 def create_dashboard_bootstrap(config: Dict) -> Dash:
-    app = Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.BOOTSTRAP])
+    app = Dash(__name__, suppress_callback_exceptions=True,
+               external_stylesheets=[dbc.themes.BOOTSTRAP])
 
     components = {}
     component_placements = dict(
@@ -80,57 +81,49 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
     if "bottom" in main_children:
         main.append(main_children["bottom"])
 
-    sidebar = dbc.Col(
-        dbc.Nav(
-            [
-                dbc.NavLink("Page 1", href="/page-1", id="page-1-link"),
-                dbc.NavLink("Page 2", href="/page-2", id="page-2-link"),
-                # Add more links as needed
-            ],
-            vertical="md",
-        ),
-        style={'background-color': BACKGROUND_COLOR},  # Change this to your preferred color
-        width=2,  # Adjust width as needed
-    )
-
     app.layout = dbc.Container(
         fluid=True,
         children=[
             dbc.Row(
                 [
-                    # sidebar,
-                    # Rest of the layout
                     dbc.Col(
                         [
                             # Header
                             dbc.Row(
                                 [
-                                    dbc.Col(html.Img(src="assets/logo.png", style={'width': '200px'}), width=3),
-                                    dbc.Col(html.H1("Georgia MAFS", className="text-center text-primary, mb-3"),
-                                            width=6, style={'color': 'white'}),
+                                    dbc.Col(html.Img(src="assets/logo.png",
+                                                     style={'width': '200px'}),
+                                            width=3),
+                                    dbc.Col(html.H1("Georgia MAFS",
+                                                    className="text-center "
+                                                              "text-primary, mb-4"),
+                                            width=6, style={'color': FONT_COLOR}),
                                 ],
-                                style={'backgroundColor': '#3B4758'}
-                                # Add your color code here
+                                style={'backgroundColor': HEADER_BGCOLOR,
+                                       'padding': '20px'}
                             ),
                             # Plots
                             *main,
                             # Footer
                             dbc.Row(
                                 [
-                                    dbc.Col(html.P("© 2024 Brockmann Consult GmbH. All rights reserved.",
-                                                   className="text-center text-primary", style={'color': 'white'}),
-                                            width=12),
+                                    dbc.Col(html.P(
+                                        "© 2024 Brockmann Consult GmbH. All rights reserved.",
+                                        className="text-center "
+                                                  "text-primary",
+                                        style={'color': FONT_COLOR}),
+                                        width=12),
                                 ],
-                                style={'backgroundColor': BACKGROUND_COLOR, 'padding': '10px'}
-                                # Add your color code here
+                                style={'backgroundColor': CONTAINER_BGCOLOR,
+                                       'padding': '10px'}
                             ),
                         ],
-                        width=12,  # Adjust width as needed
+                        width=12,
                     ),
                 ],
             ),
         ],
-        style={'backgroundColor': BACKGROUND_COLOR, }
+        style={'backgroundColor': CONTAINER_BGCOLOR, }
     )
 
     for component in components.values():

@@ -63,7 +63,5 @@ components:
     selectcollection:
      placement: top
   scatterplot:
-    scatterplot_selection:
-      placement: top
     scatterplot:
       placement: right
