@@ -117,10 +117,6 @@ class TimeSeriesComponent(DashboardComponent):
             range_list.append(
                 dict(count=6, label="6m", step="month", stepmode="backward")
             )
-        if delta > pd.Timedelta(days=28):
-            range_list.append(
-                dict(count=6, label="6m", step="month", stepmode="backward")
-            )
             range_list.append(
                 dict(count=1, label="YTD", step="year", stepmode="todate")
             )
@@ -146,12 +142,12 @@ class TimeSeriesComponent(DashboardComponent):
         marks = {}
         for j in range(6):
             v = min_time + j * delta
-            marks[(v - min_time).total_seconds()] = \
+            marks[int((v - min_time).total_seconds())] = \
                 v.strftime("%Y-%m-%d %H:%M:%S")
 
         slider = dcc.RangeSlider(
             0,
-            (max_time - min_time).total_seconds(),
+            int((max_time - min_time).total_seconds()),
             marks=marks,
             id=time_slider_id
         )
@@ -187,10 +183,12 @@ class TimeSeriesComponent(DashboardComponent):
                     'xaxis.range[1]' not in relayout_data:
                 raise PreventUpdate
             min_time, _ = self.feature_handler.get_time_range()
-            start = (pd.Timestamp(relayout_data['xaxis.range[0]']) - min_time).\
-                total_seconds()
-            end = (pd.Timestamp(relayout_data['xaxis.range[1]']) - min_time).\
-                total_seconds()
+            start = int((pd.Timestamp(
+                relayout_data['xaxis.range[0]']) - min_time
+                         ).total_seconds())
+            end = int((pd.Timestamp(
+                relayout_data['xaxis.range[1]']) - min_time
+                       ).total_seconds())
             return [start, end]
 
         return app
