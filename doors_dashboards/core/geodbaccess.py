@@ -37,15 +37,12 @@ def get_dataframe_from_geodb(
 ) -> gpd.GeoDataFrame:
     geodb = _get_client()
     num_rows = geodb.count_collection_rows(collection, database=database)
-    gdf = None
-    for limit in range(_PART_SIZE, num_rows, _PART_SIZE):
-        print(limit)
-        gdf_part = geodb.get_collection(collection, database=database,
-                                        limit=_PART_SIZE, offset=limit)
-        if gdf is None:
-            gdf = gdf_part
-        else:
-            gdf = pd.concat([gdf, gdf_part])
+    if num_rows > 1000000:
+        gdf = geodb.get_collection_pg(
+            collection, where='id % 100 = 0', database=database
+        )
+    else:
+        gdf = geodb.get_collection(collection, database=database)
 
     gdf = gdf.sort_values('id')
 
