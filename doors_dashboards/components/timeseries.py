@@ -55,10 +55,9 @@ class TimeSeriesComponent(DashboardComponent):
                          f"'timeslider'.")
 
     def _get_timeplots(self, timeseries_id: str) -> Component:
-        collection = self.feature_handler.get_collections()[0]
-        df = self.feature_handler.get_df(collection)
-        variables = self.feature_handler.get_variables(collection)
-        time_column = self.feature_handler.get_time_column_name(collection)
+        df = self.feature_handler.get_df()
+        variables = self.feature_handler.get_variables()
+        time_column = self.feature_handler.get_time_column_name()
         fig = make_subplots(
             cols=1, rows=len(variables), shared_xaxes='all',
             subplot_titles=variables

@@ -64,7 +64,7 @@ class FeatureHandler:
                     variables.remove(r)
         return variables
 
-    def get_time_column_name(self, collection: str):
+    def get_time_column_name(self, collection: str = None):
         collection = self._selected_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
             get("time_column", "timestamp")
