@@ -93,6 +93,26 @@ class ScatterMapComponent(DashboardComponent):
                 font_family='Roboto, Helvetica, Arial, sans-serif'
             )
         )
+        # img = "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P4_p/5/8/38.png"
+        img = "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P1_Chl/5/8/39.png"
+        # lon0, lat0, lon1, lat1 = 33.75, 39.375, 39.375, 45.0
+        # lon0, lat0, lon1, lat1 = 33.75, 45.0, 39.375, 39.375
+        lon0, lat0, lon1, lat1 = 39.375, 45.0, 45.0, 39.375
+        coordinates = [[lon0, lat0], [lon1, lat0], [lon1, lat1], [lon0, lat1]]
+        figure.update_layout(
+            mapbox_layers=[
+                {
+                    "below": 'traces',
+                    "sourcetype": "image",
+                    # "sourceattribution": "Brockmann Consult GmbH",
+                    "source": img,
+                    "coordinates": coordinates
+                        # [
+                        # "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P4_p/{z}/{y}/{x}"
+                    # ]
+                }
+            ]
+        )
         figure.update_layout(mapbox=mapbox)
 
         scattermap_graph = dcc.Graph(
