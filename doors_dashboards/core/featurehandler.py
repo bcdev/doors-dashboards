@@ -51,9 +51,10 @@ class FeatureHandler:
     def get_variables(self, collection: str = None):
         collection = self._selected_collection if not collection else collection
         variables = self._configs.get(collection, {}).get("variables")
+        time_column_name = self.get_time_column_name(collection)
         if variables is None:
             variables = list(self.get_df(collection).columns)
-            to_be_removed = ["lat", "lon", "timestamp"]
+            to_be_removed = ["lat", "lon", time_column_name]
             label = self._get_label_column_name(collection)
             if label:
                 to_be_removed.append(label)
@@ -62,6 +63,18 @@ class FeatureHandler:
                 if r in variables:
                     variables.remove(r)
         return variables
+
+    def get_time_column_name(self, collection: str = None):
+        collection = self._selected_collection if not collection else collection
+        return self._configs.get(collection, {}).get("params", {}).\
+            get("time_column", "timestamp")
+
+    def get_time_range(self, collection: str = None) -> \
+            Tuple[pd.Timestamp, pd.Timestamp]:
+        df = self.get_df(collection)
+        time_column_name = self.get_time_column_name(collection)
+        dt_time = pd.to_datetime(df[time_column_name])
+        return pd.Timestamp(min(dt_time)), pd.Timestamp(max(dt_time))
 
     def _get_label_column_name(self, collection: str):
         return self._configs.get(collection, {}).get("params", {}).get("label")
@@ -116,6 +129,7 @@ class FeatureHandler:
                 params.get("collection"),
                 params.get("database"),
                 variables=params.get("variables"),
+                name_of_time_column=params.get("time_column", "timestamp"),
                 convert_from_parameters=params.get(
                     "convert_from_parameters", None
                 ),
