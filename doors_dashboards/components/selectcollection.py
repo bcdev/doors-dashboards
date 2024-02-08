@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
 from doors_dashboards.components.constant import SELECT_CRUISE_DRP, FONT_FAMILY, \
-    FONT_COLOR
+    FONT_COLOR, SELECT_STATION_DRP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -22,12 +22,14 @@ class SelectCollectionComponent(DashboardComponent):
 
         @app.callback(
             [Output(SELECT_CRUISE_DRP, 'children'),
-             Output(SELECT_CRUISE_DRP, 'label')],
+             Output(SELECT_CRUISE_DRP, 'label'),
+             Output(SELECT_STATION_DRP, 'children',allow_duplicate=True),
+             Output(SELECT_STATION_DRP, 'label', allow_duplicate=True)],
             [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in dropdown_ids],
-
+            prevent_initial_call=True
         )
-        def update_selected_value(*timestamps):
-            if any(timestamps):  # Check if any timestamp is not None
+        def update_selected_cruise_drp(*timestamps):
+            if any(timestamps):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
                 selected_collection = collections[latest_timestamp_index]
@@ -35,12 +37,22 @@ class SelectCollectionComponent(DashboardComponent):
                 nested_level_values = self.feature_handler.get_nested_level_values(
                     selected_collection)
                 cruises = list(nested_level_values.keys())
+
                 cruise_dropdown_items = [
                     dbc.DropdownMenuItem(cruise,
                                          id=f'cruise_drp_option_{i}',
                                          n_clicks=1) for i, cruise in enumerate(cruises)
                 ]
-                return cruise_dropdown_items, cruises[0] if cruises else None
+                stations = list(nested_level_values.get(cruises[0]).keys())
+                stations.sort()
+                station_dropdown_items = [
+                    dbc.DropdownMenuItem(station,
+                                         id=f'station_drp_option_{i}',
+                                         n_clicks=1) for i, station in enumerate(
+                        stations)
+                ]
+                return (cruise_dropdown_items, cruises[0] if cruises else None,
+                        station_dropdown_items, stations[0] if stations else None)
             else:
                 return dash.no_update
 

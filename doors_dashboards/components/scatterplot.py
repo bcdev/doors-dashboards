@@ -11,7 +11,6 @@ from doors_dashboards.components.selectcollection import SELECT_COLLECTION_DRP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-
 DISPLAY_STYLE = {'height': '45vh'}
 DEFAULT_STATION = ""
 DEFAULT_CRUISE = ""
@@ -104,27 +103,71 @@ class ScatterplotComponent(DashboardComponent):
             ]
             )
         else:
-            return dbc.Row(
-                [
-                    dbc.Col(
-                        dcc.Graph(
-                            id=SCATTER_PLOT_ID,
-                            figure=pointplot_fig,
-                            style={'display': 'None'},
-                        ),
-                        className='col-lg-12 rounded',
-                        # style={'opacity': '0.5'}
+            return dbc.Row([
+                dbc.Col(
+                    html.Div(
+                        [
+                            dbc.DropdownMenu(
+                                id=SELECT_CRUISE_DRP,
+                                label="Select Cruise",
+                                children=[
+                                    dbc.DropdownMenuItem(cruise,
+                                                         id=f'cruise_drp_option_{i}',
+                                                         n_clicks=1) for i, cruise
+                                    in
+                                    enumerate(cruises)],
+                                style={
+                                    'fontfamily': FONT_FAMILY,
+                                    'fontSize': '18'},
+                                size="lg",
+                                className="float-right",
+                                color="secondary"
+                            ),
+                            dcc.Graph(
+                                id=SCATTER_PLOT_LINE_ID,
+                                figure=lineplot_fig,
+                                style=DISPLAY_STYLE
+                            ),
+                        ],
+                        style={'backgroundColor': PLOT_BGCOLOR, 'padding': '10px',
+                               'border-radius': '15px'}
                     ),
-                    dbc.Col(
-                        dcc.Graph(
-                            id=SCATTER_PLOT_LINE_ID,
-                            figure=lineplot_fig,
-                            style=DISPLAY_STYLE
-                        ),
-                        className='col-lg-12 rounded',
-                        # style={'opacity': '0.5'}
+                    className='col-lg-12',
+                    style={'marginBottom': '15px'}
+                ),
+                html.Div(className="w-100"),
+                dbc.Col(
+                    html.Div(
+                        [
+                            dbc.DropdownMenu(
+                                id=SELECT_STATION_DRP,
+                                label="Select Station",
+                                children=[
+                                    dbc.DropdownMenuItem(station,
+                                                         id=f'station_drp_option_{i}',
+                                                         n_clicks=1) for i, station
+                                    in
+                                    enumerate(stations)],
+                                style={
+                                    'fontfamily': FONT_FAMILY,
+                                    'fontSize': '18'},
+                                size="lg",
+                                className="float-right",
+                                color="secondary"
+                            ),
+                            dcc.Graph(
+                                id=SCATTER_PLOT_ID,
+                                figure=pointplot_fig,
+                                style=DISPLAY_STYLE,
+                            ),
+                        ],
+                        style={'backgroundColor': PLOT_BGCOLOR, 'padding': '10px',
+                               'border-radius': '15px'}
                     ),
-                ],
+                    className='col-lg-12',
+                    style={'marginBottom': '15px', 'display': 'None'}
+                ),
+            ]
             )
 
     def get_point_scatter_plot(self, collection: str, selected_station: str = "",
@@ -191,37 +234,100 @@ class ScatterplotComponent(DashboardComponent):
         return df
 
     def register_callbacks(self, app: Dash, component_ids: List[str]):
+
+        collection = self.feature_handler.get_selected_collection()
+        nested_level_values = self.feature_handler.get_nested_level_values(collection)
+        cruises = list(nested_level_values.keys())
+        cruises.sort()
+        dropdown_cruise_ids = [f'cruise_drp_option_{i}' for i in range(len(cruises))]
+
         @app.callback(
-            [Output(SELECT_STATION_DRP, 'options'),
-             Output(SELECT_STATION_DRP, 'value')],
-            [Input(SELECT_CRUISE_DRP, 'value')],
+            [Output(SELECT_STATION_DRP, 'children', allow_duplicate=True),
+             Output(SELECT_STATION_DRP, 'label', allow_duplicate=True),
+             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
+            [Input(dropdown_cruise_id, 'n_clicks_timestamp') for dropdown_cruise_id in
+             dropdown_cruise_ids],
             prevent_initial_call=True
         )
-        def update_stations(selected_cruise):
+        def update_stations(*timestamps):
             collection = self.feature_handler.get_selected_collection()
             nested_level_values = self.feature_handler.get_nested_level_values(
                 collection)
             cruises = list(nested_level_values.keys())
-            cruises.sort()
-            stations = list(nested_level_values.get(selected_cruise).keys())
-            stations.sort()
-            return stations, stations[0]
+            if any(timestamps):  # Check if any timestamp is not None
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                selected_cruise = cruises[latest_timestamp_index]
+
+                stations = list(nested_level_values.get(selected_cruise).keys())
+                stations.sort()
+                station_dropdown_items = [
+                    dbc.DropdownMenuItem(station,
+                                         id=f'station_drp_option_{i}',
+                                         n_clicks=1) for i, station in enumerate(
+                        stations)
+                ]
+                variables = self.feature_handler.get_variables(collection)
+                if len(variables) > 1:
+                    pointplot_fig = self.get_point_scatter_plot(collection,
+                                                                selected_cruise,
+                                                                stations[0])
+                    lineplot_fig = self.get_line_scatter_plot(collection)
+                else:
+                    pointplot_fig = None
+                    lineplot_fig = self.get_line_scatter_plot(collection)
+                return (station_dropdown_items, stations[0] if stations else None,
+                        pointplot_fig, lineplot_fig)
+            else:
+                return dash.no_update
+
+        @app.callback(
+            Output(SELECT_CRUISE_DRP, 'label', allow_duplicate=True),
+            # Update the label of the dropdown menu
+            [Input(dropdown_cruise_id, 'n_clicks_timestamp') for dropdown_cruise_id in
+             dropdown_cruise_ids],
+            prevent_initial_call=True
+        )
+        def update_label(*timestamps):
+            if any(timestamps):
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                selected_cruise = cruises[latest_timestamp_index]
+                return selected_cruise
+            else:
+                return dash.no_update
+
+        collections = self.feature_handler.get_collections()
+        dropdown_ids = [f'collection_drp_option_{i}' for i in range(len(collections))]
 
         @app.callback(
             [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
              Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input(SELECT_COLLECTION_DRP, 'value'),
-             Input(SELECT_CRUISE_DRP, 'value'), Input(SELECT_STATION_DRP, 'value')],
+            [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in
+             dropdown_ids],
             prevent_initial_call=True
         )
-        def update_scatterplots(selected_collection, selected_cruise, selected_station):
-            variables = self.feature_handler.get_variables(selected_collection)
-            if len(variables) > 1:
-                pointplot_fig = self.get_point_scatter_plot(selected_collection,
-                                                            selected_cruise,
-                                                            selected_station)
-                lineplot_fig = self.get_line_scatter_plot(selected_collection)
-            else:
-                pointplot_fig = None
-                lineplot_fig = self.get_line_scatter_plot(selected_collection)
+        def update_scatterplots(*timestamps):
+            if any(timestamps):
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                selected_collection = collections[latest_timestamp_index]
+                self.feature_handler.select_collection(selected_collection)
+                variables = self.feature_handler.get_variables(selected_collection)
+                nested_level_values = self.feature_handler.get_nested_level_values(
+                    selected_collection)
+                cruises = list(nested_level_values.keys())
+                cruises.sort()
+                stations = list(nested_level_values.get(cruises[0]).keys())
+                stations.sort()
+                if len(variables) > 1:
+                    pointplot_fig = self.get_point_scatter_plot(selected_collection,
+                                                                cruises[0],
+                                                                stations[0])
+                    lineplot_fig = self.get_line_scatter_plot(selected_collection)
+                else:
+                    pointplot_fig = None
+                    lineplot_fig = self.get_line_scatter_plot(selected_collection)
+
             return pointplot_fig, lineplot_fig
