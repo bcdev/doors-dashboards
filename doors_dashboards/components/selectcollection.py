@@ -95,5 +95,5 @@ class SelectCollectionComponent(DashboardComponent):
         ],
             width=4,
             className='mb-4',
-            style={'margin': '25px 0 0 54px'}
+            style={'margin-left': '4px'}
         )

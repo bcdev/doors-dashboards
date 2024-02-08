@@ -42,7 +42,7 @@ class ScatterplotComponent(DashboardComponent):
                         [
                             dbc.DropdownMenu(
                                 id=SELECT_CRUISE_DRP,
-                                label="Select Cruise",
+                                label=cruises[0],
                                 children=[
                                     dbc.DropdownMenuItem(cruise,
                                                          id=f'cruise_drp_option_{i}',
@@ -51,7 +51,7 @@ class ScatterplotComponent(DashboardComponent):
                                     enumerate(cruises)],
                                 style={
                                     'fontfamily': FONT_FAMILY,
-                                    'fontSize': '18'},
+                                    'font-size': 'x-large'},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -74,7 +74,7 @@ class ScatterplotComponent(DashboardComponent):
                         [
                             dbc.DropdownMenu(
                                 id=SELECT_STATION_DRP,
-                                label="Select Station",
+                                label=stations[0],
                                 children=[
                                     dbc.DropdownMenuItem(station,
                                                          id=f'station_drp_option_{i}',
@@ -83,7 +83,7 @@ class ScatterplotComponent(DashboardComponent):
                                     enumerate(stations)],
                                 style={
                                     'fontfamily': FONT_FAMILY,
-                                    'fontSize': '18'},
+                                    'font-size': 'x-large'},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -109,7 +109,7 @@ class ScatterplotComponent(DashboardComponent):
                         [
                             dbc.DropdownMenu(
                                 id=SELECT_CRUISE_DRP,
-                                label="Select Cruise",
+                                label=cruises[0],
                                 children=[
                                     dbc.DropdownMenuItem(cruise,
                                                          id=f'cruise_drp_option_{i}',
@@ -118,7 +118,7 @@ class ScatterplotComponent(DashboardComponent):
                                     enumerate(cruises)],
                                 style={
                                     'fontfamily': FONT_FAMILY,
-                                    'fontSize': '18'},
+                                    'font-size': 'x-large'},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -141,7 +141,7 @@ class ScatterplotComponent(DashboardComponent):
                         [
                             dbc.DropdownMenu(
                                 id=SELECT_STATION_DRP,
-                                label="Select Station",
+                                label=stations[0],
                                 children=[
                                     dbc.DropdownMenuItem(station,
                                                          id=f'station_drp_option_{i}',
@@ -150,7 +150,7 @@ class ScatterplotComponent(DashboardComponent):
                                     enumerate(stations)],
                                 style={
                                     'fontfamily': FONT_FAMILY,
-                                    'fontSize': '18'},
+                                    'font-size': 'x-large'},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -250,7 +250,7 @@ class ScatterplotComponent(DashboardComponent):
              dropdown_cruise_ids],
             prevent_initial_call=True
         )
-        def update_stations(*timestamps):
+        def updateDrpAndPlots(*timestamps):
             collection = self.feature_handler.get_selected_collection()
             nested_level_values = self.feature_handler.get_nested_level_values(
                 collection)
@@ -273,7 +273,9 @@ class ScatterplotComponent(DashboardComponent):
                     pointplot_fig = self.get_point_scatter_plot(collection,
                                                                 selected_cruise,
                                                                 stations[0])
-                    lineplot_fig = self.get_line_scatter_plot(collection)
+                    lineplot_fig = self.get_line_scatter_plot(collection,
+                                                              selected_cruise,
+                                                              stations[0])
                 else:
                     pointplot_fig = None
                     lineplot_fig = self.get_line_scatter_plot(collection)
@@ -325,7 +327,8 @@ class ScatterplotComponent(DashboardComponent):
                     pointplot_fig = self.get_point_scatter_plot(selected_collection,
                                                                 cruises[0],
                                                                 stations[0])
-                    lineplot_fig = self.get_line_scatter_plot(selected_collection)
+                    lineplot_fig = self.get_line_scatter_plot(selected_collection,
+                                                              cruises[0],stations[0])
                 else:
                     pointplot_fig = None
                     lineplot_fig = self.get_line_scatter_plot(selected_collection)
