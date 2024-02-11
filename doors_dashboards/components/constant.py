@@ -1,5 +1,6 @@
-SELECT_CRUISE_DRP = 'cruise-drpdown'
-SELECT_STATION_DRP = 'station-drpdwn'
+COLLECTION_TEMPLATE = 'main_group_drp_option_'
+SELECT_MAINGROUP_DRP = 'main-drpdown'
+SELECT_GROUP_DRP = 'group-drpdwn'
 SCATTER_PLOT_ID = 'scatter-plot-point'
 SCATTER_PLOT_LINE_ID = 'scatter-plot-line'
 PLOT_BGCOLOR = '#3B4758'

@@ -3,8 +3,8 @@ from dash import dcc, html, Dash, Input, Output, dash
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
-from doors_dashboards.components.constant import SELECT_CRUISE_DRP, FONT_FAMILY, \
-    FONT_COLOR, SELECT_STATION_DRP
+from doors_dashboards.components.constant import SELECT_MAINGROUP_DRP, FONT_FAMILY, \
+    FONT_COLOR, SELECT_GROUP_DRP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -21,10 +21,10 @@ class SelectCollectionComponent(DashboardComponent):
         dropdown_ids = [f'collection_drp_option_{i}' for i in range(len(collections))]
 
         @app.callback(
-            [Output(SELECT_CRUISE_DRP, 'children'),
-             Output(SELECT_CRUISE_DRP, 'label'),
-             Output(SELECT_STATION_DRP, 'children',allow_duplicate=True),
-             Output(SELECT_STATION_DRP, 'label', allow_duplicate=True)],
+            [Output(SELECT_MAINGROUP_DRP, 'children'),
+             Output(SELECT_MAINGROUP_DRP, 'label'),
+             Output(SELECT_GROUP_DRP, 'children', allow_duplicate=True),
+             Output(SELECT_GROUP_DRP, 'label', allow_duplicate=True)],
             [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in dropdown_ids],
             prevent_initial_call=True
         )
