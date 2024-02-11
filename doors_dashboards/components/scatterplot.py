@@ -16,8 +16,10 @@ from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 DISPLAY_STYLE = {'height': '45vh'}
-GROUP_TEMPLATE = 'group_drp_option_'
-MAIN_GROUP_TEMPLATE = 'main_group_drp_option_'
+GROUP_TEMPLATE = 'group_drp_option_{0}_{1}'
+MAIN_GROUP_TEMPLATE = 'main_group_drp_option_{0}_{1}'
+
+SELECTED_MAIN_GROUP_ITEM = ""
 
 
 class ScatterplotComponent(DashboardComponent):
@@ -29,17 +31,15 @@ class ScatterplotComponent(DashboardComponent):
         self.feature_handler = feature_handler
 
     @staticmethod
-    def _get_dropdown_menu(id: str, id_template: str, values: List[str]
+    def _get_dropdown_menu(dropdown_id: str, id_template: str, values: List[str]
                            ) -> dbc.DropdownMenu:
         return dbc.DropdownMenu(
-            id=id,
+            id=dropdown_id,
             label=values[0],
             children=[
                 dbc.DropdownMenuItem(v,
-                                     id=id_template + str(i),
-                                     n_clicks=1) for i, v
-                in
-                enumerate(values)],
+                                     id=id_template.format(i, v),
+                                     n_clicks=1) for i, v in enumerate(values)],
             style={
                 'fontfamily': FONT_FAMILY,
                 'font-size': 'x-large'},
@@ -66,6 +66,8 @@ class ScatterplotComponent(DashboardComponent):
             )
         ]
         if main_group_values is not None:
+            global SELECTED_MAIN_GROUP_ITEM
+            SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
             maingroup_dropdown_menu = self._get_dropdown_menu(
                 SELECT_MAINGROUP_DRP, MAIN_GROUP_TEMPLATE, main_group_values
             )
@@ -130,8 +132,8 @@ class ScatterplotComponent(DashboardComponent):
             fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
             return fig
 
-    def get_line_scatter_plot(self, collection: str, selected_main_group_item: str = "",
-                              selected_group_item: str = ""):
+    def get_line_scatter_plot(self, collection: str, selected_group_item: str = "",
+                              selected_main_group_item: str = ""):
         df = self.get_dataframe(
             collection, selected_group_item, selected_main_group_item
         )
@@ -167,6 +169,13 @@ class ScatterplotComponent(DashboardComponent):
             group_values.sort()
             return group_values, main_group_values
 
+    def _get_group_values_for_main_group(self, collection: str, main_group: str):
+        nested_level_values = self.feature_handler.get_nested_level_values(collection)
+        group_values = list(nested_level_values.get(main_group).keys())
+        group_values.sort()
+        return group_values
+
+
     def get_dataframe(self,
                       collection: str,
                       selected_group_item: str = "",
@@ -190,9 +199,17 @@ class ScatterplotComponent(DashboardComponent):
         collection = self.feature_handler.get_selected_collection()
         group_values, main_group_values = \
             self._get_group_and_main_group_values(collection)
+
+        collections = self.feature_handler.get_collections()
+        collection_ids = [COLLECTION_TEMPLATE.format(i, c)
+                          for i, c in enumerate(collections)]
+
+        group_value_ids = [GROUP_TEMPLATE.format(i, m)
+                           for i, m in enumerate(group_values)]
+
         if main_group_values is not None:
-            main_group_value_ids = [MAIN_GROUP_TEMPLATE + str(i)
-                                    for i in range(len(main_group_values))]
+            main_group_value_ids = [MAIN_GROUP_TEMPLATE.format(i, m)
+                                    for i, m in enumerate(main_group_values)]
             @app.callback(
                 [Output(SELECT_GROUP_DRP, 'children', allow_duplicate=True),
                  Output(SELECT_GROUP_DRP, 'label', allow_duplicate=True),
@@ -202,26 +219,29 @@ class ScatterplotComponent(DashboardComponent):
                  for main_group_value_id in main_group_value_ids],
                 prevent_initial_call=True
             )
-            def updateDropDownAndPlots(*timestamps):
+            def updateDropDownAndPlotsAfterMainGroupChange(*timestamps):
                 collection = self.feature_handler.get_selected_collection()
-                group_values, main_group_values = \
+                _, main_group_values = \
                     self._get_group_and_main_group_values(collection)
                 if any(timestamps):  # Check if any timestamp is not None
                     latest_timestamp_index = timestamps.index(
                         max(t for t in timestamps if t is not None))
-                    selected_main_group_item = main_group_values[latest_timestamp_index]
+                    SELECTED_MAIN_GROUP_ITEM = main_group_values[latest_timestamp_index]
+                    group_values = self._get_group_values_for_main_group(
+                        collection, SELECTED_MAIN_GROUP_ITEM
+                    )
                     group_dropdown_items = [
                         dbc.DropdownMenuItem(
                             group_member,
-                            id=GROUP_TEMPLATE + str(i),
+                            id=GROUP_TEMPLATE.format(i, group_member),
                             n_clicks=1) for i, group_member in enumerate(group_values)
                     ]
                     variables = self.feature_handler.get_variables(collection)
                     if len(variables) > 1:
                         pointplot_fig = self.get_point_scatter_plot(
-                            collection, selected_main_group_item, group_values[0])
+                            collection, group_values[0], SELECTED_MAIN_GROUP_ITEM)
                         lineplot_fig = self.get_line_scatter_plot(
-                            collection, selected_main_group_item, group_values[0]
+                            collection, group_values[0], SELECTED_MAIN_GROUP_ITEM
                         )
                     else:
                         pointplot_fig = None
@@ -240,45 +260,105 @@ class ScatterplotComponent(DashboardComponent):
                  for main_group_value_id in main_group_value_ids],
                 prevent_initial_call=True
             )
-            def update_label(*timestamps):
+            def update_main_group_label(*timestamps):
                 if any(timestamps):
                     latest_timestamp_index = timestamps.index(
                         max(t for t in timestamps if t is not None))
                     collection = self.feature_handler.get_selected_collection()
                     group_values, main_group_values = \
                         self._get_group_and_main_group_values(collection)
-                    return main_group_values[latest_timestamp_index]
+                    SELECTED_MAIN_GROUP_ITEM = main_group_values[latest_timestamp_index]
+                    return SELECTED_MAIN_GROUP_ITEM
                 else:
                     return dash.no_update
 
-        collections = self.feature_handler.get_collections()
-        collection_ids = [COLLECTION_TEMPLATE + str(i) for i in range(len(collections))]
+            @app.callback(
+                [Output(SELECT_MAINGROUP_DRP, 'children'),
+                Output(SELECT_MAINGROUP_DRP, 'label')],
+                [Input(collection_id, 'n_clicks_timestamp')
+                    for collection_id in collection_ids],
+                prevent_initial_call=True
+            )
+            def update_selected_main_group_dropdown(*timestamps):
+                if any(timestamps):
+                    latest_timestamp_index = timestamps.index(
+                        max(t for t in timestamps if t is not None))
+                    selected_collection = collections[latest_timestamp_index]
+                    self.feature_handler.select_collection(selected_collection)
+                    group_values, main_group_values = \
+                        self._get_group_and_main_group_values(selected_collection)
+                    main_group_dropdown_items = [
+                        dbc.DropdownMenuItem(
+                            member, id=MAIN_GROUP_TEMPLATE.format(i, member),
+                            n_clicks=1) for i, member in enumerate(main_group_values)
+                    ]
+                    SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
+                    return (main_group_dropdown_items, SELECTED_MAIN_GROUP_ITEM)
+                else:
+                    return dash.no_update
 
         @app.callback(
-            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input(collection_id, 'n_clicks_timestamp') for collection_id in
-             collection_ids],
+            Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+            [Input(group_value_id, 'n_clicks_timestamp')
+                for group_value_id in group_value_ids],
             prevent_initial_call=True
         )
-        def update_scatterplots(*timestamps):
+        def updatePointPlotAfterGroupChange(*timestamps):
+            collection = self.feature_handler.get_selected_collection()
+            group_values, _ = self._get_group_and_main_group_values(collection)
+            if any(timestamps):  # Check if any timestamp is not None
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                group_item = group_values[latest_timestamp_index]
+                variables = self.feature_handler.get_variables(collection)
+                if len(variables) > 1:
+                    return self.get_point_scatter_plot(
+                        collection, group_item, SELECTED_MAIN_GROUP_ITEM
+                    )
+                else:
+                    return None
+            else:
+                return dash.no_update
+
+        @app.callback(
+            Output(SELECT_GROUP_DRP, 'label', allow_duplicate=True),
+            # Update the label of the dropdown menu
+            [Input(group_value_id, 'n_clicks_timestamp')
+                for group_value_id in group_value_ids],
+            prevent_initial_call=True
+        )
+        def update_group_label(*timestamps):
+            if any(timestamps):
+                latest_timestamp_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
+                collection = self.feature_handler.get_selected_collection()
+                group_values, main_group_values = \
+                    self._get_group_and_main_group_values(collection)
+                return group_values[latest_timestamp_index]
+            else:
+                return dash.no_update
+
+        @app.callback(
+            [Output(SELECT_GROUP_DRP, 'children', allow_duplicate=True),
+             Output(SELECT_GROUP_DRP, 'label', allow_duplicate=True)],
+            [Input(collection_id, 'n_clicks_timestamp')
+                for collection_id in collection_ids],
+            prevent_initial_call=True
+        )
+        def update_selected_group_dropdown(*timestamps):
             if any(timestamps):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
                 selected_collection = collections[latest_timestamp_index]
                 self.feature_handler.select_collection(selected_collection)
-                variables = self.feature_handler.get_variables(selected_collection)
                 group_values, main_group_values = \
                     self._get_group_and_main_group_values(selected_collection)
-                if len(variables) > 1:
-                    pointplot_fig = self.get_point_scatter_plot(selected_collection,
-                                                                main_group_values[0],
-                                                                group_values[0])
-                    lineplot_fig = self.get_line_scatter_plot(selected_collection,
-                                                              main_group_values[0],
-                                                              group_values[0])
-                else:
-                    pointplot_fig = None
-                    lineplot_fig = self.get_line_scatter_plot(selected_collection)
-
-            return pointplot_fig, lineplot_fig
+                group_dropdown_items = [
+                    dbc.DropdownMenuItem(
+                        member,
+                        id=GROUP_TEMPLATE.format(i, member),
+                        n_clicks=1) for i, member in enumerate(group_values)
+                ]
+                return group_dropdown_items, group_values[0]
+            else:
+                return dash.no_update

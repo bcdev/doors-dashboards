@@ -1,4 +1,4 @@
-COLLECTION_TEMPLATE = 'main_group_drp_option_'
+COLLECTION_TEMPLATE = 'collection_drp_option_{0}_{1}'
 SELECT_MAINGROUP_DRP = 'main-drpdown'
 SELECT_GROUP_DRP = 'group-drpdwn'
 SCATTER_PLOT_ID = 'scatter-plot-point'
