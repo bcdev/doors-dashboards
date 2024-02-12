@@ -8,6 +8,7 @@ features:
       title: Chlorophyll-a_and_TSM Cruise 1
       collection: Chlorophyll-a_and_TSM
       database: DOORS_Cruise_1_IO-BAS
+      color: red
       levels:
         - "station"
         - "sampling depth [m]"
@@ -26,6 +27,7 @@ features:
       title: Chlorophyll-a and TSM Cruise 2
       collection: Chlorophyll-a_and_TSM
       database: DOORS_Cruise_2_Leg_1_IO-BAS
+      color: green
       levels:
         - "station"
         - "sampling depth [m]"
@@ -45,19 +47,20 @@ features:
       title: Phytoplankton
       collection: Phytoplankton
       database: DOORS_Cruise_1_IO-BAS
+      color: blue
       levels:
         - "station"
         - "sampling depth [m]"
       label: station
       variables:
-        - "acanthoica sp. n[cells/l]"
+#        - "acanthoica sp. n[cells/l]"
         - "calyptrosphaera oblonga n[cells/l]"
-        - "coccolithus sp.3 (18) n[cells/l]"
+#        - "coccolithus sp.3 (18) n[cells/l]"
         - "coronosphaera mediterranea n[cells/l]"
         - "emiliania huxleyi n[cells/l]"
-        - "acanthoica sp. b[mg/m^3]"
+#        - "acanthoica sp. b[mg/m^3]"
         - "calyptrosphaera oblonga  b[mg/m^3]"
-        - "coccolithus sp.3 (18)  b[mg/m^3]"
+#        - "coccolithus sp.3 (18)  b[mg/m^3]"
         - "coronosphaera mediterranea b[mg/m^3]"
         - "emiliania huxleyi  b[mg/m^3]"
   - id: Chlorophyll-a_HPLC_1
@@ -66,18 +69,7 @@ features:
       title: "Chlorophyll-a HPLC Cruise 1"
       collection: Chlorophyll-a_HPLC
       database: DOORS_Cruise_1_USTIR
-      levels:
-        - "station"
-        - "sampling_depth[m]"
-      label: station
-      variables:
-        - "chla[mg m^-3]"
-  - id: Chlorophyll-a_HPLC_2
-    type: geodb
-    params:
-      title: "Chlorophyll-a HPLC Cruise 2"
-      collection: Chlorophyll-a_HPLC
-      database: DOORS_Cruise_2_USTIR
+      color: purple
       levels:
         - "station"
         - "sampling_depth[m]"

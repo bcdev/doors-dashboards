@@ -71,6 +71,11 @@ class FeatureHandler:
         return self._configs.get(collection, {}).get("params", {}).\
             get("levels", [])
 
+    def get_color(self, collection: str = None) -> str:
+        collection = self._selected_collection if not collection else collection
+        return self._configs.get(collection, {}).get("params", {}).\
+            get("color", "blue")
+
     def _get_unique_values(self, collection: str, column: str) -> List[str]:
         return list(self.get_df(collection)[column].unique())
 

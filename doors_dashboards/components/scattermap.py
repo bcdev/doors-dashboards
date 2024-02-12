@@ -63,6 +63,8 @@ class ScatterMapComponent(DashboardComponent):
                     point[3].get(selected_variable) for point in points
                 ]
 
+            marker_color = self.feature_handler.get_color(collection)
+
             figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
                 marker=go.scattermapbox.Marker(
