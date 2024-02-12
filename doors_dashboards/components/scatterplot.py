@@ -54,8 +54,6 @@ class ScatterplotComponent(DashboardComponent):
                 'font-size': 'x-large',
                 'display': 'none'
             },
-            size="lg",
-            className="float-right",
             color="secondary"
         )
 
@@ -116,7 +114,7 @@ class ScatterplotComponent(DashboardComponent):
                 dropdown_menu_items = []
                 for member in group_values:
                     group_drop_option_id = GROUP_DROP_OPTION_TEMPLATE.format(
-                        collection, member
+                        collection, "all", member
                     )
                     group_drop_option = \
                         dbc.DropdownMenuItem(
@@ -143,11 +141,17 @@ class ScatterplotComponent(DashboardComponent):
         pointplot_fig = self.get_point_scatter_plot(collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
 
-        main_group_drop_down_menus = list(self.main_group_dropdown_menus.values())
-        main_group_drop_down_menus[0].style['display'] = 'block'
-        main_group_drop_options = list(self.main_group_drop_options.values())
         global SELECTED_MAIN_GROUP_ITEM
-        SELECTED_MAIN_GROUP_ITEM = main_group_drop_options[0].children
+        SELECTED_MAIN_GROUP_ITEM = "all"
+        main_group_drop_down_menus = \
+            list(self.main_group_dropdown_menus.values())
+        if len(main_group_drop_down_menus) > 0:
+            main_group_drop_down_menus[0].style['display'] = 'block'
+            main_group_drop_options = list(self.main_group_drop_options.values())
+            SELECTED_MAIN_GROUP_ITEM = main_group_drop_options[0].children
+
+
+
         upper_row = dbc.Row(
             children=main_group_drop_down_menus
         )
@@ -470,8 +474,10 @@ class ScatterplotComponent(DashboardComponent):
 
             group_values, main_group_values = \
                 self._get_group_and_main_group_values(collection)
+
             global SELECTED_MAIN_GROUP_ITEM
-            SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
+            if main_group_values is not None:
+                SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
 
             variables = self.feature_handler.get_variables(collection)
             if len(variables) > 1:
@@ -519,6 +525,7 @@ class ScatterplotComponent(DashboardComponent):
         def update_group_labels(*timestamps):
             if not any(timestamps):
                 return dash.no_update
+            collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
             selected_group_dropdown_id = \
@@ -563,10 +570,12 @@ class ScatterplotComponent(DashboardComponent):
                 self._get_group_and_main_group_values(collection)
 
             global SELECTED_MAIN_GROUP_ITEM
-            SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
+            if main_group_values is not None:
+                SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
 
-            selected_group_dropdown_id = \
-                GROUP_DROPDOWN_TEMPLATE.format(collection, SELECTED_MAIN_GROUP_ITEM)
+            selected_group_dropdown_id = GROUP_DROPDOWN_TEMPLATE.format(
+                collection, SELECTED_MAIN_GROUP_ITEM
+            )
 
             results = []
             for group_dropdown_menu_id, group_dropdown_menu \
