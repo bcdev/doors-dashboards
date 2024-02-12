@@ -46,12 +46,13 @@ class ScatterplotComponent(DashboardComponent):
                                 children=[
                                     dbc.DropdownMenuItem(cruise,
                                                          id=f'cruise_drp_option_{i}',
-                                                         n_clicks=1) for i, cruise
+                                                         n_clicks=1, style={
+                                            'fontSize': '25px'}) for i, cruise
                                     in
                                     enumerate(cruises)],
                                 style={
                                     'fontfamily': FONT_FAMILY,
-                                    'font-size': 'x-large'},
+                                    },
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -78,12 +79,12 @@ class ScatterplotComponent(DashboardComponent):
                                 children=[
                                     dbc.DropdownMenuItem(station,
                                                          id=f'station_drp_option_{i}',
-                                                         n_clicks=1) for i, station
+                                                         n_clicks=1, style={
+                                            'fontSize': '25px'}) for i, station
                                     in
                                     enumerate(stations)],
                                 style={
-                                    'fontfamily': FONT_FAMILY,
-                                    'font-size': 'x-large'},
+                                    'fontfamily': FONT_FAMILY},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -113,12 +114,12 @@ class ScatterplotComponent(DashboardComponent):
                                 children=[
                                     dbc.DropdownMenuItem(cruise,
                                                          id=f'cruise_drp_option_{i}',
-                                                         n_clicks=1) for i, cruise
+                                                         n_clicks=1, style={
+                                            'fontSize': '25px'}) for i, cruise
                                     in
                                     enumerate(cruises)],
                                 style={
-                                    'fontfamily': FONT_FAMILY,
-                                    'font-size': 'x-large'},
+                                    'fontfamily': FONT_FAMILY},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -145,12 +146,12 @@ class ScatterplotComponent(DashboardComponent):
                                 children=[
                                     dbc.DropdownMenuItem(station,
                                                          id=f'station_drp_option_{i}',
-                                                         n_clicks=1) for i, station
+                                                         n_clicks=1, style={
+                                            'fontSize': '25px'}) for i, station
                                     in
                                     enumerate(stations)],
                                 style={
-                                    'fontfamily': FONT_FAMILY,
-                                    'font-size': 'x-large'},
+                                    'fontfamily': FONT_FAMILY},
                                 size="lg",
                                 className="float-right",
                                 color="secondary"
@@ -255,7 +256,7 @@ class ScatterplotComponent(DashboardComponent):
             nested_level_values = self.feature_handler.get_nested_level_values(
                 collection)
             cruises = list(nested_level_values.keys())
-            if any(timestamps):  # Check if any timestamp is not None
+            if any(timestamps):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
                 selected_cruise = cruises[latest_timestamp_index]

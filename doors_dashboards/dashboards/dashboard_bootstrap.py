@@ -100,7 +100,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
                                             width=6, style={'color': FONT_COLOR}),
                                 ],
                                 style={'backgroundColor': HEADER_BGCOLOR,
-                                       'padding': '20px'}
+                                       'padding': '20px','margin-left': '-29px'}
                             ),
                             # Plots
                             *main,

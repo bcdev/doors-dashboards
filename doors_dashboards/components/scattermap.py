@@ -100,7 +100,7 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '80vh',
+                'height': '95vh',
             },
         )
         return dbc.Col(
@@ -109,8 +109,9 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '145px',
-                'border-radius': '15px'
+                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
+                'border-radius': '15px',
+                'margin-right': '5px'
             }
         )
 

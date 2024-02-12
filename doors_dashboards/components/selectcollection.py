@@ -23,7 +23,7 @@ class SelectCollectionComponent(DashboardComponent):
         @app.callback(
             [Output(SELECT_CRUISE_DRP, 'children'),
              Output(SELECT_CRUISE_DRP, 'label'),
-             Output(SELECT_STATION_DRP, 'children',allow_duplicate=True),
+             Output(SELECT_STATION_DRP, 'children', allow_duplicate=True),
              Output(SELECT_STATION_DRP, 'label', allow_duplicate=True)],
             [Input(dropdown_id, 'n_clicks_timestamp') for dropdown_id in dropdown_ids],
             prevent_initial_call=True
@@ -84,16 +84,18 @@ class SelectCollectionComponent(DashboardComponent):
                 children=[
                     dbc.DropdownMenuItem(collection,
                                          id=f'collection_drp_option_{i}',
-                                         n_clicks=1) for i, collection in
+                                         n_clicks=1, style={'fontSize': '25px'}) for
+                    i, collection in
                     enumerate(collections)
                 ],
-                style={'fontSize': 'x-large', 'fontFamily': FONT_FAMILY,
-                       'color': FONT_COLOR, 'width': '500px'},
+                style={'fontFamily': FONT_FAMILY,
+                       'color': FONT_COLOR, 'width': '1000px'},
                 className="m-4",
-                color="secondary"
+                color="secondary",
+                size="lg"
             )
         ],
             width=4,
             className='mb-4',
-            style={'margin-left': '4px'}
+            style={'margin': '23px 0 0 -19px'}
         )
