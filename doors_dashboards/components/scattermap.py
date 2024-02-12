@@ -40,7 +40,7 @@ class ScatterMapComponent(DashboardComponent):
         points = sub_config.get("points")
         marker_size = sub_config.get("marker_size", 10)
         marker_color = sub_config.get("marker_color", "blue")
-        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
+        mapbox_style = sub_config.get("mapbox_style", "open-street-map")
         selected_variable = sub_config.get("selected_variable", "")
 
         figure = go.Figure()
