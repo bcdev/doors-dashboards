@@ -23,8 +23,12 @@ _COMPONENTS = {
 
 
 def create_dashboard_bootstrap(config: Dict) -> Dash:
+    dashboard_id = config.get("id")
+    dashboard_title = config.get("title")
     app = Dash(__name__, suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP])
+               external_stylesheets=[dbc.themes.BOOTSTRAP],
+               title=dashboard_title
+               )
 
     components = {}
     component_placements = dict(
@@ -33,8 +37,6 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
         right=[],
         bottom=[]
     )
-    dashboard_id = config.get("id")
-    dashboard_title = config.get("title")
 
     feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
@@ -82,6 +84,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
         main.append(main_children["bottom"])
 
     app.layout = dbc.Container(
+        id=dashboard_id,
         fluid=True,
         children=[
             dbc.Row(
