@@ -36,7 +36,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
 
-    feature_handler = FeatureHandler(config.get("features"))
+    feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
     for component, component_dict in config.get("components", []).items():
         components[component] = _COMPONENTS[component]()
