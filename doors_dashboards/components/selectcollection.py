@@ -35,6 +35,7 @@ class SelectCollectionComponent(DashboardComponent):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
                 selected_collection = collections[latest_timestamp_index]
+                self.feature_handler.select_collection(selected_collection)
                 return selected_collection
             else:
                 return dash.no_update
@@ -42,8 +43,7 @@ class SelectCollectionComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
         collections = self.feature_handler.get_collections()
-        self.collection_to_id = {c: COLLECTION_TEMPLATE.format(i, c) for i, c
-                                 in enumerate(collections)}
+        self.collection_to_id = {c: COLLECTION_TEMPLATE.format(c) for c in collections}
 
     def get(self, sub_component: str, sub_component_id_str,
             sub_config: Dict) -> Component:
