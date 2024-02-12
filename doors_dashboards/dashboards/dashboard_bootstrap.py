@@ -94,7 +94,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
                                     dbc.Col(html.Img(src="assets/logo.png",
                                                      style={'width': '200px'}),
                                             width=3),
-                                    dbc.Col(html.H1("Georgia MAFS",
+                                    dbc.Col(html.H1(dashboard_title,
                                                     className="text-center "
                                                               "text-primary, mb-4"),
                                             width=6, style={'color': FONT_COLOR}),
