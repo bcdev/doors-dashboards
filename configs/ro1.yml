@@ -60,6 +60,30 @@ features:
         - "coccolithus sp.3 (18)  b[mg/m^3]"
         - "coronosphaera mediterranea b[mg/m^3]"
         - "emiliania huxleyi  b[mg/m^3]"
+  - id: Chlorophyll-a_HPLC_1
+    type: geodb
+    params:
+      title: "Chlorophyll-a HPLC Cruise 1"
+      collection: Chlorophyll-a_HPLC
+      database: DOORS_Cruise_1_USTIR
+      levels:
+        - "station"
+        - "sampling_depth[m]"
+      label: station
+      variables:
+        - "chla[mg m^-3]"
+  - id: Chlorophyll-a_HPLC_2
+    type: geodb
+    params:
+      title: "Chlorophyll-a HPLC Cruise 2"
+      collection: Chlorophyll-a_HPLC
+      database: DOORS_Cruise_2_USTIR
+      levels:
+        - "station"
+        - "sampling_depth[m]"
+      label: station
+      variables:
+        - "chla[mg m^-3]"
 components:
   scattermap:
     scattermap:
