@@ -377,7 +377,9 @@ class ScatterplotComponent(DashboardComponent):
         )
         levels = self.feature_handler.get_levels(collection)
         if variable is None:
-            variable = self.feature_handler.get_variables(collection)[0]
+            variables = self.feature_handler.get_variables(collection)
+            variables.sort()
+            variable = variables[0]
         fig = px.line(
             df,
             x=variable,
