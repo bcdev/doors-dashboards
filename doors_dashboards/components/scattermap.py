@@ -69,7 +69,7 @@ class ScatterMapComponent(DashboardComponent):
                     size=marker_size, color=marker_color
                 ),
                 text=labels,
-                showlegend=False
+                name=collection
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
@@ -102,6 +102,18 @@ class ScatterMapComponent(DashboardComponent):
                 'width': '100%',
                 'height': '80vh',
             },
+        )
+        figure.update_layout(
+            legend=dict(
+                x=0,
+                y=1,
+                traceorder="normal",
+                font=dict(
+                    family="sans-serif",
+                    size=12,
+                    color="black"
+                ),
+            )
         )
         return dbc.Col(
             scattermap_graph,
