@@ -182,6 +182,20 @@ class ScatterplotComponent(DashboardComponent):
                         self.group_drop_options[group_drop_option_id] = \
                             group_drop_down_menu_item
                         group_dropdown_menu_items.append(group_drop_down_menu_item)
+
+                    group_drop_option_id = \
+                        GROUP_DROP_OPTION_TEMPLATE.format(
+                            collection, main_group, ALL_GROUP_MEMBERS
+                        )
+                    group_drop_down_menu_item = dbc.DropdownMenuItem(
+                        ALL_GROUP_MEMBERS,
+                        id=group_drop_option_id,
+                        n_clicks=1
+                    )
+                    self.group_drop_options[group_drop_option_id] = \
+                        group_drop_down_menu_item
+                    group_dropdown_menu_items.append(group_drop_down_menu_item)
+
                     group_dropdown_id = \
                         GROUP_DROPDOWN_TEMPLATE.format(collection, main_group)
                     self.group_dropdown_menus[group_dropdown_id] = \
@@ -211,6 +225,20 @@ class ScatterplotComponent(DashboardComponent):
                         )
                     dropdown_menu_items.append(group_drop_option)
                     self.group_drop_options[group_drop_option_id] = group_drop_option
+
+                group_drop_option_id = \
+                    GROUP_DROP_OPTION_TEMPLATE.format(
+                        collection, "all", ALL_GROUP_MEMBERS
+                    )
+                group_drop_down_menu_item = dbc.DropdownMenuItem(
+                    ALL_GROUP_MEMBERS,
+                    id=group_drop_option_id,
+                    n_clicks=1
+                )
+                self.group_drop_options[group_drop_option_id] = \
+                    group_drop_down_menu_item
+                dropdown_menu_items.append(group_drop_down_menu_item)
+
                 group_dropdown_id = \
                     GROUP_DROPDOWN_TEMPLATE.format(collection, "all")
                 self.group_dropdown_menus[group_dropdown_id] = \
@@ -671,8 +699,9 @@ class ScatterplotComponent(DashboardComponent):
                 list(self.group_drop_options.keys())[latest_timestamp_index]
             selected_group_item = \
                 self.group_drop_options[selected_group_dropdown_id].children
-            relevant_group_dropdown_id = \
-                GROUP_DROPDOWN_TEMPLATE.format(collection, SELECTED_MAIN_GROUP_ITEM)
+            relevant_group_dropdown_id = GROUP_DROPDOWN_TEMPLATE.format(
+                collection, SELECTED_MAIN_GROUP_ITEM
+            )
             results = []
             for group_dropdown_menu_id, group_dropdown_menu \
                     in self.group_dropdown_menus.items():
