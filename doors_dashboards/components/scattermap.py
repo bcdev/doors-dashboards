@@ -109,7 +109,8 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '145px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '15px',
                 'border-radius': '15px'
             }
         )
