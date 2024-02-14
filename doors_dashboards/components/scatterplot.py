@@ -1,8 +1,10 @@
+import os
 from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
 import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
+import plotly.graph_objs as go
 
 from doors_dashboards.components.constant import COLLECTION_TEMPLATE
 from doors_dashboards.components.constant import FONT_COLOR
@@ -20,17 +22,17 @@ GROUP_DROP_OPTION_TEMPLATE = 'group_drp_option_{0}_{1}_{2}'
 MAIN_GROUP_DROP_OPTION_TEMPLATE = 'main_group_drp_option_{0}_{1}'
 
 LINE_VAR_DROPDOWN_ID_TEMPLATE = \
-    "line_var_drop_down_id_{0}" # collection
+    "line_var_drop_down_id_{0}"  # collection
 POINT_X_VAR_DROPDOWN_ID_TEMPLATE = \
-    "point_x_var_drop_down_id_{0}" # collection
+    "point_x_var_drop_down_id_{0}"  # collection
 POINT_Y_VAR_DROPDOWN_ID_TEMPLATE = \
-    "point_y_var_drop_down_id_{0}" # collection
+    "point_y_var_drop_down_id_{0}"  # collection
 LINE_VAR_DROP_OPTION_TEMPLATE = \
-    "line_var_drop_option_id_{0}_{1}" # collection variable
+    "line_var_drop_option_id_{0}_{1}"  # collection variable
 POINT_X_VAR_DROP_OPTION_TEMPLATE = \
-    "point_x_var_drop_option_id_{0}_{1}" # collection variable
+    "point_x_var_drop_option_id_{0}_{1}"  # collection variable
 POINT_Y_VAR_DROP_OPTION_TEMPLATE = \
-    "point_y_var_drop_option_id_{0}_{1}" # collection variable
+    "point_y_var_drop_option_id_{0}_{1}"  # collection variable
 
 COLLAPSE = "collapse_id"
 
@@ -70,9 +72,9 @@ class ScatterplotComponent(DashboardComponent):
             children=items,
             style={
                 'fontfamily': FONT_FAMILY,
-                'font-size': 'x-large',
                 'display': 'none'
             },
+            size="lg",
             color="secondary"
         )
 
@@ -99,17 +101,20 @@ class ScatterplotComponent(DashboardComponent):
                 line_drop_option = dbc.DropdownMenuItem(
                     variable,
                     id=line_drop_option_id,
-                    n_clicks=1
+                    n_clicks=1,
+                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                 )
                 point_x_drop_option = dbc.DropdownMenuItem(
                     variable,
                     id=point_x_drop_option_id,
-                    n_clicks=1
+                    n_clicks=1,
+                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                 )
                 point_y_drop_option = dbc.DropdownMenuItem(
                     variable,
                     id=point_y_drop_option_id,
-                    n_clicks=1
+                    n_clicks=1,
+                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                 )
                 self.line_drop_options[line_drop_option_id] = line_drop_option
                 self.point_x_drop_options[point_x_drop_option_id] = \
@@ -159,7 +164,8 @@ class ScatterplotComponent(DashboardComponent):
                     main_group_drop_option = dbc.DropdownMenuItem(
                         main_group,
                         id=main_group_drop_option_id,
-                        n_clicks=1
+                        n_clicks=1,
+                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                     )
                     self.main_group_drop_options[main_group_drop_option_id] = \
                         main_group_drop_option
@@ -175,10 +181,11 @@ class ScatterplotComponent(DashboardComponent):
                                 collection, main_group, member
                             )
                         group_drop_down_menu_item = dbc.DropdownMenuItem(
-                                member,
-                                id=group_drop_option_id,
-                                n_clicks=1
-                            )
+                            member,
+                            id=group_drop_option_id,
+                            n_clicks=1,
+                            style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                        )
                         self.group_drop_options[group_drop_option_id] = \
                             group_drop_down_menu_item
                         group_dropdown_menu_items.append(group_drop_down_menu_item)
@@ -190,7 +197,8 @@ class ScatterplotComponent(DashboardComponent):
                     group_drop_down_menu_item = dbc.DropdownMenuItem(
                         ALL_GROUP_MEMBERS,
                         id=group_drop_option_id,
-                        n_clicks=1
+                        n_clicks=1,
+                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                     )
                     self.group_drop_options[group_drop_option_id] = \
                         group_drop_down_menu_item
@@ -221,7 +229,8 @@ class ScatterplotComponent(DashboardComponent):
                         dbc.DropdownMenuItem(
                             member,
                             id=group_drop_option_id,
-                            n_clicks=1
+                            n_clicks=1,
+                            style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                         )
                     dropdown_menu_items.append(group_drop_option)
                     self.group_drop_options[group_drop_option_id] = group_drop_option
@@ -233,7 +242,8 @@ class ScatterplotComponent(DashboardComponent):
                 group_drop_down_menu_item = dbc.DropdownMenuItem(
                     ALL_GROUP_MEMBERS,
                     id=group_drop_option_id,
-                    n_clicks=1
+                    n_clicks=1,
+                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                 )
                 self.group_drop_options[group_drop_option_id] = \
                     group_drop_down_menu_item
@@ -345,7 +355,6 @@ class ScatterplotComponent(DashboardComponent):
         )
         levels = self.feature_handler.get_levels(collection)
         variables = self.feature_handler.get_variables(collection)
-        variables.sort()
         if len(variables) > 1:
             if x_variable is None:
                 x_variable = variables[0]
@@ -357,15 +366,26 @@ class ScatterplotComponent(DashboardComponent):
                 y=y_variable,
                 color=levels[-1],
                 color_discrete_sequence=px.colors.qualitative.Set1,
-                # Use a qualitative color scale
             )
             fig.update_layout(
-                font=dict(family=FONT_FAMILY, size=18,
-                          color=FONT_COLOR))
+                font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR),
+                plot_bgcolor="rgb(0,0,0,0)",
+                paper_bgcolor='rgba(0,0,0,0)',
+                legend=dict(
+                    title=dict(
+                        text='Sampling Depth [M]'.title(),
+                        font=dict(
+                            family="Roboto, Helvetica, Arial, sans-serif",
+                            size=18,
+                            color=FONT_COLOR
+                        ),
+                        # orientation="v",
+                    ),
+                )
+            )
             fig.update_traces(marker_size=10)
-            fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
-            fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
-            fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
+            fig.update_xaxes(title_text=variables[0].title())
+            fig.update_yaxes(title_text=variables[1].title())
             return fig
 
     def get_line_scatter_plot(self,
@@ -387,6 +407,8 @@ class ScatterplotComponent(DashboardComponent):
             color=levels[-2],
         )
         fig.update_yaxes(autorange='reversed')
+        fig.update_xaxes(title_text=variable.title())
+        fig.update_yaxes(title_text='Sampling Depth [m]')
         fig.update_layout(
             font=dict(family=FONT_FAMILY, size=18,
                       color=FONT_COLOR))
@@ -461,7 +483,7 @@ class ScatterplotComponent(DashboardComponent):
             main_group_drop_options = list(self.main_group_drop_options.keys())
 
             style_outputs = [Output(group_dropdown_menu, 'style')
-                for group_dropdown_menu in group_dropdown_menus]
+                             for group_dropdown_menu in group_dropdown_menus]
             label_outputs = [
                 Output(group_dropdown_menu, 'label', allow_duplicate=True)
                 for group_dropdown_menu in group_dropdown_menus]
@@ -470,7 +492,7 @@ class ScatterplotComponent(DashboardComponent):
             @app.callback(
                 outputs,
                 [Input(main_group_value_id, 'n_clicks_timestamp')
-                    for main_group_value_id in main_group_drop_options],
+                 for main_group_value_id in main_group_drop_options],
                 prevent_initial_call=True
             )
             def update_dropdown_after_main_group_change(*timestamps):
@@ -513,7 +535,7 @@ class ScatterplotComponent(DashboardComponent):
                 [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
                  Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
                 [Input(main_group_value_id, 'n_clicks_timestamp')
-                    for main_group_value_id in main_group_drop_options],
+                 for main_group_value_id in main_group_drop_options],
                 prevent_initial_call=True
             )
             def update_plots_after_main_group_change(*timestamps):
@@ -548,9 +570,9 @@ class ScatterplotComponent(DashboardComponent):
 
             @app.callback(
                 [Output(main_group_dropdown_menu, 'label')
-                    for main_group_dropdown_menu in main_group_dropdown_menus],
+                 for main_group_dropdown_menu in main_group_dropdown_menus],
                 [Input(main_group_value_id, 'n_clicks_timestamp')
-                     for main_group_value_id in main_group_drop_options],
+                 for main_group_value_id in main_group_drop_options],
                 prevent_initial_call=True
             )
             def update_main_group_labels(*timestamps):
@@ -578,7 +600,7 @@ class ScatterplotComponent(DashboardComponent):
                 return tuple(results)
 
             style_outputs = [Output(main_group_dropdown_menu, 'style')
-                for main_group_dropdown_menu in main_group_dropdown_menus]
+                             for main_group_dropdown_menu in main_group_dropdown_menus]
             label_outputs = [
                 Output(main_group_dropdown_menu, 'label', allow_duplicate=True)
                 for main_group_dropdown_menu in main_group_dropdown_menus]
@@ -587,7 +609,7 @@ class ScatterplotComponent(DashboardComponent):
             @app.callback(
                 outputs,
                 [Input(collection_id, 'n_clicks_timestamp')
-                    for collection_id in collection_ids],
+                 for collection_id in collection_ids],
                 prevent_initial_call=True
             )
             def update_selected_main_group_dropdown_styles(*timestamps):
@@ -618,7 +640,7 @@ class ScatterplotComponent(DashboardComponent):
             [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
              Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids],
+             for collection_id in collection_ids],
             prevent_initial_call=True
         )
         def update_plots_after_collection_change(*timestamps):
@@ -658,7 +680,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
             [Input(group_value_id, 'n_clicks_timestamp')
-                for group_value_id in group_drop_options],
+             for group_value_id in group_drop_options],
             prevent_initial_call=True
         )
         def update_point_plot_after_group_change(*timestamps):
@@ -686,9 +708,9 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             [Output(group_dropdown_menu, 'label')
-                for group_dropdown_menu in group_dropdown_menus],
+             for group_dropdown_menu in group_dropdown_menus],
             [Input(group_value_id, 'n_clicks_timestamp')
-                 for group_value_id in group_drop_options],
+             for group_value_id in group_drop_options],
             prevent_initial_call=True
         )
         def update_group_labels(*timestamps):
@@ -716,18 +738,18 @@ class ScatterplotComponent(DashboardComponent):
         group_style_outputs = [Output(group_dropdown_menu,
                                       'style',
                                       allow_duplicate=True)
-            for group_dropdown_menu in group_dropdown_menus]
+                               for group_dropdown_menu in group_dropdown_menus]
 
         label_outputs = [
             Output(group_dropdown_menu, 'label', allow_duplicate=True)
-                for group_dropdown_menu in group_dropdown_menus]
+            for group_dropdown_menu in group_dropdown_menus]
 
         group_outputs = group_style_outputs + label_outputs
 
         @app.callback(
             group_outputs,
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids],
+             for collection_id in collection_ids],
             prevent_initial_call=True
         )
         def update_selected_group_dropdown_styles(*timestamps):
@@ -765,7 +787,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(COLLAPSE, "is_open"),
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids]
+             for collection_id in collection_ids]
         )
         def collapse_when_too_few_variables_in_collection(*timestamps):
             if not any(timestamps):
@@ -782,7 +804,7 @@ class ScatterplotComponent(DashboardComponent):
             [Output(line_dropdown_menu, 'label')
              for line_dropdown_menu in line_dropdown_menus],
             [Input(line_drop_id, 'n_clicks_timestamp')
-                for line_drop_id in line_drop_options]
+             for line_drop_id in line_drop_options]
         )
         def update_line_var_dropdown_after_click(*timestamps):
             if not any(timestamps):
@@ -810,7 +832,7 @@ class ScatterplotComponent(DashboardComponent):
             [Output(point_x_dropdown_menu, 'label')
              for point_x_dropdown_menu in point_x_dropdown_menus],
             [Input(point_x_drop_id, 'n_clicks_timestamp')
-                for point_x_drop_id in point_x_drop_options]
+             for point_x_drop_id in point_x_drop_options]
         )
         def update_point_x_var_dropdown_after_click(*timestamps):
             if not any(timestamps):
@@ -840,7 +862,7 @@ class ScatterplotComponent(DashboardComponent):
             [Output(point_y_dropdown_menu, 'label')
              for point_y_dropdown_menu in point_y_dropdown_menus],
             [Input(point_y_drop_id, 'n_clicks_timestamp')
-                for point_y_drop_id in point_y_drop_options]
+             for point_y_drop_id in point_y_drop_options]
         )
         def update_point_y_var_dropdown_after_click(*timestamps):
             if not any(timestamps):
@@ -867,20 +889,20 @@ class ScatterplotComponent(DashboardComponent):
             return tuple(results)
 
         line_style_outputs = [Output(line_dropdown_menu,
-                                      'style',
-                                      allow_duplicate=True)
-            for line_dropdown_menu in line_dropdown_menus]
+                                     'style',
+                                     allow_duplicate=True)
+                              for line_dropdown_menu in line_dropdown_menus]
 
         line_label_outputs = [
             Output(line_dropdown_menu, 'label', allow_duplicate=True)
-                for line_dropdown_menu in line_dropdown_menus]
+            for line_dropdown_menu in line_dropdown_menus]
 
         line_outputs = line_style_outputs + line_label_outputs
 
         @app.callback(
             line_outputs,
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids],
+             for collection_id in collection_ids],
             prevent_initial_call=True
         )
         def update_line_var_dropdown_after_collection_change(*timestamps):
@@ -911,20 +933,20 @@ class ScatterplotComponent(DashboardComponent):
             return tuple(results)
 
         point_x_style_outputs = [Output(point_x_dropdown_menu,
-                                      'style',
-                                      allow_duplicate=True)
-            for point_x_dropdown_menu in point_x_dropdown_menus]
+                                        'style',
+                                        allow_duplicate=True)
+                                 for point_x_dropdown_menu in point_x_dropdown_menus]
 
         point_x_label_outputs = [
             Output(point_x_dropdown_menu, 'label', allow_duplicate=True)
-                for point_x_dropdown_menu in point_x_dropdown_menus]
+            for point_x_dropdown_menu in point_x_dropdown_menus]
 
         point_x_outputs = point_x_style_outputs + point_x_label_outputs
 
         @app.callback(
             point_x_outputs,
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids],
+             for collection_id in collection_ids],
             prevent_initial_call=True
         )
         def update_point_x_var_dropdown_after_collection_change(*timestamps):
@@ -958,20 +980,20 @@ class ScatterplotComponent(DashboardComponent):
             return tuple(results)
 
         point_y_style_outputs = [Output(point_y_dropdown_menu,
-                                      'style',
-                                      allow_duplicate=True)
-            for point_y_dropdown_menu in point_y_dropdown_menus]
+                                        'style',
+                                        allow_duplicate=True)
+                                 for point_y_dropdown_menu in point_y_dropdown_menus]
 
         point_y_label_outputs = [
             Output(point_y_dropdown_menu, 'label', allow_duplicate=True)
-                for point_y_dropdown_menu in point_y_dropdown_menus]
+            for point_y_dropdown_menu in point_y_dropdown_menus]
 
         point_y_outputs = point_y_style_outputs + point_y_label_outputs
 
         @app.callback(
             point_y_outputs,
             [Input(collection_id, 'n_clicks_timestamp')
-                for collection_id in collection_ids],
+             for collection_id in collection_ids],
             prevent_initial_call=True
         )
         def update_point_y_var_dropdown_after_collection_change(*timestamps):
@@ -1007,7 +1029,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True),
             [Input(line_value_id, 'n_clicks_timestamp')
-                for line_value_id in line_drop_options],
+             for line_value_id in line_drop_options],
             prevent_initial_call=True
         )
         def update_line_plot_after_line_var_change(*timestamps):
@@ -1030,7 +1052,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
             [Input(point_x_value_id, 'n_clicks_timestamp')
-                for point_x_value_id in point_x_drop_options],
+             for point_x_value_id in point_x_drop_options],
             prevent_initial_call=True
         )
         def update_point_plot_after_point_x_var_change(*timestamps):
@@ -1057,7 +1079,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
             [Input(point_y_value_id, 'n_clicks_timestamp')
-                for point_y_value_id in point_y_drop_options],
+             for point_y_value_id in point_y_drop_options],
             prevent_initial_call=True
         )
         def update_point_plot_after_point_y_var_change(*timestamps):

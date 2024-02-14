@@ -131,42 +131,44 @@ class MeteogramComponent(DashboardComponent):
         min_date_allowed = current_date - timedelta(days=10)
         max_date_allowed = current_date
         return dbc.Row([
-    dbc.Col(
-        [
-            dbc.Label("Select Date:", className='mb-2', style={'display': 'block'}),
-            dcc.DatePickerSingle(
-                id=METEOGRAM_DATE_PICKER_ID,
-                min_date_allowed=min_date_allowed,
-                max_date_allowed=max_date_allowed,
-                initial_visible_month=current_date,
-                date=current_date,
-                className="mb-2",
-                style={'width': '230px', 'marginBottom': '20px'}
-            )
-        ],
-        className='mb-4',  # Add margin-bottom for spacing
-    ),
-    dbc.Col(
-        [
-            dbc.Label("Select Forecast Type:", className='mb-2', style={'display': 'block'}),
-            dcc.Dropdown(
-                id=METEOGRAM_CHOOSER_ID,
-                options=[
-                    {'label': 'classical_10d', 'value': 'classical_10d'},
-                    {'label': 'classical_15d', 'value': 'classical_15d'},
-                    {'label': 'classical_15d_with_climate', 'value': 'classical_15d_with_climate'},
-                    {'label': 'classical_plume', 'value': 'classical_plume'},
-                    {'label': 'classical_wave', 'value': 'classical_wave'}
+            dbc.Col(
+                [
+                    dbc.Label("Select Date:", className='mb-2',
+                              style={'display': 'block'}),
+                    dcc.DatePickerSingle(
+                        id=METEOGRAM_DATE_PICKER_ID,
+                        min_date_allowed=min_date_allowed,
+                        max_date_allowed=max_date_allowed,
+                        initial_visible_month=current_date,
+                        date=current_date,
+                        className="mb-2",
+                        style={'width': '230px', 'marginBottom': '20px'}
+                    )
                 ],
-                value='classical_wave',
-                className="mb-2",
-                style={'width': '400px'}
+                className='mb-4',  # Add margin-bottom for spacing
+            ),
+            dbc.Col(
+                [
+                    dbc.Label("Select Forecast Type:", className='mb-2',
+                              style={'display': 'block'}),
+                    dcc.Dropdown(
+                        id=METEOGRAM_CHOOSER_ID,
+                        options=[
+                            {'label': 'classical_10d', 'value': 'classical_10d'},
+                            {'label': 'classical_15d', 'value': 'classical_15d'},
+                            {'label': 'classical_15d_with_climate',
+                             'value': 'classical_15d_with_climate'},
+                            {'label': 'classical_plume', 'value': 'classical_plume'},
+                            {'label': 'classical_wave', 'value': 'classical_wave'}
+                        ],
+                        value='classical_wave',
+                        className="mb-2",
+                        style={'width': '400px'}
+                    )
+                ],
+                className='mb-4',  # Add margin-bottom for spacing
             )
-        ],
-        className='mb-4',  # Add margin-bottom for spacing
-    )
-])
-
+        ])
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler

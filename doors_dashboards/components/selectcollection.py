@@ -20,7 +20,6 @@ class SelectCollectionComponent(DashboardComponent):
         self.feature_handler = None
         self.collection_to_id = {}
 
-
     def register_callbacks(self, app: Dash, component_ids: List[str]):
 
         @app.callback(
@@ -50,12 +49,18 @@ class SelectCollectionComponent(DashboardComponent):
         collections = list(self.collection_to_id.keys())
         default_value = collections[0]
         return dbc.Col([
+            dbc.Label('Collection', className='col-',
+                      style={'fontSize': '25px', 'float': 'left', 'fontFamily':
+                          FONT_FAMILY, 'color': FONT_COLOR,
+                             'padding': '29px 20px 0px 40px'}),
             dbc.DropdownMenu(
                 id=SELECT_COLLECTION_DRP,
                 label=default_value,
                 children=[
                     dbc.DropdownMenuItem(
-                        collection, id=collection_id, n_clicks=1)
+                        collection, id=collection_id, n_clicks=1, style={'fontSize':
+                                                                             'larger',
+                                                                         'fontfamily': FONT_FAMILY})
                     for collection, collection_id in self.collection_to_id.items()
                 ],
                 style={'fontFamily': FONT_FAMILY,
