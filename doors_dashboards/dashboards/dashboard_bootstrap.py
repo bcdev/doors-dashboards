@@ -23,8 +23,12 @@ _COMPONENTS = {
 
 
 def create_dashboard_bootstrap(config: Dict) -> Dash:
+    dashboard_id = config.get("id")
+    dashboard_title = config.get("title")
     app = Dash(__name__, suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP])
+               external_stylesheets=[dbc.themes.BOOTSTRAP],
+               title=dashboard_title
+               )
 
     components = {}
     component_placements = dict(
@@ -33,10 +37,8 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
         right=[],
         bottom=[]
     )
-    dashboard_id = config.get("id")
-    dashboard_title = config.get("title")
 
-    feature_handler = FeatureHandler(config.get("features"))
+    feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
     for component, component_dict in config.get("components", []).items():
         components[component] = _COMPONENTS[component]()
@@ -82,6 +84,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
         main.append(main_children["bottom"])
 
     app.layout = dbc.Container(
+        id=dashboard_id,
         fluid=True,
         children=[
             dbc.Row(
@@ -94,7 +97,7 @@ def create_dashboard_bootstrap(config: Dict) -> Dash:
                                     dbc.Col(html.Img(src="assets/logo.png",
                                                      style={'width': '200px'}),
                                             width=3),
-                                    dbc.Col(html.H1("Georgia MAFS",
+                                    dbc.Col(html.H1(dashboard_title,
                                                     className="text-center "
                                                               "text-primary, mb-4"),
                                             width=6, style={'color': FONT_COLOR}),

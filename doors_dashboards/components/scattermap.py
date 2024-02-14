@@ -63,13 +63,15 @@ class ScatterMapComponent(DashboardComponent):
                     point[3].get(selected_variable) for point in points
                 ]
 
+            marker_color = self.feature_handler.get_color(collection)
+
             figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
                 marker=go.scattermapbox.Marker(
                     size=marker_size, color=marker_color
                 ),
                 text=labels,
-                showlegend=False
+                name=collection
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
@@ -102,6 +104,18 @@ class ScatterMapComponent(DashboardComponent):
                 'width': '100%',
                 'height': '95vh',
             },
+        )
+        figure.update_layout(
+            legend=dict(
+                x=0,
+                y=1,
+                traceorder="normal",
+                font=dict(
+                    family="sans-serif",
+                    size=12,
+                    color="black"
+                ),
+            )
         )
         return dbc.Col(
             scattermap_graph,

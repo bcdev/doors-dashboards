@@ -1,0 +1,51 @@
+id: tr1
+title: Türkiye MAF
+eez: TR_eez
+features:
+  - id: KTU_Data_2013_2014
+    type: local
+    params:
+      file: "../../data/collections/KTU_Data_2013_2014_v2.csv"
+      title: "KTU Data 2013 2014"
+      color: red
+      levels:
+        - "Station"
+        - "Sampling depth (m)"
+      label: Station
+      variables:
+        - "TSM (mg/l)"
+        - "Temperature (˚C)"
+        - "Salinity (‰)"
+        - "Oxygen (mg/L)"
+        - "Oxygen (%)"
+        - "Conductivity (Ohm-1)"
+        - "Sound (m/s)"
+  - id: KTU_Data_2021_2022
+    type: local
+    params:
+      file: "../../data/collections/KTU_Data_2021_2022_v2.csv"
+      title: "KTU Data 2021 2022"
+      color: green
+      levels:
+        - "station"
+        - "sampling depth (m)"
+      label: station
+      variables:
+        - "tsm (mg/l)"
+        - "temperature (˚C)"
+        - "salinity (‰)"
+        - "density (gr/cm3)"
+        - "oxygen (mg/L)"
+        - "oxygen (%)"
+        - "conductivity (ohm-1)"
+        - "sound"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top
+  scatterplot:
+    scatterplot:
+      placement: right
