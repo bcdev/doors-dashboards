@@ -62,6 +62,7 @@ class FeatureHandler:
             for r in to_be_removed:
                 if r in variables:
                     variables.remove(r)
+        variables.sort()
         return variables
 
     def get_time_column_name(self, collection: str = None):
