@@ -1,10 +1,8 @@
-import os
 from typing import Dict, List
 from dash import dcc, html, Dash, Input, Output, dash
 import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
-import plotly.graph_objs as go
 
 from doors_dashboards.components.constant import COLLECTION_TEMPLATE
 from doors_dashboards.components.constant import FONT_COLOR
@@ -82,7 +80,6 @@ class ScatterplotComponent(DashboardComponent):
         collections = self.feature_handler.get_collections()
         for collection in collections:
             variables = self.feature_handler.get_variables(collection)
-            variables.sort()
             line_drop_menu_items = []
             point_x_drop_menu_items = []
             point_y_drop_menu_items = []
@@ -415,9 +412,7 @@ class ScatterplotComponent(DashboardComponent):
         )
         levels = self.feature_handler.get_levels(collection)
         if variable is None:
-            variables = self.feature_handler.get_variables(collection)
-            variables.sort()
-            variable = variables[0]
+            variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
             x=variable,
