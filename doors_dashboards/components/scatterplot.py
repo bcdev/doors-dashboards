@@ -391,7 +391,7 @@ class ScatterplotComponent(DashboardComponent):
                 paper_bgcolor='rgba(0,0,0,0)',
                 legend=dict(
                     title=dict(
-                        text='Sampling Depth [M]'.title(),
+                        text=levels[-1].title(),
                         font=dict(
                             family="Roboto, Helvetica, Arial, sans-serif",
                             size=18,
@@ -402,8 +402,8 @@ class ScatterplotComponent(DashboardComponent):
                 )
             )
             fig.update_traces(marker_size=10)
-            fig.update_xaxes(title_text=variables[0].title())
-            fig.update_yaxes(title_text=variables[1].title())
+            fig.update_xaxes(title_text=x_variable.title())
+            fig.update_yaxes(title_text=y_variable.title())
             return fig
 
     def get_line_scatter_plot(self,
