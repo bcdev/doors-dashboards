@@ -26,7 +26,7 @@ from typing import Dict
 from typing import List
 from waitress import serve
 
-from doors_dashboards.dashboards.dashboard_bootstrap import create_dashboard_bootstrap
+from doors_dashboards.dashboards.dashboard import create_dashboard
 
 _CONFIGS_PATH = "../../configs"
 _SUPPORTED_MODES=[None, 'jupyterlab', 'tab']
@@ -65,7 +65,7 @@ def get_dashboard(dashboard_id: str):
             f"Mode '{mode}' not one of {available_modes}"
         )
     dashboard_config = _read_config(dashboard_id)
-    return create_dashboard_bootstrap(dashboard_config)
+    return create_dashboard(dashboard_config)
 
 
 def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):

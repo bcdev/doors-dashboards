@@ -279,8 +279,16 @@ class ScatterplotComponent(DashboardComponent):
         line_drop_down_menus = list(self.line_dropdown_menus.values())
         line_drop_down_menus[0].style['display'] = 'block'
 
-        upper_row = dbc.Row(
-            children=main_group_drop_down_menus + line_drop_down_menus
+        upper_row = dbc.Row([
+            dbc.Col(
+                    main_group_drop_down_menus,
+                    className="col-"
+            ),
+            dbc.Col(
+                line_drop_down_menus,
+                className="col-"
+            )
+        ]
         )
         upper_components = [
             upper_row,
@@ -304,10 +312,20 @@ class ScatterplotComponent(DashboardComponent):
         global SELECTED_Y_VAR_ITEM
         SELECTED_Y_VAR_ITEM = point_y_drop_options[0].children
 
-        lower_row = dbc.Row(
-            children=group_drop_down_menus +
-                     point_x_drop_down_menus +
-                     point_y_drop_down_menus
+        lower_row = dbc.Row([
+            dbc.Col(
+                group_drop_down_menus,
+                className="col-"
+            ),
+            dbc.Col(
+                point_x_drop_down_menus,
+                className="col-"
+            ),
+            dbc.Col(
+                point_y_drop_down_menus,
+                className="col-"
+            )
+        ]
         )
         lower_components = [
             lower_row,
@@ -1101,4 +1119,65 @@ class ScatterplotComponent(DashboardComponent):
             return self.get_point_scatter_plot(
                 collection, SELECTED_GROUP_ITEM, SELECTED_MAIN_GROUP_ITEM,
                 SELECTED_X_VAR_ITEM, y_variable
+            )
+
+        @app.callback(
+            Output("scattermap", 'figure'),
+            [Input(group_value_id, 'n_clicks_timestamp')
+             for group_value_id in group_drop_options],
+            prevent_initial_call=True
+        )
+        def update_scatter_map_after_group_change(*timestamps):
+            if not any(timestamps):
+                return dash.no_update
+            latest_timestamp_index = timestamps.index(
+                max(t for t in timestamps if t is not None))
+            group_drop_option_key = \
+                list(self.group_drop_options.keys())[latest_timestamp_index]
+            selected_group = self.group_drop_options[group_drop_option_key].children
+            global SELECTED_GROUP_ITEM
+            SELECTED_GROUP_ITEM = selected_group
+            mapbox_token = os.environ.get("MAPBOX_TOKEN")
+            figure = go.Figure()
+            collection = self.feature_handler.get_selected_collection()
+            #lons, lats, labels = self.feature_handler.get_points_as_tuples(
+             #       collection)
+
+            #figure.add_trace(go.Scattermapbox(
+             #       lat=lats, lon=lons, mode='markers',
+             #       marker=go.scattermapbox.Marker(size=10, color='blue'),
+              #      text=labels,
+              #      showlegend=False
+               # ))
+
+            df = self.feature_handler.get_df(collection)
+            df = df[df['station'] == SELECTED_GROUP_ITEM]
+            lat_list = df['lat'].tolist()
+            lon_list = df['lon'].tolist()
+            # Highlight the selected station
+            figure.add_trace(go.Scattermapbox(
+                    lat=lat_list, lon=lon_list,
+                    mode='markers',
+                    marker=go.scattermapbox.Marker(size=20, color='red'),
+                    # Increase size and change color for the selected station
+                    text=[SELECTED_GROUP_ITEM],
+                    showlegend=False
+                ))
+
+            return figure
+
+        @app.callback(
+            Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+            Input("scattermap", 'clickData'),
+            prevent_initial_call=True
+        )
+        def update_point_scatter_plot(click_data):
+            meteo_lon = click_data['points'][0]['lon'] if click_data else lon
+            meteo_lat = click_data['points'][0]['lat'] if click_data else lat
+            meteo_label = click_data['points'][0]['text'] if click_data \
+                else label
+            date_string = date.fromisoformat(date_value). \
+                strftime('%Y-%m-%dT00:00:00Z') if date_value else None
+            return meteo_label, self._get_meteogram_image(
+                meteo_lon, meteo_lat, date_string, forecast_value
             )
