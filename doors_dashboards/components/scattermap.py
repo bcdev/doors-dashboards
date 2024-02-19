@@ -1,6 +1,6 @@
 from dash import Dash
 from dash import dcc
-from dash import html
+import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 import math
 import os
@@ -9,6 +9,7 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+from doors_dashboards.components.constant import PLOT_BGCOLOR, FONT_FAMILY
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -35,13 +36,11 @@ class ScatterMapComponent(DashboardComponent):
     def __init__(self):
         self.feature_handler = None
 
-    def get(self,
-            sub_component: str, sub_component_id: str, sub_config: Dict
-    ) -> Component:
+    def get(self, sub_component: str, sub_component_id: str, sub_config: Dict) -> Component:
         points = sub_config.get("points")
-        marker_size = sub_config.get("marker_size", 9)
+        marker_size = sub_config.get("marker_size", 10)
         marker_color = sub_config.get("marker_color", "blue")
-        mapbox_style = sub_config.get("mapbox_style", "open-street-map")
+        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
         selected_variable = sub_config.get("selected_variable", "")
 
         figure = go.Figure()
@@ -64,13 +63,16 @@ class ScatterMapComponent(DashboardComponent):
                     point[3].get(selected_variable) for point in points
                 ]
 
+            marker_color = self.feature_handler.get_color(collection)
+
             figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
                 marker=go.scattermapbox.Marker(
                     size=marker_size, color=marker_color
                 ),
-                text=labels
-        ))
+                text=labels,
+                name=collection
+            ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
 
@@ -88,27 +90,42 @@ class ScatterMapComponent(DashboardComponent):
             autosize=True,
             mapbox_style=mapbox_style,
             hoverlabel=dict(
-                bgcolor="white",
-                font_color="black",
-                font_family='Roboto, Helvetica, Arial, sans-serif'
-            )
+                bgcolor="#7D8FA9",
+                font_color="white",
+                font_family=FONT_FAMILY
+            ),
         )
         figure.update_layout(mapbox=mapbox)
-
+        figure.update_layout()
         scattermap_graph = dcc.Graph(
             id=sub_component_id,
             figure=figure,
             style={
                 'width': '100%',
-                'height': '70vh'
+                'height': '95vh',
             },
         )
-        return html.Div(
+        figure.update_layout(
+            legend=dict(
+                x=0,
+                y=1,
+                traceorder="normal",
+                font=dict(
+                    family="sans-serif",
+                    size=12,
+                    color="black"
+                ),
+            )
+        )
+        return dbc.Col(
             scattermap_graph,
             style={
                 'flex': '1',
-                'margin': '50px',
+                'margin': '2px',
                 'alignItems': 'center',
+                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
+                'border-radius': '15px',
+                'margin-right': '5px'
             }
         )
 

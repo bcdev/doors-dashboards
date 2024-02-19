@@ -24,6 +24,7 @@ import sys
 import yaml
 from typing import Dict
 from typing import List
+from waitress import serve
 
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
@@ -52,7 +53,7 @@ def list_dashboards() -> List[str]:
     return available_dashboards
 
 
-def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):
+def get_dashboard(dashboard_id: str):
     if dashboard_id not in list_dashboards():
         available_dashboards = ", ".join(list_dashboards())
         raise ValueError(
@@ -64,7 +65,11 @@ def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):
             f"Mode '{mode}' not one of {available_modes}"
         )
     dashboard_config = _read_config(dashboard_id)
-    dashboard = create_dashboard(dashboard_config)
+    return create_dashboard(dashboard_config)
+
+
+def start_dashboard(dashboard_id: str, mode: str = 'jupyterlab'):
+    dashboard = get_dashboard(dashboard_id)
     dashboard.run(jupyter_mode=mode)
 
 
@@ -76,5 +81,9 @@ if __name__ == "__main__":
     dashboard_id = sys.argv[1]
     mode = None
     if len(sys.argv) == 3:
-        mode = sys.argv[2]
-    start_dashboard(dashboard_id, mode)
+        # mode = sys.argv[2]
+        # mode = sys.argv[2]
+        dashboard = get_dashboard(dashboard_id)
+        serve(dashboard.server, host="0.0.0.0", port=8787)
+    else:
+        start_dashboard(dashboard_id, mode)

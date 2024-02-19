@@ -1,10 +1,5 @@
-from dash import Dash
-from dash import dcc
-from dash import html
-from dash import Input
-from dash import Output
+from dash import dcc, html, Input, Output, dash
 from dash.development.base_component import Component
-from dash_material_ui import FormLabel
 from copy import deepcopy
 from datetime import date
 from datetime import datetime
@@ -13,6 +8,7 @@ import requests
 from typing import Dict
 from typing import List
 from typing import Tuple
+import dash_bootstrap_components as dbc
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
@@ -73,7 +69,7 @@ class MeteogramComponent(DashboardComponent):
         meteogram_image = self._get_meteogram_image(
             lon, lat, time, meteogram_type
         )
-        return html.Div(
+        return dbc.Col(
             id=sub_component_id,
             children=[
                 meteogram_image,
@@ -134,49 +130,50 @@ class MeteogramComponent(DashboardComponent):
         current_date = datetime.now().date()
         min_date_allowed = current_date - timedelta(days=10)
         max_date_allowed = current_date
-        return html.Div([
-            FormLabel("Select Date: ",
-                      style={'marginRight': '10px',
-                             'fontSize': 'x-large',
-                             'fontWeight': 'bold'}
-                      ),
-            dcc.DatePickerSingle(
-                 id=METEOGRAM_DATE_PICKER_ID,
-                 min_date_allowed=min_date_allowed,
-                 max_date_allowed=max_date_allowed,
-                 initial_visible_month=current_date,
-                 date=current_date,
+        return dbc.Row([
+            dbc.Col(
+                [
+                    dbc.Label("Select Date:", className='mb-2',
+                              style={'display': 'block'}),
+                    dcc.DatePickerSingle(
+                        id=METEOGRAM_DATE_PICKER_ID,
+                        min_date_allowed=min_date_allowed,
+                        max_date_allowed=max_date_allowed,
+                        initial_visible_month=current_date,
+                        date=current_date,
+                        className="mb-2",
+                        style={'width': '230px', 'marginBottom': '20px'}
+                    )
+                ],
+                className='mb-4',  # Add margin-bottom for spacing
             ),
-            FormLabel("Select Forecast Type: ",
-                      style={'marginLeft': '10px',
-                             'fontSize': 'x-large',
-                             'fontWeight': 'bold'}
-                      ),
-            dcc.Dropdown(
-                 id=METEOGRAM_CHOOSER_ID,
-                 options=[
-                     {'label': 'classical_10d', 'value': 'classical_10d'},
-                     {'label': 'classical_15d', 'value': 'classical_15d'},
-                     {'label': 'classical_15d_with_climate',
-                      'value': 'classical_15d_with_climate'},
-                     {'label': 'classical_plume',
-                      'value': 'classical_plume'},
-                     {'label': 'classical_wave', 'value': 'classical_wave'}
-                 ],
-                 value='classical_wave',  # Default selected value
-                 style={'width': '230px', 'marginLeft': '10px'}
-             ),
-        ],
-            style={'display': 'flex',
-                   'alignItems': 'center',
-                   'padding': '10px 0px 0px 30px'
-                   }
-        )
+            dbc.Col(
+                [
+                    dbc.Label("Select Forecast Type:", className='mb-2',
+                              style={'display': 'block'}),
+                    dcc.Dropdown(
+                        id=METEOGRAM_CHOOSER_ID,
+                        options=[
+                            {'label': 'classical_10d', 'value': 'classical_10d'},
+                            {'label': 'classical_15d', 'value': 'classical_15d'},
+                            {'label': 'classical_15d_with_climate',
+                             'value': 'classical_15d_with_climate'},
+                            {'label': 'classical_plume', 'value': 'classical_plume'},
+                            {'label': 'classical_wave', 'value': 'classical_wave'}
+                        ],
+                        value='classical_wave',
+                        className="mb-2",
+                        style={'width': '400px'}
+                    )
+                ],
+                className='mb-4',  # Add margin-bottom for spacing
+            )
+        ])
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
 
-    def register_callbacks(self, app: Dash, component_ids: List[str]):
+    def register_callbacks(self, app: dash.Dash, component_ids: List[str]):
         lon = self._get_default_tuple()[0]
         lat = self._get_default_tuple()[1]
         label = self._get_default_tuple()[2]
@@ -192,7 +189,7 @@ class MeteogramComponent(DashboardComponent):
             meteo_lat = click_data['points'][0]['lat'] if click_data else lat
             meteo_label = click_data['points'][0]['text'] if click_data \
                 else label
-            date_string = date.fromisoformat(date_value).\
+            date_string = date.fromisoformat(date_value). \
                 strftime('%Y-%m-%dT00:00:00Z') if date_value else None
             return meteo_label, self._get_meteogram_image(
                 meteo_lon, meteo_lat, date_string, forecast_value
