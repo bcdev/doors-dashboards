@@ -168,7 +168,8 @@ class TimeSeriesComponent(DashboardComponent):
                 ),
                 dbc.Col(
                     group_drop_down_menus,
-                    className="col-sm-2"
+                    className="col-sm-2",
+                    style={'max-height': '300px', 'overflow-x': 'auto'}
                 )
             ])
             sub_components = [
