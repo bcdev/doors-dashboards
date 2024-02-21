@@ -5,38 +5,170 @@ from dash import Input
 from dash import Output
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
+import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from typing import Dict
+from typing import List
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
+from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import FONT_FAMILY
+from doors_dashboards.components.constant import PLOT_BGCOLOR
 
 TIMEGRAPH_ID = "timeplots_graph"
 TIMEPLOTS_ID = "timeplots"
 TIMESLIDER_ID = "timeslider"
+
+VAR_DROPDOWN_ID_TEMPLATE = "ts_var_drop_down_id_{0}"  # collection
+VAR_DROP_OPTION_TEMPLATE = \
+    "ts_var_drop_option_id_{0}_{1}"  # collection variable
+GROUP_DROPDOWN_ID_TEMPLATE = "ts_group_drop_down_id_{0}"  # collection
+GROUP_DROP_OPTION_TEMPLATE = \
+    "ts_group_drop_option_id_{0}_{1}"  # collection group
 
 
 class TimeSeriesComponent(DashboardComponent):
 
     def __init__(self):
         self.features = None
+        self.var_drop_menus = dict()
+        self.var_drop_options = dict()
+        self.group_drop_menus = dict()
+        self.group_drop_options = dict()
+
+    @staticmethod
+    def _get_dropdown_menu(
+            dropdown_id: str, items: List[dbc.DropdownMenuItem], default: str
+    ) -> dbc.DropdownMenu:
+        return dbc.DropdownMenu(
+            id=dropdown_id,
+            label=default,
+            children=items,
+            style={
+                'fontfamily': FONT_FAMILY,
+                'display': 'none'
+            },
+            size="lg",
+            color="secondary"
+        )
+
+    def _setup_variable_dropdown_menus(self):
+        collections = self.feature_handler.get_collections()
+        for collection in collections:
+            variables = self.feature_handler.get_variables(collection)
+            drop_menu_items = []
+            for variable in variables:
+                var_drop_option_id = VAR_DROP_OPTION_TEMPLATE.format(
+                    collection, variable
+                )
+                line_drop_option = dbc.DropdownMenuItem(
+                    variable,
+                    id=var_drop_option_id,
+                    n_clicks=1,
+                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                )
+                self.var_drop_options[var_drop_option_id] = line_drop_option
+                drop_menu_items.append(line_drop_option)
+            var_dropdown_id = VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            self.var_drop_menus[var_dropdown_id] = \
+                self._get_dropdown_menu(
+                    var_dropdown_id,
+                    drop_menu_items,
+                    variables[0]
+                )
+
+    def _get_group_and_main_group_values(self, collection: str):
+        levels = self.feature_handler.get_levels()
+        nested_level_values = self.feature_handler.get_nested_level_values(collection)
+        if len(levels) == 1:
+            group_values = nested_level_values
+            group_values.sort()
+            return group_values, None
+        if len(levels) == 2:
+            group_values = list(nested_level_values.keys())
+            group_values.sort()
+            return group_values, None
+        else:
+            main_group_values = list(nested_level_values.keys())
+            main_group_values.sort()
+            group_values = list(nested_level_values.get(main_group_values[0]).keys())
+            group_values.sort()
+            return group_values, main_group_values
+
+    def _setup_group_dropdown_menus(self):
+        collections = self.feature_handler.get_collections()
+        for collection in collections:
+            group_values, main_group_values = \
+                self._get_group_and_main_group_values(collection)
+            group_drop_menu_items = []
+            for member in group_values:
+                group_drop_option_id = GROUP_DROP_OPTION_TEMPLATE.format(
+                    collection, member
+                )
+                group_drop_option = \
+                    dbc.DropdownMenuItem(
+                        member,
+                        id=group_drop_option_id,
+                        n_clicks=1,
+                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                    )
+                group_drop_menu_items.append(group_drop_option)
+                self.group_drop_options[group_drop_option_id] = \
+                    group_drop_option
+            group_dropdown_id = \
+                GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
+            self.group_drop_menus[group_dropdown_id] = \
+                self._get_dropdown_menu(
+                    group_dropdown_id,
+                    group_drop_menu_items,
+                    group_values[0]
+                )
 
     def get(self,
             sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
         if sub_component == TIMEPLOTS_ID:
+            self._setup_group_dropdown_menus()
+            self._setup_variable_dropdown_menus()
             time_plots = self._get_timeplots(sub_component_id)
-            return html.Div(
-                id=TIMEGRAPH_ID,
-                children=[
-                    time_plots
-                ], style={
-                    "margin": "10px",
-                    "height": "90%"
-                }
-            )
+
+            var_drop_down_menus = list(self.var_drop_menus.values())
+            var_drop_down_menus[0].style['display'] = 'block'
+
+            group_drop_down_menus = list(self.group_drop_menus.values())
+            group_drop_down_menus[0].style['display'] = 'block'
+
+            row = dbc.Row([
+                dbc.Col(
+                    var_drop_down_menus,
+                    className="col-"
+                ),
+                dbc.Col(
+                    group_drop_down_menus,
+                    className="col-"
+                )
+            ])
+            sub_components = [
+                dbc.Col(
+                    html.Div(
+                        children=[
+                            row,
+                            time_plots
+                        ],
+                        style={'backgroundColor': PLOT_BGCOLOR,
+                               'padding': '10px',
+                               'border-radius': '15px'}
+                    ),
+                    className='col-lg-12',
+                    style={
+                        'marginBottom': '15px'
+                    }
+                )
+            ]
+            return dbc.Row(sub_components)
         if sub_component == TIMESLIDER_ID:
             time_slider = self._get_time_slider(sub_component_id)
             return html.Div(
@@ -72,8 +204,11 @@ class TimeSeriesComponent(DashboardComponent):
                         'family': 'Roboto, Helvetica, Arial, sans-serif',
                     }),
                 col=1, row=i + 1)
+            break
         fig.update_layout(
-            plot_bgcolor='aliceblue',
+            font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR),
+            plot_bgcolor="rgb(0,0,0,0)",
+            paper_bgcolor='rgba(0,0,0,0)',
             showlegend=False
         )
 
@@ -125,6 +260,7 @@ class TimeSeriesComponent(DashboardComponent):
 
         fig.update_xaxes(
             row=1,
+            rangeslider_visible=True,
             rangeselector=dict(
                 buttons=list(range_list)
             )

@@ -1,0 +1,26 @@
+id: bgmts
+title: Bulgaria MAF Time Series
+eez: BG_eez
+features:
+  - id: IO-BAS National Monitoring Chlorophyll
+    type: geodb
+    params:
+      title: "IO-BAS National Monitoring Chl"
+      collection: IO-BAS_National_Monitoring_CHL
+      database: io-bas
+      color: green
+      levels:
+        - "station"
+      label: station
+      variables:
+        - "chl [mg/m^3]"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top
+  timeplots:
+    timeplots:
+      placement: right
