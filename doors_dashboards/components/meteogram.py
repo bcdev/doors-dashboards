@@ -190,7 +190,7 @@ class MeteogramComponent(DashboardComponent):
                              option in OPTIONS],
                     value=OPTIONS[0]['value'],
                     style={'fontFamily': FONT_FAMILY, 'fontSize': 'x-large', 'width':
-                        '500px'},
+                        '350px'},
                     className="m-4",
                     size="lg",
                 )
