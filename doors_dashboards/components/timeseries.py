@@ -2,6 +2,7 @@ from dash import Dash
 from dash import dcc
 from dash import html
 from dash import Input
+from dash import no_update
 from dash import Output
 from dash.development.base_component import Component
 from dash.exceptions import PreventUpdate
@@ -83,6 +84,8 @@ class TimeSeriesComponent(DashboardComponent):
     def _get_group_and_main_group_values(self, collection: str):
         levels = self.feature_handler.get_levels()
         nested_level_values = self.feature_handler.get_nested_level_values(collection)
+        if len(levels) == 0:
+            return None, None
         if len(levels) == 1:
             group_values = nested_level_values
             group_values.sort()
@@ -292,6 +295,67 @@ class TimeSeriesComponent(DashboardComponent):
         self.feature_handler = feature_handler
 
     def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+        group_drop_menus = list(self.group_drop_menus.keys())
+        group_drop_options = list(self.group_drop_options.keys())
+
+        var_drop_menus = list(self.var_drop_menus.keys())
+        var_drop_options = list(self.var_drop_options.keys())
+
+        @app.callback(
+            [Output(var_drop_menu, 'label')
+             for var_drop_menu in var_drop_menus],
+            [Input(var_drop_id, 'n_clicks_timestamp')
+             for var_drop_id in var_drop_options]
+        )
+        def update_var_drop_menu_after_click(*timestamps):
+            if not any(timestamps):
+                return no_update
+            collection = self.feature_handler.get_selected_collection()
+            latest_timestamp_index = timestamps.index(
+                max(t for t in timestamps if t is not None))
+
+            var_drop_option_id = \
+                list(self.var_drop_options.keys())[latest_timestamp_index]
+            var_drop_option_value = \
+                self.var_drop_options[var_drop_option_id].children
+            relevant_var_drop_menu = \
+                VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            results = []
+            for var_drop_menu_id, var_drop_menu \
+                    in self.var_drop_menus.items():
+                if var_drop_menu_id == relevant_var_drop_menu:
+                    results.append(var_drop_option_value)
+                else:
+                    results.append('')
+            return tuple(results)
+
+        @app.callback(
+            [Output(group_drop_menu, 'label')
+             for group_drop_menu in group_drop_menus],
+            [Input(group_drop_id, 'n_clicks_timestamp')
+             for group_drop_id in group_drop_options]
+        )
+        def update_group_drop_menu_after_click(*timestamps):
+            if not any(timestamps):
+                return no_update
+            collection = self.feature_handler.get_selected_collection()
+            latest_timestamp_index = timestamps.index(
+                max(t for t in timestamps if t is not None))
+            group_drop_option_id = \
+                list(self.group_drop_options.keys())[latest_timestamp_index]
+            group_drop_option_value = \
+                self.group_drop_options[group_drop_option_id].children
+            relevant_group_drop_menu = \
+                GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
+            results = []
+            for group_drop_menu_id, group_drop_menu \
+                    in self.group_drop_menus.items():
+                if group_drop_menu_id == relevant_group_drop_menu:
+                    results.append(group_drop_option_value)
+                else:
+                    results.append('')
+            return tuple(results)
+
         @app.callback(
             Output(TIMEGRAPH_ID, 'children'),
             Input(TIMESLIDER_ID, 'value')
