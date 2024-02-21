@@ -72,7 +72,7 @@ def create_dashboard(config: Dict) -> Dash:
             )
     if len(middle_children) > 0:
         main_children['middle'] = dbc.Row(
-            children=[middle_children['left'], middle_children['right']]
+            children=[c for c in middle_children.values()]
         )
 
     main = []
@@ -87,6 +87,8 @@ def create_dashboard(config: Dict) -> Dash:
         id=dashboard_id,
         fluid=True,
         children=[
+            dcc.Store(id='general'),
+            dcc.Store(id='collection_selector'),
             dbc.Row(
                 [
                     dbc.Col(
