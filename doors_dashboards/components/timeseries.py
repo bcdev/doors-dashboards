@@ -49,7 +49,9 @@ class TimeSeriesComponent(DashboardComponent):
             children=items,
             style={
                 'fontfamily': FONT_FAMILY,
-                'display': 'none'
+                'display': 'none',
+                'max-height': '300px !important', 'overflow-x': 'auto !important'
+
             },
             size="lg",
             color="secondary"
@@ -113,7 +115,8 @@ class TimeSeriesComponent(DashboardComponent):
                         member,
                         id=group_drop_option_id,
                         n_clicks=1,
-                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY,
+                               'max-height': '300px', 'overflow-x': 'auto'}
                     )
                 group_drop_menu_items.append(group_drop_option)
                 self.group_drop_options[group_drop_option_id] = \
@@ -129,7 +132,7 @@ class TimeSeriesComponent(DashboardComponent):
 
     def get(self,
             sub_component: str, sub_component_id: str, sub_config: Dict
-    ) -> Component:
+            ) -> Component:
         if sub_component == TIMEPLOTS_ID:
             self._setup_group_dropdown_menus()
             self._setup_variable_dropdown_menus()
@@ -143,12 +146,26 @@ class TimeSeriesComponent(DashboardComponent):
 
             row = dbc.Row([
                 dbc.Col(
+                    dbc.Label('Variable', style={'color': FONT_COLOR,
+                                                 'fontFamily': FONT_FAMILY,
+                                                 'fontSize': '25px',
+                                                 'paddingTop': '5px'}),
+                    className="col-sm-1"
+                ),
+                dbc.Col(
                     var_drop_down_menus,
-                    className="col-"
+                    className="col-sm-2"
+                ),
+                dbc.Col(
+                    dbc.Label('Duration', style={'color': FONT_COLOR,
+                                                 'fontFamily': FONT_FAMILY,
+                                                 'fontSize': '25px',
+                                                 'paddingTop': '5px'}),
+                    className="col-sm-1"
                 ),
                 dbc.Col(
                     group_drop_down_menus,
-                    className="col-"
+                    className="col-sm-2"
                 )
             ])
             sub_components = [
@@ -202,11 +219,12 @@ class TimeSeriesComponent(DashboardComponent):
                     name=selected_variable,
                     textfont={
                         'family': 'Roboto, Helvetica, Arial, sans-serif',
+                        'size': 20
                     }),
                 col=1, row=i + 1)
             break
         fig.update_layout(
-            font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR),
+            font=dict(family=FONT_FAMILY, size=20, color=FONT_COLOR),
             plot_bgcolor="rgb(0,0,0,0)",
             paper_bgcolor='rgba(0,0,0,0)',
             showlegend=False
@@ -260,9 +278,12 @@ class TimeSeriesComponent(DashboardComponent):
 
         fig.update_xaxes(
             row=1,
-            rangeslider_visible=True,
+            rangeslider=dict(
+                visible=True,
+            ),
             rangeselector=dict(
-                buttons=list(range_list)
+                buttons=list(range_list),
+                bgcolor="black",
             )
         )
 
