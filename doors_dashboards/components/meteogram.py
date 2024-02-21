@@ -1,4 +1,4 @@
-from dash import dcc, html, Input, Output, dash
+from dash import dcc, html, dash, Input, Output, State
 from dash.development.base_component import Component
 from copy import deepcopy
 from datetime import date
@@ -10,8 +10,10 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
+from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
+from doors_dashboards.dashboards.test import app
 
 METEOGRAM_ENDPOINT = \
     "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram/"
@@ -23,6 +25,28 @@ BASE_PARAMS = {
 METEOGRAM_IMAGE_ID = "meteogram_image"
 METEOGRAM_DATE_PICKER_ID = "meteogram_date_picker"
 METEOGRAM_CHOOSER_ID = "meteogram_chooser"
+OPTIONS = [
+    {'label': 'Classical 10d', 'value': 'classical_10d'},
+    {'label': 'Classical 15d', 'value': 'classical_15d'},
+    {'label': 'Classical 15d with climate',
+     'value': 'Classical_15d_with_climate'},
+    {'label': 'Classical plume', 'value': 'classical_plume'},
+    {'label': 'Classical wave', 'value': 'classical_wave'}
+
+]
+
+custom_css = '''
+.custom-datepicker .DateRangePickerInput_arrow_svg,
+.custom-datepicker .DateRangePickerInput_arrow_svg_1 {
+  height: 10px !important;
+  width: 10px !important;
+}
+'''
+
+# Append CSS styles to the app
+app.css.append_css({
+    'external_url': 'data:text/css;charset=utf-8,' + custom_css
+})
 
 
 class MeteogramComponent(DashboardComponent):
@@ -70,22 +94,25 @@ class MeteogramComponent(DashboardComponent):
             lon, lat, time, meteogram_type
         )
         return dbc.Col(
-            id=sub_component_id,
-            children=[
-                meteogram_image,
-            ],
-            style={
-                'flex': '1',
-                'margin': '-34px 0 0 0',
-                'display': 'flex',
-                'flexDirection': 'column',
-                'alignItems': 'center',
-                'color': 'rgba(0, 0, 0, 0.54)',
-                'fontSize': 'x-large',
-                'fontFamily':
-                    'Roboto, Helvetica, Arial, sans-serif',
-                'fontWeight': 'bold'
-            }
+            meteogram_image,
+            className='col-lg-12',
+            style={#'marginBottom': '15px',
+                   'color': FONT_COLOR,
+                   'fontSize': 'x-large',
+                   'fontFamily':
+                       FONT_FAMILY,
+                   'fontWeight': 'bold',
+                   'backgroundColor': PLOT_BGCOLOR,
+                   'padding': '35px',
+                   'border-radius': '15px',
+                   'flex': '1',
+                   #'margin-top': '4px',
+                   'display': 'flex',
+                   'flexDirection': 'column',
+                   'alignItems': 'center',
+                   'height': '1200px'
+                   },
+            id=sub_component_id
         )
 
     def _get_meteogram_image(
@@ -108,7 +135,8 @@ class MeteogramComponent(DashboardComponent):
         if not image_url:
             return html.Label('Meteogram could not be loaded: '
                               'No image url in reponse from ECMWF')
-        image = html.Img(src=image_url, style={'padding': '20px'})
+        image = html.Img(src=image_url, style={'padding': '20px', 'width': '1025px',
+                                               'height': '1090px'})
         self._previous_images[key] = image
         return image
 
@@ -133,42 +161,43 @@ class MeteogramComponent(DashboardComponent):
         return dbc.Row([
             dbc.Col(
                 [
-                    dbc.Label("Select Date:", className='mb-2',
-                              style={'display': 'block'}),
+                    dbc.Label("Date", className='col-2',
+                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
+                                     'fontSize': '25px', 'float': 'left',
+                                     'margin-top': '59px', 'padding-left': '28px'}),
                     dcc.DatePickerSingle(
                         id=METEOGRAM_DATE_PICKER_ID,
                         min_date_allowed=min_date_allowed,
                         max_date_allowed=max_date_allowed,
                         initial_visible_month=current_date,
                         date=current_date,
-                        className="mb-2",
-                        style={'width': '230px', 'marginBottom': '20px'}
+                        day_size=70,
+                        style={'width': '100%', 'margin': '-48px 0px 0px 101px',
+                               'float': 'left', 'font-family': FONT_FAMILY}
                     )
                 ],
-                className='mb-4',  # Add margin-bottom for spacing
+                className='col-sm-2 mb-4',
+                style={'margin-top': '-32px','margin-right': '-163px'}
             ),
-            dbc.Col(
-                [
-                    dbc.Label("Select Forecast Type:", className='mb-2',
-                              style={'display': 'block'}),
-                    dcc.Dropdown(
-                        id=METEOGRAM_CHOOSER_ID,
-                        options=[
-                            {'label': 'classical_10d', 'value': 'classical_10d'},
-                            {'label': 'classical_15d', 'value': 'classical_15d'},
-                            {'label': 'classical_15d_with_climate',
-                             'value': 'classical_15d_with_climate'},
-                            {'label': 'classical_plume', 'value': 'classical_plume'},
-                            {'label': 'classical_wave', 'value': 'classical_wave'}
-                        ],
-                        value='classical_wave',
-                        className="mb-2",
-                        style={'width': '400px'}
-                    )
-                ],
-                className='mb-4',  # Add margin-bottom for spacing
-            )
-        ])
+            dbc.Col([
+                dbc.Label('Forecast Type', className='mb-2',
+                          style={'fontSize': '25px', 'float': 'left', 'fontFamily':
+                              FONT_FAMILY, 'color': FONT_COLOR,
+                                 'padding': '29px 20px 0px 40px'}),
+                dbc.Select(
+                    id=METEOGRAM_CHOOSER_ID,
+                    options=[{'label': option['label'], 'value': option['value']} for
+                             option in OPTIONS],
+                    value=OPTIONS[0]['value'],
+                    style={'fontFamily': FONT_FAMILY, 'fontSize': 'x-large', 'width':
+                        '500px'},
+                    className="m-4",
+                    size="lg",
+                )
+            ],
+                width=4,
+                className='mb-4'
+            )])
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
@@ -180,9 +209,9 @@ class MeteogramComponent(DashboardComponent):
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
-            Input("scattermap", 'clickData'),
-            Input(METEOGRAM_DATE_PICKER_ID, 'date'),
-            Input(METEOGRAM_CHOOSER_ID, 'value')
+            [Input("scattermap", 'clickData'),
+             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
+             Input(METEOGRAM_CHOOSER_ID, 'value')]
         )
         def update_meteogram_image(click_data, date_value, forecast_value):
             meteo_lon = click_data['points'][0]['lon'] if click_data else lon
@@ -191,6 +220,7 @@ class MeteogramComponent(DashboardComponent):
                 else label
             date_string = date.fromisoformat(date_value). \
                 strftime('%Y-%m-%dT00:00:00Z') if date_value else None
+
             return meteo_label, self._get_meteogram_image(
                 meteo_lon, meteo_lat, date_string, forecast_value
             )
