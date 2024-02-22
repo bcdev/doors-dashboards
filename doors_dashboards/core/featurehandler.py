@@ -80,6 +80,10 @@ class FeatureHandler:
     def _get_label_column_name(self, collection: str):
         return self._configs.get(collection, {}).get("params", {}).get("label")
 
+    def get_color_code_config(self, collection: str) -> Dict[str, Any]:
+        return (self._configs.get(collection, {}).get("params", {}).
+                get("colorcodevariable", {}))
+
     def get_levels(self, collection: str = None) -> List[str]:
         collection = self._selected_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
@@ -145,7 +149,7 @@ class FeatureHandler:
             )
 
     def get_points_as_tuples(self, collection: str = None) -> \
-            Tuple[List[float], List[float], List[str]]:
+            Tuple[List[float], List[float], List[str], List[float]]:
         collection = self._selected_collection if not collection else collection
         df = self.get_df(collection)
         lons = list(df["lon"])
@@ -161,4 +165,6 @@ class FeatureHandler:
                 for k, v in dic.items():
                     res += f'{k}: {v}<br>'
                 labels.append(res[:-4])
-        return lons, lats, labels
+        ccvar = self.get_color_code_config(collection).get("name")
+        values = list(df[ccvar]) if ccvar else None
+        return lons, lats, labels, values

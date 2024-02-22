@@ -72,7 +72,7 @@ def create_dashboard(config: Dict) -> Dash:
             )
     if len(middle_children) > 0:
         main_children['middle'] = dbc.Row(
-            children=[middle_children['left'], middle_children['right']]
+            children=[c for c in middle_children.values()]
         )
 
     main = []
