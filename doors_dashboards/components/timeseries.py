@@ -4,14 +4,15 @@ from dash import html
 from dash import Input
 from dash import no_update
 from dash import Output
+from dash import State
 from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
@@ -137,6 +138,12 @@ class TimeSeriesComponent(DashboardComponent):
             self._setup_group_dropdown_menus()
             self._setup_variable_dropdown_menus()
             time_plots = self._get_timeplots(sub_component_id)
+            time_div = html.Div(
+                id=TIMEGRAPH_ID,
+                children=[
+                    time_plots
+                ]
+            )
 
             var_drop_down_menus = list(self.var_drop_menus.values())
             var_drop_down_menus[0].style['display'] = 'block'
@@ -159,7 +166,7 @@ class TimeSeriesComponent(DashboardComponent):
                     html.Div(
                         children=[
                             row,
-                            time_plots
+                            time_div
                         ],
                         style={'backgroundColor': PLOT_BGCOLOR,
                                'padding': '10px',
@@ -189,25 +196,38 @@ class TimeSeriesComponent(DashboardComponent):
                          f"'timeplots'. Must be one of 'timeplots', "
                          f"'timeslider'.")
 
-    def _get_timeplots(self, timeseries_id: str) -> Component:
-        df = self.feature_handler.get_df()
-        variables = self.feature_handler.get_variables()
-        time_column = self.feature_handler.get_time_column_name()
+    def _get_timeplots(self,
+                       timeseries_id: str,
+                       *,
+                       collection: Optional[str] = None,
+                       variable: Optional[str] = None,
+                       group: Optional[str] = None
+                       ) -> Component:
+        collection = collection or self.feature_handler.get_default_collection()
+        variable = (variable or
+                    self.feature_handler.get_default_variable(collection))
+        if group is None:
+            group_values, _ = self._get_group_and_main_group_values(collection)
+            group = group_values[0]
+        level = self.feature_handler.get_levels(collection)[0]
+
+        df = self.feature_handler.get_df(collection)
+        df = df[df[level] == group]
+        time_column = self.feature_handler.get_time_column_name(collection)
+        df[time_column] = pd.to_datetime(df[time_column])
+        df = df.sort_values(by=time_column)
         fig = make_subplots(
-            cols=1, rows=len(variables), shared_xaxes='all',
-            subplot_titles=variables
+            cols=1, rows=1,
         )
-        for i, selected_variable in enumerate(variables):
-            fig.add_trace(
-                go.Scatter(
-                    x=pd.to_datetime(df[time_column]),
-                    y=df[selected_variable],
-                    name=selected_variable,
-                    textfont={
-                        'family': 'Roboto, Helvetica, Arial, sans-serif',
-                    }),
-                col=1, row=i + 1)
-            break
+        fig.add_trace(
+            go.Scatter(
+                x=pd.to_datetime(df[time_column]),
+                y=df[variable],
+                name=variable,
+                textfont={
+                    'family': 'Roboto, Helvetica, Arial, sans-serif',
+                }),
+            col=1, row=1)
         fig.update_layout(
             font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR),
             plot_bgcolor="rgb(0,0,0,0)",
@@ -236,7 +256,8 @@ class TimeSeriesComponent(DashboardComponent):
             showticklabels=True,
             showgrid=False
         )
-        min_time, max_time = self.feature_handler.get_time_range()
+        min_time = min(df[time_column])
+        max_time = max(df[time_column])
         delta = max_time - min_time
         range_list = [
             dict(count=1, label="1h", step="hour", stepmode="backward"),
@@ -267,6 +288,12 @@ class TimeSeriesComponent(DashboardComponent):
             rangeselector=dict(
                 buttons=list(range_list)
             )
+        )
+        fig.update_layout(
+            template='plotly_dark',
+            xaxis_rangeselector_font_color='white',
+            xaxis_rangeselector_activecolor="#5c636a",
+            xaxis_rangeselector_bgcolor='#6c757d'
         )
 
         return dcc.Graph(
@@ -302,92 +329,227 @@ class TimeSeriesComponent(DashboardComponent):
         var_drop_options = list(self.var_drop_options.keys())
 
         @app.callback(
-            [Output(var_drop_menu, 'label')
-             for var_drop_menu in var_drop_menus],
+            Output("general", "data",
+                   allow_duplicate=True),
+            Input("variable_selector", 'data'),
+            State("general", "data"),
+            prevent_initial_call=True
+        )
+        def update_general_store_after_variable_selection(
+                selected_data, general_data
+        ):
+            if selected_data is None:
+                return no_update
+            general_data = general_data or {}
+            if "collection" not in general_data:
+                general_data["collection"] = (
+                    self.feature_handler.get_default_collection())
+            if "variables" not in general_data:
+                general_data["variables"] = {}
+            collection = general_data["collection"]
+            general_data["variables"][collection] = selected_data["selected_var"]
+            return general_data
+
+        @app.callback(
+            Output("variable_selector", 'data'),
             [Input(var_drop_id, 'n_clicks_timestamp')
              for var_drop_id in var_drop_options]
         )
-        def update_var_drop_menu_after_click(*timestamps):
+        def update_variable_selector_store(*timestamps):
             if not any(timestamps):
                 return no_update
-            collection = self.feature_handler.get_selected_collection()
+            # collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
 
             var_drop_option_id = \
                 list(self.var_drop_options.keys())[latest_timestamp_index]
-            var_drop_option_value = \
-                self.var_drop_options[var_drop_option_id].children
-            relevant_var_drop_menu = \
-                VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            selected_var = self.var_drop_options[var_drop_option_id].children
+            return {
+                'selected_var': selected_var
+            }
+
+        @app.callback(
+            [Output(var_drop_menu, 'label')
+             for var_drop_menu in var_drop_menus],
+            Input("general", "data")
+        )
+        def update_variable_drop_down_labels(general_data):
+            if general_data is None:
+                return no_update
+            general_data = general_data or {}
+            id_to_var = {}
+            for collection, variable in (
+                    general_data.get("variables", {}).items()):
+                var_drop_menu = VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+                id_to_var[var_drop_menu] = variable
             results = []
             for var_drop_menu_id, var_drop_menu \
                     in self.var_drop_menus.items():
-                if var_drop_menu_id == relevant_var_drop_menu:
-                    results.append(var_drop_option_value)
-                else:
-                    results.append('')
+                results.append(id_to_var.get(var_drop_menu_id, ""))
             return tuple(results)
+        @app.callback(
+            Output("general", "data",
+                   allow_duplicate=True),
+            Input("group_selector", 'data'),
+            State("general", "data"),
+            prevent_initial_call=True
+        )
+        def update_general_store_after_group_selection(
+                selected_data, general_data
+        ):
+            if selected_data is None:
+                return no_update
+            general_data = general_data or {}
+            if "collection" not in general_data:
+                general_data["collection"] = (
+                    self.feature_handler.get_default_collection())
+            if "groups" not in general_data:
+                general_data["groups"] = {}
+            collection = general_data["collection"]
+            general_data["groups"][collection] = selected_data["selected_group"]
+            return general_data
+
+        @app.callback(
+            Output("group_selector", 'data'),
+            [Input(group_drop_id, 'n_clicks_timestamp')
+             for group_drop_id in group_drop_options]
+        )
+        def update_group_selector_store(*timestamps):
+            if not any(timestamps):
+                return no_update
+            latest_timestamp_index = timestamps.index(
+                max(t for t in timestamps if t is not None))
+
+            group_drop_option_id = \
+                list(self.group_drop_options.keys())[latest_timestamp_index]
+            selected_group = \
+                self.group_drop_options[group_drop_option_id].children
+            return {
+                'selected_group': selected_group
+            }
 
         @app.callback(
             [Output(group_drop_menu, 'label')
              for group_drop_menu in group_drop_menus],
-            [Input(group_drop_id, 'n_clicks_timestamp')
-             for group_drop_id in group_drop_options]
+            Input("general", "data")
         )
-        def update_group_drop_menu_after_click(*timestamps):
-            if not any(timestamps):
+        def update_group_drop_down_labels(general_data):
+            if general_data is None:
                 return no_update
-            collection = self.feature_handler.get_selected_collection()
-            latest_timestamp_index = timestamps.index(
-                max(t for t in timestamps if t is not None))
-            group_drop_option_id = \
-                list(self.group_drop_options.keys())[latest_timestamp_index]
-            group_drop_option_value = \
-                self.group_drop_options[group_drop_option_id].children
-            relevant_group_drop_menu = \
-                GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
+            general_data = general_data or {}
+            id_to_group = {}
+            for collection, group in general_data.get("groups", {}).items():
+                group_drop_menu = GROUP_DROPDOWN_ID_TEMPLATE.format(
+                    collection
+                )
+                id_to_group[group_drop_menu] = group
             results = []
             for group_drop_menu_id, group_drop_menu \
                     in self.group_drop_menus.items():
-                if group_drop_menu_id == relevant_group_drop_menu:
-                    results.append(group_drop_option_value)
-                else:
-                    results.append('')
+                results.append(id_to_group.get(group_drop_menu_id, ""))
             return tuple(results)
 
         @app.callback(
             Output(TIMEGRAPH_ID, 'children'),
-            Input(TIMESLIDER_ID, 'value')
+            Input("general", "data")
         )
-        def update_timeplots(value):
-            if value is None:
-                raise PreventUpdate
-            min_time, _ = self.feature_handler.get_time_range()
-            timestamp_range = [min_time + pd.Timedelta(seconds=v)
-                               for v in value]
-            line_plots = self._get_timeplots(TIMEPLOTS_ID)
-            line_plots.figure.update_xaxes(
-                range=timestamp_range,
+        def update_time_plots_after_general_data_change(general_data):
+            if general_data is None:
+                return no_update
+            collection = general_data.get(
+                "collection", self.feature_handler.get_default_collection()
             )
+            variable = general_data.get("variables", {}).get(collection)
+            group = general_data.get("groups", {}).get(collection)
+            line_plots = self._get_timeplots(TIMEPLOTS_ID,
+                                             collection=collection,
+                                             variable=variable,
+                                             group=group
+                                             )
             return line_plots
 
+        variable_style_outputs = \
+            [Output(variable_drop_menu, 'style')
+            for variable_drop_menu in var_drop_menus]
+
+        variable_label_outputs = [
+            Output(variable_drop_menu, 'label',
+                    allow_duplicate=True)
+            for variable_drop_menu in var_drop_menus]
+        variable_outputs = variable_style_outputs + variable_label_outputs
+
         @app.callback(
-            Output(TIMESLIDER_ID, 'value'),
-            Input(TIMEPLOTS_ID, 'relayoutData')
+            variable_outputs,
+            Input("general", "data"),
+            prevent_initial_call=True
         )
-        def update_timeslider(relayout_data):
-            if relayout_data is None or \
-                    'xaxis.range[0]' not in relayout_data or \
-                    'xaxis.range[1]' not in relayout_data:
-                raise PreventUpdate
-            min_time, _ = self.feature_handler.get_time_range()
-            start = int((pd.Timestamp(
-                relayout_data['xaxis.range[0]']) - min_time
-                         ).total_seconds())
-            end = int((pd.Timestamp(
-                relayout_data['xaxis.range[1]']) - min_time
-                       ).total_seconds())
-            return [start, end]
+        def update_variable_outputs(general_data):
+            if general_data is None or "collection" not in general_data:
+                return no_update
+            collection = general_data.get("collection")
+            selected_variable_dropdown_id = \
+                VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            results = []
+            for var_drop_menu_id, var_drop_menu \
+                    in self.var_drop_menus.items():
+                if var_drop_menu_id == selected_variable_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            for var_drop_menu_id, var_drop_menu \
+                    in self.var_drop_menus.items():
+                if var_drop_menu_id == selected_variable_dropdown_id:
+                    variable = general_data.get("variables", {}).get(
+                        collection,
+                        self.feature_handler.get_default_variable(collection)
+                    )
+                    results.append(variable)
+                else:
+                    results.append('')
+            return tuple(results)
+
+        group_style_outputs = \
+            [Output(group_drop_menu, 'style')
+            for group_drop_menu in group_drop_menus]
+
+        group_label_outputs = [
+            Output(group_drop_menu, 'label',
+                    allow_duplicate=True)
+            for group_drop_menu in group_drop_menus]
+        group_outputs = group_style_outputs + group_label_outputs
+
+        @app.callback(
+            group_outputs,
+            Input("general", "data"),
+            prevent_initial_call=True
+        )
+        def update_group_outputs(general_data):
+            if general_data is None or "collection" not in general_data:
+                return no_update
+            collection = general_data.get("collection")
+            selected_group_dropdown_id = \
+                GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
+            results = []
+            for group_drop_menu_id, group_drop_menu \
+                    in self.group_drop_menus.items():
+                if group_drop_menu_id == selected_group_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            for group_drop_menu_id, group_drop_menu \
+                    in self.group_drop_menus.items():
+                if group_drop_menu_id == selected_group_dropdown_id:
+                    group_values, _ = self._get_group_and_main_group_values(
+                        collection
+                    )
+                    group = general_data.get("groups", {}).get(
+                        collection,
+                        group_values[0]
+                    )
+                    results.append(group)
+                else:
+                    results.append('')
+            return tuple(results)
 
         return app

@@ -29,6 +29,12 @@ class FeatureHandler:
     def get_selected_collection(self) -> Optional[str]:
         return self._selected_collection
 
+    def get_default_collection(self) -> str:
+        return self.get_collections()[0]
+
+    def get_default_variable(self, collection: str) -> str:
+        return self.get_variables(collection)[0]
+
     @staticmethod
     def _load_eez(eez: str = None):
         if eez:

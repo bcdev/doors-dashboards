@@ -89,6 +89,8 @@ def create_dashboard(config: Dict) -> Dash:
         children=[
             dcc.Store(id='general'),
             dcc.Store(id='collection_selector'),
+            dcc.Store(id='group_selector'),
+            dcc.Store(id="variable_selector"),
             dbc.Row(
                 [
                     dbc.Col(

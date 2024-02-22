@@ -40,11 +40,13 @@ class SelectCollectionComponent(DashboardComponent):
                 return dash.no_update
 
         @app.callback(
-            Output("general", "data"),
+            Output("general", "data",
+                   allow_duplicate=True),
             Input("collection_selector", 'data'),
-            State("general", "data")
+            State("general", "data"),
+            prevent_initial_call=True
         )
-        def update_store(selected_data, general_data):
+        def update_general_store(selected_data, general_data):
             if selected_data is not None:
                 general_data = general_data or {}
                 general_data['collection'] = selected_data["collection"]
@@ -56,7 +58,7 @@ class SelectCollectionComponent(DashboardComponent):
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(self.collection_to_id.values())]
         )
-        def update_store(*timestamps):
+        def update_collection_selector_store(*timestamps):
             if any(timestamps):
                 collections = list(self.collection_to_id.keys())
                 latest_timestamp_index = timestamps.index(
