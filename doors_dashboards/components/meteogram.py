@@ -1,4 +1,4 @@
-from dash import dcc, html, dash, Input, Output, State
+from dash import dcc, html, dash, Input, Output
 from dash.development.base_component import Component
 from copy import deepcopy
 from datetime import date
@@ -13,7 +13,7 @@ import dash_bootstrap_components as dbc
 from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
-from doors_dashboards.dashboards.test import app
+
 
 METEOGRAM_ENDPOINT = \
     "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram/"
@@ -34,20 +34,6 @@ OPTIONS = [
     {'label': 'Classical wave', 'value': 'classical_wave'}
 
 ]
-
-custom_css = '''
-.custom-datepicker .DateRangePickerInput_arrow_svg,
-.custom-datepicker .DateRangePickerInput_arrow_svg_1 {
-  height: 10px !important;
-  width: 10px !important;
-}
-'''
-
-# Append CSS styles to the app
-app.css.append_css({
-    'external_url': 'data:text/css;charset=utf-8,' + custom_css
-})
-
 
 class MeteogramComponent(DashboardComponent):
 
