@@ -110,11 +110,11 @@ class FeatureHandlerClass(TestCase):
         self.assertEqual([28.1, 10.2, -10.3], lons)
         self.assertEqual([42.4, 55.3, 45.2], lats)
         self.assertEqual([
-            "lon: 28.1<br>lat: 42.4<br>chlorophyll: 0.001<br>"
+            "geometry: POINT (28.1 42.4)<br>chlorophyll: 0.001<br>"
             "temperature: 20.1<br>timestamp: 2007-10-12T23:01:02",
-            "lon: 10.2<br>lat: 55.3<br>chlorophyll: 0.005<br>"
+            "geometry: POINT (10.2 55.3)<br>chlorophyll: 0.005<br>"
             "temperature: 10.1<br>timestamp: 2007-10-13T22:01:02",
-            "lon: -10.3<br>lat: 45.2<br>chlorophyll: 0.01<br>"
+            "geometry: POINT (-10.3 45.2)<br>chlorophyll: 0.01<br>"
             "temperature: 12.4<br>timestamp: 2007-10-14T21:01:02"],
             labels
         )
@@ -185,7 +185,7 @@ class FeatureHandlerClassWithEez(TestCase):
         self.assertEqual([28.1], lons)
         self.assertEqual([42.4], lats)
         self.assertEqual([
-            "lon: 28.1<br>lat: 42.4<br>chlorophyll: 0.001<br>"
+            "geometry: POINT (28.1 42.4)<br>chlorophyll: 0.001<br>"
             "temperature: 20.1<br>timestamp: 2007-10-12T23:01:02"],
             labels
         )
