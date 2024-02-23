@@ -87,6 +87,10 @@ def create_dashboard(config: Dict) -> Dash:
         id=dashboard_id,
         fluid=True,
         children=[
+            dcc.Store(id='general'),
+            dcc.Store(id='collection_selector'),
+            dcc.Store(id='group_selector'),
+            dcc.Store(id="variable_selector"),
             dbc.Row(
                 [
                     dbc.Col(

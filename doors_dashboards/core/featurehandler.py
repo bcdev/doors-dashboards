@@ -1,5 +1,6 @@
 import pandas as pd
 import geopandas as gpd
+from shapely import wkt
 from typing import Any
 from typing import Dict
 from typing import List
@@ -7,6 +8,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from doors_dashboards.core.constants import REFERENCE_CRS
 from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
 
 
@@ -27,16 +29,24 @@ class FeatureHandler:
     def get_selected_collection(self) -> Optional[str]:
         return self._selected_collection
 
+    def get_default_collection(self) -> str:
+        return self.get_collections()[0]
+
+    def get_default_variable(self, collection: str) -> str:
+        return self.get_variables(collection)[0]
+
     @staticmethod
     def _load_eez(eez: str = None):
         if eez:
             extended_eez_path = f"../../data/eez/{eez}/{eez}.shp"
-            return gpd.read_file(extended_eez_path, driver='ESRI Shapefile')
+            eez = gpd.read_file(extended_eez_path, driver='ESRI Shapefile')
+            eez = eez.to_crs(REFERENCE_CRS)
+            return eez
 
     def get_collections(self) -> List[str]:
         return list(self._configs.keys())
 
-    def get_df(self, collection: str = None):
+    def get_df(self, collection: str = None) -> gpd.GeoDataFrame:
         collection = self._selected_collection if not collection else collection
         if collection not in self._dfs:
             if collection not in self._configs:
@@ -50,11 +60,12 @@ class FeatureHandler:
 
     def get_variables(self, collection: str = None):
         collection = self._selected_collection if not collection else collection
-        variables = self._configs.get(collection, {}).get("variables")
+        variables = self._configs.get(collection, {}).get("params", {}).\
+            get("variables")
         time_column_name = self.get_time_column_name(collection)
         if variables is None:
             variables = list(self.get_df(collection).columns)
-            to_be_removed = ["lat", "lon", time_column_name]
+            to_be_removed = ["geometry", time_column_name]
             label = self._get_label_column_name(collection)
             if label:
                 to_be_removed.append(label)
@@ -121,18 +132,19 @@ class FeatureHandler:
         gdf = self.get_df(collection)
         return self._get_nested_level_values(gdf, levels)
 
-    def _read_features(self, features: Dict) -> pd.DataFrame:
+    def _read_features(self, features: Dict) -> gpd.GeoDataFrame:
         if features.get("type") == "local":
             filepath = features.get("params").get("file")
+            crs = features.get("params").get("crs", REFERENCE_CRS)
             with open(filepath, "r") as points_file:
                 df = pd.read_csv(points_file)
+                df["geometry"] = df["geometry"].apply(wkt.loads)
+                gdf = gpd.GeoDataFrame(df, crs=crs)
+                if crs != REFERENCE_CRS:
+                    gdf = gdf.to_crs(REFERENCE_CRS)
                 if self._eez_frame is not None:
-                    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(
-                        df["lon"], df["lat"], crs="EPSG:4326"
-                    ))
                     gdf = gdf.clip(self._eez_frame)
-                    df = gdf.drop("geometry", axis=1)
-                return df
+                return gdf
         if features.get("type") == "geodb":
             params = features.get("params")
             return get_dataframe_from_geodb(
@@ -151,15 +163,17 @@ class FeatureHandler:
     def get_points_as_tuples(self, collection: str = None) -> \
             Tuple[List[float], List[float], List[str], List[float]]:
         collection = self._selected_collection if not collection else collection
-        df = self.get_df(collection)
-        lons = list(df["lon"])
-        lats = list(df["lat"])
+        gdf = self.get_df(collection)
+
+        lons = list(gdf.geometry.apply(lambda p: p.x))
+        lats = list(gdf.geometry.apply(lambda p: p.y))
+
         label = self._get_label_column_name(collection)
         if label:
-            labels = list(df[label])
+            labels = list(gdf[label])
         else:
             labels = []
-            for i, row in df.iterrows():
+            for i, row in gdf.iterrows():
                 dic = row.to_dict()
                 res = ''
                 for k, v in dic.items():

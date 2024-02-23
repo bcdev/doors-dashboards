@@ -1,11 +1,11 @@
 import geopandas as gpd
-import pandas as pd
 from typing import Any
 from typing import Dict
 from typing import List
 
 from xcube_geodb.core.geodb import GeoDBClient
 
+from doors_dashboards.core.constants import REFERENCE_CRS
 
 _GEODB_CLIENT = None
 _PART_SIZE = 100000
@@ -45,7 +45,8 @@ def get_dataframe_from_geodb(
         gdf = geodb.get_collection(collection, database=database)
 
     gdf = gdf.sort_values('id')
-
+    if gdf.crs != REFERENCE_CRS:
+        gdf = gdf.to_crs(REFERENCE_CRS)
     if mask is not None:
         gdf = gdf.clip(mask)
 
@@ -62,17 +63,13 @@ def get_dataframe_from_geodb(
                     loc_row &= (gdf[key] == line[key])
                 gdf.loc[loc_row, variable] = line[value]
 
-    points_gdf = gdf[gdf["geometry"].geom_type == 'Point']
-    points_gdf['lon'] = points_gdf.geometry.apply(lambda p: p.x)
-    points_gdf['lat'] = points_gdf.geometry.apply(lambda p: p.y)
-
-    sub_gdf_list = ['lat', 'lon', name_of_time_column] + variables
+    sub_gdf_list = ["geometry", name_of_time_column] + variables
     if levels:
         sub_gdf_list.extend(levels)
     if label:
         sub_gdf_list.append(label)
     sub_gdf_list = list(set(sub_gdf_list))
-    sub_gdf = points_gdf[sub_gdf_list]
+    sub_gdf = gdf[sub_gdf_list]
 
     sub_gdf = sub_gdf.drop_duplicates()
 

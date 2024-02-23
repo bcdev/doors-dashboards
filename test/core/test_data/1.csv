@@ -1,4 +1,4 @@
-lon,lat,mylabel
-20.5,22.2,x
-28.5,42.2,y
-22.5,62.2,z
+geometry,mylabel
+"POINT(20.5 22.2)",x
+"POINT(28.5 42.2)",y
+"POINT(22.5 62.2)",z
