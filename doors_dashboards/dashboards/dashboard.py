@@ -72,7 +72,10 @@ def create_dashboard(config: Dict) -> Dash:
             )
     if len(middle_children) > 0:
         main_children['middle'] = dbc.Row(
-            children=[c for c in middle_children.values()]
+            [
+                dbc.Col(middle_children['left'], width="50%", className='col-lg-6'),
+                dbc.Col(middle_children['right'], width="50%", className='col-lg-6')
+            ]
         )
 
     main = []
@@ -87,6 +90,7 @@ def create_dashboard(config: Dict) -> Dash:
         id=dashboard_id,
         fluid=True,
         children=[
+            dcc.Store(id='map-value-store', storage_type='local'),
             dcc.Store(id='general'),
             dcc.Store(id='collection_selector'),
             dcc.Store(id='group_selector'),
@@ -107,7 +111,7 @@ def create_dashboard(config: Dict) -> Dash:
                                             width=6, style={'color': FONT_COLOR}),
                                 ],
                                 style={'backgroundColor': HEADER_BGCOLOR,
-                                       'padding': '20px','margin-left': '-29px'}
+                                       'padding': '20px', 'margin-left': '-29px'}
                             ),
                             # Plots
                             *main,
