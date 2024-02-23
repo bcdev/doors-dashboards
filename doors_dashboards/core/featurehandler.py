@@ -180,5 +180,5 @@ class FeatureHandler:
                     res += f'{k}: {v}<br>'
                 labels.append(res[:-4])
         ccvar = self.get_color_code_config(collection).get("name")
-        values = list(df[ccvar]) if ccvar else None
+        values = list(gdf[ccvar]) if ccvar else None
         return lons, lats, labels, values
