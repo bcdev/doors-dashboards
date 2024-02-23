@@ -71,12 +71,27 @@ def create_dashboard(config: Dict) -> Dash:
                 children=place_children
             )
     if len(middle_children) > 0:
-        main_children['middle'] = dbc.Row(
-            [
-                dbc.Col(middle_children['left'], width="50%", className='col-lg-6'),
-                dbc.Col(middle_children['right'], width="50%", className='col-lg-6')
-            ]
-        )
+        if "right" not in middle_children:
+            main_children['middle'] = dbc.Row(
+                [
+                    middle_children['left']
+                ]
+            )
+        elif "left" not in middle_children:
+            main_children['middle'] = dbc.Row(
+                [
+                    middle_children['right']
+                ]
+            )
+        else:
+            main_children['middle'] = dbc.Row(
+                [
+                    dbc.Col(middle_children['left'], width="50%",
+                            className='col-lg-6'),
+                    dbc.Col(middle_children['right'], width="50%",
+                            className='col-lg-6')
+                ]
+            )
 
     main = []
     if "top" in main_children:
