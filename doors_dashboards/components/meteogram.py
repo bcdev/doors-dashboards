@@ -96,7 +96,7 @@ class MeteogramComponent(DashboardComponent):
                 'display': 'flex',
                 'flexDirection': 'column',
                 'alignItems': 'center',
-                'height': '1200px'
+                'height': '1200px',
             },
             id=sub_component_id
         )
@@ -114,17 +114,20 @@ class MeteogramComponent(DashboardComponent):
         )
         if response.status_code != 200:
             return dbc.Label(
-                f'Meteogram could not be loaded: {response.reason}', style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize': '25px'}
+                f'Meteogram could not be loaded: {response.reason}',
+                style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
+                       'fontSize': '25px'}
             )
         response_data = response.json()
         image_url = response_data.get('data', {}).get('link', {}).get('href')
         if not image_url:
             return dbc.Label('Meteogram could not be loaded: '
-                              'No image url in reponse from ECMWF',style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize': '25px'})
-        image = html.Img(src=image_url, style={'padding': '20px', 'width': '1025px',
-                                               'height': '1090px'},
+                             'No image url in reponse from ECMWF',
+                             style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
+                                    'fontSize': '25px'})
+        image = html.Img(src=image_url, style={'padding': '20px', 'maxWidth': '100%',
+                                               'maxHeight': '1200px', 'width': '100%',
+                                               'height': '1100px'},
                          className="col-lg-6")
         self._previous_images[key] = image
         return image
@@ -165,9 +168,10 @@ class MeteogramComponent(DashboardComponent):
                                'float': 'left', 'font-family': FONT_FAMILY}
                     )
                 ],
-                className='col-sm-3 mb-4',
-                style={'margin-top': '-32px', 'margin-right': '-163px'},
-                width= '4'
+                className='col-xs-6 col-sm-2 mb-4',
+                style={'margin-top': '-32px', 'margin-right': '-180px',
+                       'minWidth': '450px'},
+                #width='4'
             ),
             dbc.Col([
                 dbc.Label('Forecast Type', className='mb-2',
@@ -186,11 +190,11 @@ class MeteogramComponent(DashboardComponent):
                 )
             ],
                 width=4,
-                className='col-sm-3 mb-4',
-                #style={'position':'relative'}
+                className='col-xs-6 col-sm-3 mb-4',
+                style={'min-width': '600px'}
 
             ),
-        dbc.Col(className='col-sm-6')])
+            dbc.Col(className='col-sm-7')])
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
