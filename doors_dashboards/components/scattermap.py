@@ -47,29 +47,36 @@ class ScatterMapComponent(DashboardComponent):
 
         all_lons = []
         all_lats = []
-        all_labels = []
 
         for collection in self.feature_handler.get_collections():
 
-            lons, lats, labels = self.feature_handler.get_points_as_tuples(
-                collection
-            )
+            lons, lats, labels, variable_values = (
+                self.feature_handler.get_points_as_tuples(collection))
             all_lons.extend(lons)
             all_lats.extend(lats)
-            all_labels.extend(labels)
 
-            if selected_variable:
-                variable_values = [
-                    point[3].get(selected_variable) for point in points
-                ]
-
-            marker_color = self.feature_handler.get_color(collection)
+            if variable_values:
+                color_code_config = self.feature_handler.get_color_code_config(
+                    collection
+                )
+                marker = go.scattermapbox.Marker(
+                    size=marker_size,
+                    color=variable_values,
+                    colorscale=color_code_config.get("color_range", "Viridis"),
+                    colorbar=dict(title=color_code_config.get("name")),
+                    cmin=color_code_config.get("color_min_value"),
+                    cmax=color_code_config.get("color_max_value")
+                )
+            else:
+                marker_color = self.feature_handler.get_color(collection)
+                marker = go.scattermapbox.Marker(
+                    size=marker_size,
+                    color=marker_color
+                )
 
             figure.add_trace(go.Scattermapbox(
                 lat=lats, lon=lons, mode='markers',
-                marker=go.scattermapbox.Marker(
-                    size=marker_size, color=marker_color
-                ),
+                marker=marker,
                 text=labels,
                 name=collection
             ))
@@ -96,7 +103,6 @@ class ScatterMapComponent(DashboardComponent):
             ),
         )
         figure.update_layout(mapbox=mapbox)
-        figure.update_layout()
         scattermap_graph = dcc.Graph(
             id=sub_component_id,
             figure=figure,
