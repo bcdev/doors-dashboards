@@ -158,23 +158,28 @@ class TimeSeriesComponent(DashboardComponent):
                                                  'fontFamily': FONT_FAMILY,
                                                  'fontSize': '25px',
                                                  'paddingTop': '5px'}),
-                    className="col-sm-1"
+                    className="col-sm-1",
+                    style={'min-width': '100px'}
+
                 ),
                 dbc.Col(
                     var_drop_down_menus,
-                    className="col-sm-2"
+                    className="col-sm-2",
+                    style={'min-width': '350px'}
                 ),
                 dbc.Col(
                     dbc.Label('Duration', style={'color': FONT_COLOR,
                                                  'fontFamily': FONT_FAMILY,
                                                  'fontSize': '25px',
                                                  'paddingTop': '5px'}),
-                    className="col-sm-1"
+                    className="col-sm-1",
+                    style={'min-width': '100px'}
                 ),
                 dbc.Col(
                     group_drop_down_menus,
                     className="col-sm-2",
-                    style={'max-height': '300px', 'overflow-x': 'auto'}
+                    style={'max-height': '300px', 'overflow-x': 'auto', 'min-width':
+                        '200px'},
                 )
             ])
             sub_components = [
