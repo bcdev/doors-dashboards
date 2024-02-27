@@ -576,3 +576,4 @@ class TimeSeriesComponent(DashboardComponent):
             return tuple(results)
 
         return app
+
