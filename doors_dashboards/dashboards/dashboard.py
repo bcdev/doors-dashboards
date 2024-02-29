@@ -87,9 +87,9 @@ def create_dashboard(config: Dict) -> Dash:
             main_children['middle'] = dbc.Row(
                 [
                     dbc.Col(middle_children['left'], width="50%",
-                            className='col-lg-6'),
+                            className='col-lg-6', style={'margin-top': '-15px'}),
                     dbc.Col(middle_children['right'], width="50%",
-                            className='col-lg-6')
+                            className='col-lg-6', style={'margin-top': '-15px'})
                 ]
             )
 

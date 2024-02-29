@@ -2,18 +2,6 @@ id: bgmts
 title: Bulgaria MAF Time Series
 eez: BG_eez
 features:
-  - id: IO-BAS_National_Monitoring_CHL
-    type: geodb
-    params:
-      title: "IO-BAS National Monitoring Chl"
-      collection: IO-BAS_National_Monitoring_CHL
-      database: io-bas
-      color: green
-      levels:
-        - "station"
-      label: station
-      variables:
-        - "chl [mg/m^3]"
   - id: moorings_Varna_Bay_wavebuoy
     type: geodb
     params:
@@ -56,6 +44,18 @@ features:
         - 'peak directional spread [deg]'
         - 'mean direction [deg]'
         - 'mean directional spread [deg]'
+  - id: IO-BAS_National_Monitoring_CHL
+    type: geodb
+    params:
+      title: "IO-BAS National Monitoring Chl"
+      collection: IO-BAS_National_Monitoring_CHL
+      database: io-bas
+      color: green
+      levels:
+        - "station"
+      label: station
+      variables:
+        - "chl [mg/m^3]"
 components:
   scattermap:
     scattermap:

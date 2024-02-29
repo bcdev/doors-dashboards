@@ -4,7 +4,7 @@ import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE
+from doors_dashboards.components.constant import COLLECTION_TEMPLATE, SCATTER_FONT_SIZE
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR

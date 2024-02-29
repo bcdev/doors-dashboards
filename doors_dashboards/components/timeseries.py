@@ -17,7 +17,7 @@ from typing import Optional
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
-from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import FONT_COLOR, FONT_SIZE, FONT_SIZE_NUMBER
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR
 
@@ -71,7 +71,7 @@ class TimeSeriesComponent(DashboardComponent):
                     variable,
                     id=var_drop_option_id,
                     n_clicks=1,
-                    style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                    style={'fontSize': FONT_SIZE, 'fontfamily': FONT_FAMILY}
                 )
                 self.var_drop_options[var_drop_option_id] = line_drop_option
                 drop_menu_items.append(line_drop_option)
@@ -118,7 +118,7 @@ class TimeSeriesComponent(DashboardComponent):
                         member,
                         id=group_drop_option_id,
                         n_clicks=1,
-                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
+                        style={'fontSize': FONT_SIZE, 'fontfamily': FONT_FAMILY}
                     )
                 group_drop_menu_items.append(group_drop_option)
                 self.group_drop_options[group_drop_option_id] = \
@@ -134,7 +134,7 @@ class TimeSeriesComponent(DashboardComponent):
 
     def get(self,
             sub_component: str, sub_component_id: str, sub_config: Dict
-    ) -> Component:
+            ) -> Component:
         if sub_component == TIMEPLOTS_ID:
             self._setup_group_dropdown_menus()
             self._setup_variable_dropdown_menus()
@@ -156,30 +156,29 @@ class TimeSeriesComponent(DashboardComponent):
                 dbc.Col(
                     dbc.Label('Variable', style={'color': FONT_COLOR,
                                                  'fontFamily': FONT_FAMILY,
-                                                 'fontSize': '25px',
+                                                 'fontSize': FONT_SIZE_NUMBER,
                                                  'paddingTop': '5px'}),
                     className="col-sm-1",
-                    style={'min-width': '100px'}
+                    style={'min-width': '100px', 'padding-left': '35px'}
 
                 ),
                 dbc.Col(
                     var_drop_down_menus,
                     className="col-sm-2",
-                    style={'min-width': '350px'}
+                    style={'min-width': '350px', 'padding-left': '30px'}
                 ),
                 dbc.Col(
-                    dbc.Label('Duration', style={'color': FONT_COLOR,
-                                                 'fontFamily': FONT_FAMILY,
-                                                 'fontSize': '25px',
-                                                 'paddingTop': '5px'}),
+                    dbc.Label('Station', style={'color': FONT_COLOR,
+                                                'fontFamily': FONT_FAMILY,
+                                                'fontSize': FONT_SIZE_NUMBER,
+                                                'paddingTop': '5px', 'padding-left':
+                                                    '20px'}),
                     className="col-sm-1",
                     style={'min-width': '100px'}
                 ),
                 dbc.Col(
                     group_drop_down_menus,
                     className="col-sm-2",
-                    style={'max-height': '300px', 'overflow-x': 'auto', 'min-width':
-                        '200px'},
                 )
             ])
             sub_components = [
@@ -246,7 +245,7 @@ class TimeSeriesComponent(DashboardComponent):
                 y=df[variable],
                 name=variable,
                 textfont={
-                    'family': 'Roboto, Helvetica, Arial, sans-serif',
+                    'family': FONT_FAMILY,
                 }),
             col=1, row=1)
         fig.update_layout(
@@ -274,6 +273,7 @@ class TimeSeriesComponent(DashboardComponent):
             type="date"
         )
         fig.update_yaxes(
+            title=variable.title(),
             showticklabels=True,
             showgrid=False
         )
@@ -320,6 +320,7 @@ class TimeSeriesComponent(DashboardComponent):
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
+            style={'width': '100%', 'height': '700px'}
         )
 
     def _get_time_slider(self, time_slider_id: str) -> Component:
@@ -480,9 +481,7 @@ class TimeSeriesComponent(DashboardComponent):
         def update_time_plots_after_general_data_change(general_data):
             if general_data is None:
                 return no_update
-            collection = general_data.get(
-                "collection", self.feature_handler.get_default_collection()
-            )
+            collection = general_data["collection"]
             variable = general_data.get("variables", {}).get(collection)
             group = general_data.get("groups", {}).get(collection)
             line_plots = self._get_timeplots(TIMEPLOTS_ID,
@@ -494,11 +493,11 @@ class TimeSeriesComponent(DashboardComponent):
 
         variable_style_outputs = \
             [Output(variable_drop_menu, 'style')
-            for variable_drop_menu in var_drop_menus]
+             for variable_drop_menu in var_drop_menus]
 
         variable_label_outputs = [
             Output(variable_drop_menu, 'label',
-                    allow_duplicate=True)
+                   allow_duplicate=True)
             for variable_drop_menu in var_drop_menus]
         variable_outputs = variable_style_outputs + variable_label_outputs
 
@@ -534,11 +533,11 @@ class TimeSeriesComponent(DashboardComponent):
 
         group_style_outputs = \
             [Output(group_drop_menu, 'style')
-            for group_drop_menu in group_drop_menus]
+             for group_drop_menu in group_drop_menus]
 
         group_label_outputs = [
             Output(group_drop_menu, 'label',
-                    allow_duplicate=True)
+                   allow_duplicate=True)
             for group_drop_menu in group_drop_menus]
         group_outputs = group_style_outputs + group_label_outputs
 
@@ -576,4 +575,3 @@ class TimeSeriesComponent(DashboardComponent):
             return tuple(results)
 
         return app
-

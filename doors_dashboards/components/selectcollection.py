@@ -1,5 +1,5 @@
 from typing import Dict, List
-from dash import Dash, Input, Output, dash, State
+from dash import Dash, Input, Output, dash, State, no_update
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
@@ -40,8 +40,9 @@ class SelectCollectionComponent(DashboardComponent):
                 return dash.no_update
 
         @app.callback(
-            Output("general", "data",
-                   allow_duplicate=True),
+            [Output("general", "data",
+                    allow_duplicate=True),
+             Output(SELECT_COLLECTION_DRP, 'label', allow_duplicate=True)],
             Input("collection_selector", 'data'),
             State("general", "data"),
             prevent_initial_call=True
@@ -50,13 +51,27 @@ class SelectCollectionComponent(DashboardComponent):
             if selected_data is not None:
                 general_data = general_data or {}
                 general_data['collection'] = selected_data["collection"]
-                print(general_data)
-            return general_data
+            return general_data, selected_data["collection"]
 
         @app.callback(
-            Output("collection_selector", 'data'),
+            Output("collection_selector", "data"),
+            Input("general", "data")
+        )
+        def update_collection_selector_store_after_general_store_update(general_data):
+            if general_data is None:
+                return no_update
+
+            collection = general_data["collection"]
+            coll = {
+                    "collection": collection
+            }
+            return coll
+
+        @app.callback(
+            Output("collection_selector", 'data', allow_duplicate=True),
             [Input(dropdown_id, 'n_clicks_timestamp')
-             for dropdown_id in list(self.collection_to_id.values())]
+             for dropdown_id in list(self.collection_to_id.values())],
+            prevent_initial_call=True
         )
         def update_collection_selector_store(*timestamps):
             if any(timestamps):

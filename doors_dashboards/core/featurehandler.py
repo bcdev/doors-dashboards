@@ -161,13 +161,13 @@ class FeatureHandler:
             )
 
     def get_points_as_tuples(self, collection: str = None) -> \
-            Tuple[List[float], List[float], List[str], List[float]]:
+            Tuple[List[float], List[float], List[str], List[float], List[str]]:
         collection = self._selected_collection if not collection else collection
         gdf = self.get_df(collection)
 
         lons = list(gdf.geometry.apply(lambda p: p.x))
         lats = list(gdf.geometry.apply(lambda p: p.y))
-
+        customdata = [collection] * len(lons)
         label = self._get_label_column_name(collection)
         if label:
             labels = list(gdf[label])
@@ -181,4 +181,5 @@ class FeatureHandler:
                 labels.append(res[:-4])
         ccvar = self.get_color_code_config(collection).get("name")
         values = list(gdf[ccvar]) if ccvar else None
-        return lons, lats, labels, values
+        return lons, lats, labels, values, customdata
+

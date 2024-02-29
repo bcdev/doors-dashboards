@@ -10,7 +10,8 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR
+from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR, \
+    FONT_SIZE, FONT_SIZE_NUMBER
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -84,7 +85,7 @@ class MeteogramComponent(DashboardComponent):
             # width="50%",
             style={  # 'marginBottom': '15px',
                 'color': FONT_COLOR,
-                'fontSize': 'x-large',
+                'fontSize': FONT_SIZE,
                 'fontFamily':
                     FONT_FAMILY,
                 'fontWeight': 'bold',
@@ -116,7 +117,7 @@ class MeteogramComponent(DashboardComponent):
             return dbc.Label(
                 f'Meteogram could not be loaded: {response.reason}',
                 style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                       'fontSize': '25px'}
+                       'fontSize': FONT_SIZE_NUMBER}
             )
         response_data = response.json()
         image_url = response_data.get('data', {}).get('link', {}).get('href')
@@ -124,7 +125,7 @@ class MeteogramComponent(DashboardComponent):
             return dbc.Label('Meteogram could not be loaded: '
                              'No image url in reponse from ECMWF',
                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                    'fontSize': '25px'})
+                                    'fontSize': FONT_SIZE_NUMBER})
         image = html.Img(src=image_url, style={'padding': '20px', 'maxWidth': '100%',
                                                'maxHeight': '1200px', 'width': '100%',
                                                'height': '1100px'},
@@ -155,7 +156,7 @@ class MeteogramComponent(DashboardComponent):
                 [
                     dbc.Label("Date", className='col-2',
                               style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize': '25px', 'float': 'left',
+                                     'fontSize':FONT_SIZE_NUMBER, 'float': 'left',
                                      'margin-top': '59px', 'padding-left': '28px'}),
                     dcc.DatePickerSingle(
                         id=METEOGRAM_DATE_PICKER_ID,
@@ -175,7 +176,7 @@ class MeteogramComponent(DashboardComponent):
             ),
             dbc.Col([
                 dbc.Label('Forecast Type', className='mb-2',
-                          style={'fontSize': '25px', 'float': 'left', 'fontFamily':
+                          style={'fontSize': FONT_SIZE_NUMBER, 'float': 'left', 'fontFamily':
                               FONT_FAMILY, 'color': FONT_COLOR,
                                  'padding': '29px 20px 0px 40px'}),
                 dbc.Select(
@@ -183,7 +184,7 @@ class MeteogramComponent(DashboardComponent):
                     options=[{'label': option['label'], 'value': option['value']} for
                              option in OPTIONS],
                     value=OPTIONS[0]['value'],
-                    style={'fontFamily': FONT_FAMILY, 'fontSize': 'x-large', 'width':
+                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE, 'width':
                         '350px'},
                     className="m-4",
                     size="lg",

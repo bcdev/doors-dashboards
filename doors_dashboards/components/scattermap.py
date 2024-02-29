@@ -1,4 +1,4 @@
-from dash import Dash
+from dash import Dash, Output, Input, State, no_update
 from dash import dcc
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
@@ -8,6 +8,7 @@ import plotly.graph_objs as go
 from typing import Dict
 from typing import List
 from typing import Tuple
+from shapely.geometry import Point
 
 from doors_dashboards.components.constant import PLOT_BGCOLOR, FONT_FAMILY
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
@@ -36,7 +37,8 @@ class ScatterMapComponent(DashboardComponent):
     def __init__(self):
         self.feature_handler = None
 
-    def get(self, sub_component: str, sub_component_id: str, sub_config: Dict) -> Component:
+    def get(self, sub_component: str, sub_component_id: str,
+            sub_config: Dict) -> Component:
         points = sub_config.get("points")
         marker_size = sub_config.get("marker_size", 10)
         marker_color = sub_config.get("marker_color", "blue")
@@ -50,11 +52,10 @@ class ScatterMapComponent(DashboardComponent):
 
         for collection in self.feature_handler.get_collections():
 
-            lons, lats, labels, variable_values = (
+            lons, lats, labels, variable_values, custom_data = (
                 self.feature_handler.get_points_as_tuples(collection))
             all_lons.extend(lons)
             all_lats.extend(lats)
-
             if variable_values:
                 color_code_config = self.feature_handler.get_color_code_config(
                     collection
@@ -78,7 +79,8 @@ class ScatterMapComponent(DashboardComponent):
                 lat=lats, lon=lons, mode='markers',
                 marker=marker,
                 text=labels,
-                name=collection
+                name=collection,
+                customdata=custom_data,
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
@@ -139,4 +141,35 @@ class ScatterMapComponent(DashboardComponent):
         self.feature_handler = feature_handler
 
     def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
-        pass
+        @app.callback(
+            Output("general", "data"),
+            Input("scattermap", 'clickData'),
+            State("general", "data"),
+        )
+        def update_general_store_after_station_selection(
+                click_data, general_data
+        ):
+            if click_data is None:
+                return no_update
+            general_data = {}
+            collection_name = click_data['points'][0]['customdata']
+            if "collection" not in general_data:
+                general_data["collection"] = (
+                    collection_name)
+            if "groups" not in general_data:
+                group_name = self.feature_handler.get_levels(collection_name)[-1]
+                lon = click_data['points'][0]['lon']
+                lat = click_data['points'][0]['lat']
+                p = Point(lon, lat)
+                gdf = self.feature_handler.get_df(collection_name)
+                gdf = gdf[gdf["geometry"].geom_equals(p)]
+                if len(gdf) > 0:
+                    group = gdf.iloc[0][group_name]
+                    general_data["groups"] = {}
+                    general_data["groups"][collection_name] = (
+                     group)
+            if "variable" not in general_data:
+                general_data["variable"] = {}
+            general_data["variable"][collection_name] = (
+                self.feature_handler.get_default_variable(collection_name))
+            return general_data
