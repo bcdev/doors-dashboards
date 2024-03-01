@@ -81,6 +81,9 @@ class ScatterMapComponent(DashboardComponent):
                 text=labels,
                 name=collection,
                 customdata=custom_data,
+                selected=go.scattermapbox.Selected(marker={"color": "yellow",
+                                                           "size": 25}
+                                                   )
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
@@ -95,6 +98,7 @@ class ScatterMapComponent(DashboardComponent):
             center=dict(lat=center_lat, lon=center_lon),
         )
         figure.update_layout(
+            clickmode='event+select',
             margin=dict(l=0, r=0, t=0, b=0),
             autosize=True,
             mapbox_style=mapbox_style,
@@ -144,10 +148,9 @@ class ScatterMapComponent(DashboardComponent):
         @app.callback(
             Output("general", "data"),
             Input("scattermap", 'clickData'),
-            State("general", "data"),
         )
         def update_general_store_after_station_selection(
-                click_data, general_data
+                click_data
         ):
             if click_data is None:
                 return no_update
@@ -173,3 +176,4 @@ class ScatterMapComponent(DashboardComponent):
             general_data["variable"][collection_name] = (
                 self.feature_handler.get_default_variable(collection_name))
             return general_data
+
