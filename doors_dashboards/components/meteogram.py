@@ -10,8 +10,11 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR, \
-    FONT_SIZE, FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import FONT_FAMILY
+from doors_dashboards.components.constant import FONT_SIZE
+from doors_dashboards.components.constant import FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
