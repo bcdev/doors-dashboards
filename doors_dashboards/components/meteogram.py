@@ -175,7 +175,6 @@ class MeteogramComponent(DashboardComponent):
                 className='col-xs-6 col-sm-2 mb-4',
                 style={'margin-top': '-32px', 'margin-right': '-180px',
                        'minWidth': '450px'},
-                #width='4'
             ),
             dbc.Col([
                 dbc.Label('Forecast Type', className='mb-2',
