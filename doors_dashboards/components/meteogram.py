@@ -184,8 +184,8 @@ class MeteogramComponent(DashboardComponent):
                     options=[{'label': option['label'], 'value': option['value']} for
                              option in OPTIONS],
                     value=OPTIONS[0]['value'],
-                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE, 'width':
-                        '350px'},
+                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE,
+                               'width': '350px'},
                     className="m-4",
                     size="lg",
                 )
