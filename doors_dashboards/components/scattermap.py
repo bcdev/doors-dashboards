@@ -57,7 +57,8 @@ class ScatterMapComponent(DashboardComponent):
         for collection in self.feature_handler.get_collections():
 
             lons, lats, labels, variable_values, custom_data = (
-                self.feature_handler.get_points_as_tuples(collection))
+                self.feature_handler.get_points_as_tuples(collection)
+            )
             all_lons.extend(lons)
             all_lats.extend(lats)
             if variable_values:
