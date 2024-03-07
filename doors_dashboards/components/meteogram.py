@@ -159,7 +159,7 @@ class MeteogramComponent(DashboardComponent):
                 [
                     dbc.Label("Date", className='col-2',
                               style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize':FONT_SIZE_NUMBER, 'float': 'left',
+                                     'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
                                      'margin-top': '59px', 'padding-left': '28px'}),
                     dcc.DatePickerSingle(
                         id=METEOGRAM_DATE_PICKER_ID,
