@@ -1,4 +1,8 @@
-from dash import Dash, Output, Input, State, no_update
+from dash import Dash
+from dash import Input
+from dash import no_update
+from dash import Output
+from dash import State
 from dash import dcc
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
