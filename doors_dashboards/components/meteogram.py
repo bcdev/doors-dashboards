@@ -96,7 +96,6 @@ class MeteogramComponent(DashboardComponent):
                 'padding': '35px',
                 'border-radius': '15px',
                 'flex': '1',
-                # 'margin-top': '4px',
                 'display': 'flex',
                 'flexDirection': 'column',
                 'alignItems': 'center',
