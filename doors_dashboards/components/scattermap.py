@@ -181,4 +181,3 @@ class ScatterMapComponent(DashboardComponent):
             general_data["variable"][collection_name] = (
                 self.feature_handler.get_default_variable(collection_name))
             return general_data
-
