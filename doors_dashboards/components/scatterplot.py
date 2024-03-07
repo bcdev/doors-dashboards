@@ -693,43 +693,27 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
              Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input(collection_id, 'n_clicks_timestamp')
-             for collection_id in collection_ids],
+            [Input("general", "data")],
             prevent_initial_call=True
         )
-        def update_plots_after_collection_change(*timestamps):
-            if not any(timestamps):  # Check if any timestamp is not None
-                return dash.no_update
-            latest_timestamp_index = timestamps.index(
-                max(t for t in timestamps if t is not None))
-            collection = collections[latest_timestamp_index]
+        def update_plots_after_general_store_update(general_data):
+            collection = general_data["collection"]
+            group = general_data.get("groups", {}).get(collection)
 
-            group_values, main_group_values = \
-                self._get_group_and_main_group_values(collection)
-
-            global SELECTED_MAIN_GROUP_ITEM
-            if main_group_values is not None:
-                SELECTED_MAIN_GROUP_ITEM = main_group_values[0]
-            global SELECTED_GROUP_ITEM
-            SELECTED_GROUP_ITEM = group_values[0]
-
-            variables = self.feature_handler.get_variables(collection)
-            global SELECTED_X_VAR_ITEM
-            SELECTED_X_VAR_ITEM = variables[0]
-            global SELECTED_Y_VAR_ITEM
-            SELECTED_Y_VAR_ITEM = variables[-1]
-            if len(variables) > 1:
-                pointplot_fig = self.get_point_scatter_plot(
-                    collection, SELECTED_GROUP_ITEM, SELECTED_MAIN_GROUP_ITEM,
-                    SELECTED_X_VAR_ITEM, SELECTED_Y_VAR_ITEM
-                )
-                lineplot_fig = self.get_line_scatter_plot(
-                    collection, SELECTED_MAIN_GROUP_ITEM
-                )
-            else:
-                pointplot_fig = None
-                lineplot_fig = self.get_line_scatter_plot(collection)
-            return pointplot_fig, lineplot_fig
+            if len(group) > 0:
+                variables = self.feature_handler.get_variables(collection)
+                if len(variables) > 1:
+                    pointplot_fig = self.get_point_scatter_plot(
+                        collection, group[1], group[0],
+                        variables[0], variables[-1]
+                    )
+                    lineplot_fig = self.get_line_scatter_plot(
+                        collection, group[0]
+                    )
+                else:
+                    pointplot_fig = None
+                    lineplot_fig = self.get_line_scatter_plot(collection)
+                return pointplot_fig, lineplot_fig
 
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),

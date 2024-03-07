@@ -160,7 +160,7 @@ class ScatterMapComponent(DashboardComponent):
                 general_data["collection"] = (
                     collection_name)
             if "groups" not in general_data:
-                group_name = self.feature_handler.get_levels(collection_name)[-1]
+                group_name = self.feature_handler.get_levels(collection_name)
                 lon = click_data['points'][0]['lon']
                 lat = click_data['points'][0]['lat']
                 p = Point(lon, lat)
