@@ -10,4 +10,3 @@ FONT_COLOR = "#FFFFFF"
 FONT_FAMILY = "Roboto, Helvetica, Arial, sans-serif"
 FONT_SIZE_NUMBER = '25px'
 FONT_SIZE = 'x-large'
-SCATTER_FONT_SIZE = '18'
