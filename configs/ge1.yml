@@ -8,6 +8,7 @@ features:
       title: EMBLAS Nutrients 2016-2019
       collection: EMBLAS_Nutrients_2016_2019
       database: water-quality
+      color: red
       levels:
         - "cruise"
         - "station"
@@ -33,6 +34,7 @@ features:
       title: EMBLAS Physics 2016-2019
       collection: EMBLAS_Physics_2016_2019
       database: water-quality
+      color: blue
       levels:
         - "cruise"
         - "station"
@@ -48,6 +50,7 @@ features:
       title: EMBLAS Chlorophyll 2016-2019
       collection: EMBLAS_CHL_2016_2019
       database: water-quality
+      color: green
       levels:
         - "cruise"
         - "station"

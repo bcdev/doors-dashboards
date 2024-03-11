@@ -1,0 +1,18 @@
+id: bg1
+title: Bulgaria MAF Meteograms
+eez: BG_eez
+features:
+  - id: bulgaria_ports_points
+    type: local
+    params:
+      file: "../../data/locations/bulgaria_ports_points.csv"
+      label: label
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  meteogram:
+    meteogram_selection:
+      placement: top
+    meteogram_image:
+      placement: right

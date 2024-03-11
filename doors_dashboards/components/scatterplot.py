@@ -277,13 +277,26 @@ class ScatterplotComponent(DashboardComponent):
         line_drop_down_menus[0].style['display'] = 'block'
 
         upper_row = dbc.Row([
+            dbc.Label('Cruise', style={'color': FONT_COLOR,
+                                        'fontFamily': FONT_FAMILY,
+                                        'fontSize': 'larger',
+                                        'padding': '10px 0 0 12px',
+                                        },
+                      className="col-sm-1 col-md-1"),
             dbc.Col(
-                    main_group_drop_down_menus,
-                    className="col-"
+                main_group_drop_down_menus,
+                className="col-sm-3 col-md-3",
+                style={'padding-left': '0px'}
             ),
+            dbc.Label('Variable', style={'color': FONT_COLOR,
+                                        'fontFamily': FONT_FAMILY,
+                                        'fontSize': 'larger',
+                                        'paddingTop': '10px',
+                                        },
+                      className="col-sm-1 col-md-1"),
             dbc.Col(
                 line_drop_down_menus,
-                className="col-"
+                className="col-sm-3 col-md-4"
             )
         ]
         )
@@ -310,17 +323,40 @@ class ScatterplotComponent(DashboardComponent):
         SELECTED_Y_VAR_ITEM = point_y_drop_options[0].children
 
         lower_row = dbc.Row([
+
+            dbc.Label('Station', style={'color': FONT_COLOR,
+                                        'fontFamily': FONT_FAMILY,
+                                        'fontSize': 'larger',
+                                        'paddingTop': '10px',
+                                        },
+                      className="col-sm-1"),
             dbc.Col(
                 group_drop_down_menus,
-                className="col-"
+                className="col-sm-2",
+                style={'paddingLeft': '3px'}
             ),
+            dbc.Label('X Variable', style={'color': FONT_COLOR,
+                                           'fontFamily': FONT_FAMILY,
+                                           'fontSize': 'larger',
+                                           'paddingTop': '10px',
+                                           'text-wrap': 'nowrap',
+                                           'paddingLeft': '59px'},
+                      className="col-sm-2"),
             dbc.Col(
                 point_x_drop_down_menus,
-                className="col-"
+                className="col-sm-2",
+                style={'padding-left': '1px'}
             ),
+            dbc.Label('Y Variable', style={'color': FONT_COLOR,
+                                           'fontFamily': FONT_FAMILY,
+                                           'fontSize': 'larger',
+                                           'paddingTop': '10px',
+                                           'text-wrap': 'nowrap',
+                                           'paddingLeft': '68px'},
+                      className="col-sm-2"),
             dbc.Col(
                 point_y_drop_down_menus,
-                className="col-"
+                className="col-sm-3"
             )
         ]
         )
@@ -410,6 +446,7 @@ class ScatterplotComponent(DashboardComponent):
         df = self.get_dataframe(
             collection, ALL_GROUP_MEMBERS, selected_main_group_item
         )
+        df = df.sort_values(by='sampling depth [m]')
         levels = self.feature_handler.get_levels(collection)
         if variable is None:
             variable = self.feature_handler.get_variables(collection)[0]
@@ -418,6 +455,9 @@ class ScatterplotComponent(DashboardComponent):
             x=variable,
             y=levels[-1],
             color=levels[-2],
+            line_shape='spline', render_mode='svg',
+            markers=True
+            #marker=dict(size=10, color='yellow', symbol='circle')
         )
         fig.update_yaxes(autorange='reversed')
         fig.update_xaxes(title_text=variable.title())
@@ -425,7 +465,7 @@ class ScatterplotComponent(DashboardComponent):
         fig.update_layout(
             font=dict(family=FONT_FAMILY, size=18,
                       color=FONT_COLOR))
-        fig.update_traces(marker_size=10)
+        fig.update_traces(marker=dict(size=10, color='yellow', symbol='circle'))
         fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
         fig.update_layout(paper_bgcolor='rgba(0,0,0,0)')
         fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
@@ -688,7 +728,7 @@ class ScatterplotComponent(DashboardComponent):
             else:
                 pointplot_fig = None
                 lineplot_fig = self.get_line_scatter_plot(collection)
-            return (pointplot_fig, lineplot_fig)
+            return pointplot_fig, lineplot_fig
 
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
@@ -1115,4 +1155,3 @@ class ScatterplotComponent(DashboardComponent):
                 collection, SELECTED_GROUP_ITEM, SELECTED_MAIN_GROUP_ITEM,
                 SELECTED_X_VAR_ITEM, y_variable
             )
-

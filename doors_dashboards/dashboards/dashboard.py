@@ -71,9 +71,27 @@ def create_dashboard(config: Dict) -> Dash:
                 children=place_children
             )
     if len(middle_children) > 0:
-        main_children['middle'] = dbc.Row(
-            children=[middle_children['left'], middle_children['right']]
-        )
+        if "right" not in middle_children:
+            main_children['middle'] = dbc.Row(
+                [
+                    middle_children['left']
+                ]
+            )
+        elif "left" not in middle_children:
+            main_children['middle'] = dbc.Row(
+                [
+                    middle_children['right']
+                ]
+            )
+        else:
+            main_children['middle'] = dbc.Row(
+                [
+                    dbc.Col(middle_children['left'], width="50%",
+                            className='col-lg-6', style={'margin-top': '-15px'}),
+                    dbc.Col(middle_children['right'], width="50%",
+                            className='col-lg-6', style={'margin-top': '-15px'})
+                ]
+            )
 
     main = []
     if "top" in main_children:
@@ -87,6 +105,11 @@ def create_dashboard(config: Dict) -> Dash:
         id=dashboard_id,
         fluid=True,
         children=[
+            dcc.Store(id='map-value-store', storage_type='local'),
+            dcc.Store(id='general'),
+            dcc.Store(id='collection_selector'),
+            dcc.Store(id='group_selector'),
+            dcc.Store(id="variable_selector"),
             dbc.Row(
                 [
                     dbc.Col(
@@ -103,7 +126,7 @@ def create_dashboard(config: Dict) -> Dash:
                                             width=6, style={'color': FONT_COLOR}),
                                 ],
                                 style={'backgroundColor': HEADER_BGCOLOR,
-                                       'padding': '20px','margin-left': '-29px'}
+                                       'padding': '20px', 'margin-left': '-29px'}
                             ),
                             # Plots
                             *main,

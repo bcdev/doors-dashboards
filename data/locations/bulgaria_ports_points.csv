@@ -1,8 +1,8 @@
-lon,lat,label
-27.479,42.486,Terminal East
-27.47,42.486,Terminal Bulk Cargoes
-27.467,42.48,Terminal 2A
-27.457,42.485,Terminal West
-27.53,42.45,Terminal Rosenets
-27.728,42.657,Terminal Nessebar
-27.687,42.42,Terminal Sozopol
+geometry,label
+POINT(27.479 42.486),Terminal East
+POINT(27.47 42.486),Terminal Bulk Cargoes
+POINT(27.467 42.48),Terminal 2A
+POINT(27.457 42.485),Terminal West
+POINT(27.53 42.45),Terminal Rosenets
+POINT(27.728 42.657),Terminal Nessebar
+POINT(27.687 42.42),Terminal Sozopol
