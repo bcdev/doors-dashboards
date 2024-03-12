@@ -149,7 +149,7 @@ class ScatterMapComponent(DashboardComponent):
             Output("general", "data"),
             Input("scattermap", 'clickData'),
         )
-        def update_general_store_after_station_selection(
+        def update_general_store_after_point_selection(
                 click_data
         ):
             if click_data is None:
