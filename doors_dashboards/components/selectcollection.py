@@ -1,5 +1,5 @@
 from typing import Dict, List
-from dash import Dash
+from dash import Dash, dash
 from dash import Input
 from dash import no_update
 from dash import Output
@@ -122,5 +122,5 @@ class SelectCollectionComponent(DashboardComponent):
         ],
             width=4,
             className='mb-4',
-            style={'margin': '23px 0 0 -19px'}
+            style={'margin': '0 0 0 -19px'}
         )
