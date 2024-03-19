@@ -4,8 +4,7 @@ import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE, SCATTER_FONT_SIZE, \
-    FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import COLLECTION_TEMPLATE
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR
@@ -265,14 +264,10 @@ class ScatterplotComponent(DashboardComponent):
         pointplot_fig = self.get_point_scatter_plot(collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
 
-        # SELECTED_MAIN_GROUP_ITEM = "all"
         main_group_drop_down_menus = \
             list(self.main_group_dropdown_menus.values())
         if len(main_group_drop_down_menus) > 0:
             main_group_drop_down_menus[0].style['display'] = 'block'
-            main_group_drop_options = list(self.main_group_drop_options.values())
-            # SELECTED_MAIN_GROUP_ITEM = main_group_drop_options[0].children
-
         line_drop_down_menus = list(self.line_dropdown_menus.values())
         line_drop_down_menus[0].style['display'] = 'block'
 
@@ -308,20 +303,10 @@ class ScatterplotComponent(DashboardComponent):
         ]
         group_drop_down_menus = list(self.group_dropdown_menus.values())
         group_drop_down_menus[0].style['display'] = 'block'
-        group_drop_down_options = list(self.group_drop_options.values())
-        # global SELECTED_GROUP_ITEM
-        # SELECTED_GROUP_ITEM = group_drop_down_options[0].children
         point_x_drop_down_menus = list(self.point_x_dropdown_menus.values())
         point_x_drop_down_menus[0].style['display'] = 'block'
-        point_x_drop_options = list(self.point_x_drop_options.values())
-        # global SELECTED_X_VAR_ITEM
-        # SELECTED_X_VAR_ITEM = point_x_drop_options[0].children
         point_y_drop_down_menus = list(self.point_y_dropdown_menus.values())
         point_y_drop_down_menus[0].style['display'] = 'block'
-        point_y_drop_options = list(self.point_y_drop_options.values())
-        # global SELECTED_Y_VAR_ITEM
-        # SELECTED_Y_VAR_ITEM = point_y_drop_options[0].children
-
         lower_row = dbc.Row([
 
             dbc.Label('Station', style={'color': FONT_COLOR,
@@ -556,11 +541,6 @@ class ScatterplotComponent(DashboardComponent):
 
                 main_group_id = \
                     list(self.main_group_drop_options.keys())[latest_timestamp_index]
-
-                # global SELECTED_MAIN_GROUP_ITEM
-                # SELECTED_MAIN_GROUP_ITEM = \
-                #  self.main_group_drop_options[main_group_id].children
-
                 group_values = self._get_group_values_for_main_group(
                     collection, self.main_group_drop_options[main_group_id].children
                 )
@@ -664,11 +644,11 @@ class ScatterplotComponent(DashboardComponent):
 
             @app.callback(
                 outputs,
-                [Input('collection_selector', 'data')],
+                [Input('general', 'data')],
                 prevent_initial_call=True
             )
             def update_selected_main_group_dropdown_styles(data):
-                if data is None:
+                if data is None or "collection" not in data:
                     return dash.no_update
                 selected_collection = data.get("collection")
                 _, main_group_values = (
@@ -700,44 +680,48 @@ class ScatterplotComponent(DashboardComponent):
             if general_data is None or "collection" not in general_data:
                 return no_update
             selected_collection = general_data["collection"]
-            if "groups" in general_data:
-                groups = general_data.get("groups", {}).get(selected_collection)
-            if "variable" in general_data:
-                line_var = general_data.get("variable", {}).get(selected_collection)
-                if len(groups) > 0:
-                    variables = self.feature_handler.get_variables(selected_collection)
-                    if len(variables) > 1:
-                        pointplot_fig = self.get_point_scatter_plot(
-                            selected_collection, groups[1], groups[0],
-                            variables[0], variables[-1]
-                        )
-                        lineplot_fig = self.get_line_scatter_plot(
-                            selected_collection, groups[0], line_var
-                        )
-                    else:
-                        pointplot_fig = None
-                        lineplot_fig = self.get_line_scatter_plot(selected_collection)
-                    return pointplot_fig, lineplot_fig
+            if "variables" in general_data and len(general_data["variables"]) > 0:
+                variables = general_data.get("variables", {}).get(selected_collection)
+                if "groups" in general_data and len(general_data["groups"]) > 0:
+                    groups = general_data.get("groups", {}).get(selected_collection)
+                    group_value = groups["group_values"]
+                    main_group_value = groups["main_group"]
+                else:
+                    default_group_values, default_main_group_values = \
+                        self._get_group_and_main_group_values(collection)
+                    group_value = default_group_values[0]
+                    main_group_value = default_main_group_values[0]
 
-        @app.callback(
-            Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-            [Input('group_selector', 'data')],
-            prevent_initial_call=True
-        )
-        def update_point_plot_after_group_change(selected_group_data):
-            if selected_group_data is None:
-                return dash.no_update
-            group_item = selected_group_data["group_values"]
-
-            collection = self.feature_handler.get_selected_collection()
-            variables = self.feature_handler.get_variables(collection)
-            if len(variables) > 1:
-                return self.get_point_scatter_plot(
-                    collection, group_item, selected_group_data["main_group"],
-                    variables[0], variables[-1]
+                pointplot_fig = self.get_point_scatter_plot(
+                    selected_collection, group_value,
+                    main_group_value,
+                    variables["x_variable"], variables["y_variable"]
                 )
+                lineplot_fig = self.get_line_scatter_plot(
+                    selected_collection, main_group_value,
+                    variables["line_variable"]
+                )
+                return pointplot_fig, lineplot_fig
             else:
-                return None
+                if "groups" in general_data and len(general_data["groups"]) > 0:
+                    groups = general_data.get("groups", {}).get(selected_collection)
+                    coll = selected_collection
+                    if len(groups) > 0:
+                        variables = self.feature_handler.get_variables(coll)
+                        if len(variables) > 1:
+                            pointplot_fig = self.get_point_scatter_plot(
+                                selected_collection, groups["group_values"],
+                                groups["main_group"],
+                                variables[0], variables[-1]
+                            )
+                            lineplot_fig = self.get_line_scatter_plot(
+                                selected_collection, groups["main_group"], variables[0]
+                            )
+                        else:
+                            pointplot_fig = None
+                            lineplot_fig = self.get_line_scatter_plot(coll)
+
+                        return pointplot_fig, lineplot_fig
 
         @app.callback(
             [[Output(group_dropdown_menu, 'label')
@@ -788,13 +772,12 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             group_outputs,
-            [Input("collection_selector", 'data')],
+            [Input("general", 'data')],
             prevent_initial_call=True
         )
         def update_selected_group_dropdown_styles(selected_data):
-            if not selected_data:
+            if not selected_data or "collection" not in selected_data:
                 return dash.no_update
-
             collection = selected_data["collection"]
             group_values, main_group_values = \
                 self._get_group_and_main_group_values(collection)
@@ -822,10 +805,10 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             Output(COLLAPSE, "is_open"),
-            [Input("collection_selector", 'data')]
+            [Input("general", 'data')]
         )
         def collapse_when_too_few_variables_in_collection(selected_data):
-            if not selected_data:
+            if not selected_data or "collection" not in selected_data:
                 return dash.no_update
             collection = selected_data["collection"]
             variables = self.feature_handler.get_variables(collection)
@@ -987,11 +970,11 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             point_x_outputs,
-            [Input('collection_selector', 'data')],
+            [Input('general', 'data')],
             prevent_initial_call=True
         )
         def update_point_x_var_dropdown_after_collection_change(selected_data):
-            if selected_data is None:
+            if selected_data is None or "collection" not in selected_data:
                 return dash.no_update
             collection = selected_data["collection"]
             variable = self.feature_handler.get_variables(collection)[0]
@@ -1027,11 +1010,11 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             point_y_outputs,
-            [Input('collection_selector', 'data')],
+            [Input('general', 'data')],
             prevent_initial_call=True
         )
         def update_point_y_var_dropdown_after_collection_change(selected_data):
-            if selected_data is None:
+            if selected_data is None or "collection" not in selected_data:
                 return dash.no_update
             collection = selected_data["collection"]
             variable = self.feature_handler.get_variables(collection)[-1]
@@ -1053,27 +1036,6 @@ class ScatterplotComponent(DashboardComponent):
                 else:
                     results.append('')
             return tuple(results)
-
-        @app.callback(
-            Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True),
-            [Input("variable_selector", 'data'),
-             Input("group_selector", 'data')],
-            prevent_initial_call=True
-        )
-        def update_line_plot_after_line_var_change(selected_variable_data,
-                                                   selected_group_data):
-            if (selected_variable_data is None or "line_variable" not in
-                    selected_variable_data):
-                return dash.no_update
-            if "main_group" in selected_group_data:
-                selected_main_group_item = selected_group_data["main_group"]
-            else:
-                _, selected_main_group_item = self._get_group_and_main_group_values(
-                    self.feature_handler.get_selected_collection)
-            variable = selected_variable_data["line_variable"]
-            return self.get_line_scatter_plot(
-                collection, selected_main_group_item, variable
-            )
 
         @app.callback(
             Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
@@ -1107,57 +1069,9 @@ class ScatterplotComponent(DashboardComponent):
                 )
 
         @app.callback(
-            [Output('group_selector', 'data',
-                    allow_duplicate=True),
-             Output('variable_selector', 'data',
-                    allow_duplicate=True)
-             ],
-            [Input("general", 'data')],
-            prevent_initial_call=True
-        )
-        def update_group_selector_and_variable_selector_when_collection_selector_updates(
-                selected_data):
-            if selected_data is None or "collection" not in selected_data:
-                return no_update
-            if "collection" in selected_data:
-                selected_collection = selected_data["collection"]
-                x_variable = self.feature_handler.get_variables(selected_collection)[0]
-                y_variable = self.feature_handler.get_variables(selected_collection)[-1]
-                if "variable" in selected_data:
-                    line_var = selected_data.get("variable", {}).get(
-                        selected_collection)
-                    variable_selector = {
-                        'x_variable': x_variable,
-                        'y_variable': y_variable,
-                        'line_variable': line_var
-                    }
-                else:
-                    variable_selector = {
-                        'x_variable': x_variable,
-                        'y_variable': y_variable,
-                    }
-                if "groups" in selected_data:
-                    groups = selected_data.get("groups", {}).get(selected_collection)
-                    main_group_value = groups[0]
-                    group_value = groups[1]
-                    group_selector = {
-                        "main_group": main_group_value,
-                        "group_values": group_value,
-                    }
-                else:
-                    group_values, main_group_values = \
-                        self._get_group_and_main_group_values(selected_collection)
-                    group_selector = {
-                        "main_group": main_group_values[0],
-                        "group_values": group_values[0],
-                    }
-                return group_selector, variable_selector
-
-        @app.callback(
-            [Output("general", 'data')],
+            Output("general", 'data', allow_duplicate=True),
             [Input('group_selector', 'data'),
-             Input('variable_selector', 'data')
-             ],
+             Input('variable_selector', 'data')],
             State("general", "data"),
             prevent_initial_call=True
         )
@@ -1166,24 +1080,27 @@ class ScatterplotComponent(DashboardComponent):
                                                              general_data):
             general_data = general_data or {}
             if "collection" not in general_data:
-                general_data["collection"] = (
-                    self.feature_handler.get_selected_collection())
+                general_data[
+                    "collection"] = self.feature_handler.get_selected_collection()
             if "groups" not in general_data:
-                general_data["variables"] = {}
+                general_data["groups"] = {}
             if "variables" not in general_data:
                 general_data["variables"] = {}
-            if "main_group" in selected_group_data:
-                selected_main_group = {
-                    "main_group": selected_group_data["main_group"]
-                }
-                collection = general_data["collection"]
-                general_data["groups"][collection] = selected_main_group
-            if "group_values" in selected_group_data:
-                selected_group_item = selected_group_data["group_values"]
-            if "x_variable" in selected_variable_data:
-                x_variable = selected_variable_data["x_variable"]
-            if "y_variable" in selected_variable_data:
-                y_variable = selected_variable_data["y_variable"]
-            if "line_variable" in selected_variable_data:
-                line_variable = selected_variable_data["y_variable"]
+            group_fields = ["main_group", "group_values"]
+            collection = general_data["collection"]
+            if selected_group_data is not None:
+                for field in group_fields:
+                    if field in selected_group_data:
+                        if collection not in general_data["groups"]:
+                            general_data["groups"][collection] = {}
+                        general_data["groups"][collection][field] = selected_group_data[
+                            field]
+            selected_variable_fields = ["x_variable", "y_variable", "line_variable"]
+            if selected_variable_data is not None:
+                for field in selected_variable_fields:
+                    if field in selected_variable_data:
+                        if collection not in general_data["variables"]:
+                            general_data["variables"][collection] = {}
+                        general_data["variables"][collection][field] = \
+                            selected_variable_data[field]
             return general_data
