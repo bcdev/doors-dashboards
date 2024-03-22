@@ -441,7 +441,6 @@ class TimeSeriesComponent(DashboardComponent):
         def update_group_selector_store(*timestamps):
             if not any(timestamps):
                 return no_update
-            collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
 

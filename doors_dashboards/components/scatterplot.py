@@ -1,23 +1,28 @@
-from typing import Dict, List
+from typing import Dict
+from typing import List
+from typing import Tuple
 from dash import dcc, html, Dash, Input, Output, dash, no_update, State
 import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.components.constant import SCATTER_PLOT_ID
 from doors_dashboards.components.constant import SCATTER_PLOT_LINE_ID
-from doors_dashboards.components.constant import GROUP_DROPDOWN_TEMPLATE
-from doors_dashboards.components.constant import MAINGROUP_DROPDOWN_TEMPLATE
+from doors_dashboards.components.constant import GENERAL_STORE_ID
+from doors_dashboards.components.constant import GROUP
+from doors_dashboards.components.constant import GROUPS_SECTION
+from doors_dashboards.components.constant import MAIN_GROUP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 DISPLAY_STYLE = {'height': '45vh'}
 GROUP_DROP_OPTION_TEMPLATE = 'group_drp_option_{0}_{1}_{2}'
 MAIN_GROUP_DROP_OPTION_TEMPLATE = 'main_group_drp_option_{0}_{1}'
+GROUP_DROPDOWN_TEMPLATE = 'group_drp_option_{0}_{1}'
+MAINGROUP_DROPDOWN_TEMPLATE = 'maingroup_drp_option_{0}'
 
 LINE_VAR_DROPDOWN_ID_TEMPLATE = \
     "line_var_drop_down_id_{0}"  # collection
@@ -32,13 +37,14 @@ POINT_X_VAR_DROP_OPTION_TEMPLATE = \
 POINT_Y_VAR_DROP_OPTION_TEMPLATE = \
     "point_y_var_drop_option_id_{0}_{1}"  # collection variable
 
-COLLAPSE = "collapse_id"
-
 ALL_GROUP_MEMBERS = "all"
-SELECTED_MAIN_GROUP_ITEM = ""
-SELECTED_GROUP_ITEM = ""
-SELECTED_X_VAR_ITEM = ""
-SELECTED_Y_VAR_ITEM = ""
+COLLAPSE = "collapse_id"
+COMPONENT_STORE_ID = "component_store"
+LINE_VARIABLE = "line_variable"
+TEMP_STORE_ID = "temp_store"
+VARIABLES_SECTION = "variables"
+X_VARIABLE = "x_variable"
+Y_VARIABLE = "y_variable"
 
 
 class ScatterplotComponent(DashboardComponent):
@@ -51,11 +57,12 @@ class ScatterplotComponent(DashboardComponent):
         self.main_group_drop_options = dict()
 
         self.line_dropdown_menus = dict()
-        self.line_drop_options = dict()
+        self.xvar_drop_options = dict()
         self.point_x_dropdown_menus = dict()
         self.point_x_drop_options = dict()
         self.point_y_dropdown_menus = dict()
         self.point_y_drop_options = dict()
+        self._encodings = dict()
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
@@ -113,7 +120,7 @@ class ScatterplotComponent(DashboardComponent):
                     n_clicks=1,
                     style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY}
                 )
-                self.line_drop_options[line_drop_option_id] = line_drop_option
+                self.xvar_drop_options[line_drop_option_id] = line_drop_option
                 self.point_x_drop_options[point_x_drop_option_id] = \
                     point_x_drop_option
                 self.point_y_drop_options[point_y_drop_option_id] = \
@@ -121,12 +128,9 @@ class ScatterplotComponent(DashboardComponent):
                 line_drop_menu_items.append(line_drop_option)
                 point_x_drop_menu_items.append(point_x_drop_option)
                 point_y_drop_menu_items.append(point_y_drop_option)
-            line_dropdown_id = \
-                LINE_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-            point_x_dropdown_id = \
-                POINT_X_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-            point_y_dropdown_id = \
-                POINT_Y_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            line_dropdown_id = self.encode_linevar_dropdown(collection)
+            point_x_dropdown_id = self.encode_xvar_dropdown(collection)
+            point_y_dropdown_id = self.encode_yvar_dropdown(collection)
             self.line_dropdown_menus[line_dropdown_id] = \
                 self._get_dropdown_menu(
                     line_dropdown_id,
@@ -201,18 +205,19 @@ class ScatterplotComponent(DashboardComponent):
                         group_drop_down_menu_item
                     group_dropdown_menu_items.append(group_drop_down_menu_item)
 
-                    group_dropdown_id = \
-                        GROUP_DROPDOWN_TEMPLATE.format(collection, main_group)
+                    group_dropdown_id = self.encode_group_dropdown(
+                        collection, main_group
+                    )
                     self.group_dropdown_menus[group_dropdown_id] = \
                         self._get_dropdown_menu(
-                            GROUP_DROPDOWN_TEMPLATE.format(collection, main_group),
+                            group_dropdown_id,
                             group_dropdown_menu_items,
                             groups[0]
                         )
-                main_group_dropdown_id = MAINGROUP_DROPDOWN_TEMPLATE.format(collection)
+                main_group_dropdown_id = self.encode_main_group_dropdown(collection)
                 self.main_group_dropdown_menus[main_group_dropdown_id] = \
                     self._get_dropdown_menu(
-                        MAINGROUP_DROPDOWN_TEMPLATE.format(collection),
+                        main_group_dropdown_id,
                         dropdown_main_menu_items,
                         main_group_values[0]
                     )
@@ -246,11 +251,12 @@ class ScatterplotComponent(DashboardComponent):
                     group_drop_down_menu_item
                 dropdown_menu_items.append(group_drop_down_menu_item)
 
-                group_dropdown_id = \
-                    GROUP_DROPDOWN_TEMPLATE.format(collection, "all")
+                group_dropdown_id = self.encode_group_dropdown(
+                    collection, ALL_GROUP_MEMBERS
+                )
                 self.group_dropdown_menus[group_dropdown_id] = \
                     self._get_dropdown_menu(
-                        GROUP_DROPDOWN_TEMPLATE.format(collection, "all"),
+                        group_dropdown_id,
                         dropdown_menu_items,
                         group_values[0]
                     )
@@ -259,7 +265,7 @@ class ScatterplotComponent(DashboardComponent):
             sub_config: Dict) -> Component:
         self._setup_group_dropdown_menus()
         self._setup_variable_dropdown_menus()
-        collection = self.feature_handler.get_selected_collection()
+        collection = self.feature_handler.get_default_collection()
         # For rendering scatterplots
         pointplot_fig = self.get_point_scatter_plot(collection)
         lineplot_fig = self.get_line_scatter_plot(collection)
@@ -378,7 +384,15 @@ class ScatterplotComponent(DashboardComponent):
                 is_open=len(lower_components) > 0
             )
         ]
-        return dbc.Row(sub_components)
+        return html.Div(
+            children=[
+                dcc.Store(id=COMPONENT_STORE_ID),
+                dcc.Store(id=TEMP_STORE_ID),
+                dbc.Row(
+                    sub_components
+                )
+            ]
+        )
 
     def get_point_scatter_plot(self, collection: str,
                                selected_group_item: str = "",
@@ -415,7 +429,6 @@ class ScatterplotComponent(DashboardComponent):
                             size=18,
                             color=FONT_COLOR
                         ),
-                        # orientation="v",
                     ),
                 )
             )
@@ -431,7 +444,8 @@ class ScatterplotComponent(DashboardComponent):
         df = self.get_dataframe(
             collection, ALL_GROUP_MEMBERS, selected_main_group_item
         )
-        df = df.sort_values(by='sampling depth [m]')
+        order_variable = self.feature_handler.get_levels(collection)[-1]
+        df = df.sort_values(by=order_variable)
         levels = self.feature_handler.get_levels(collection)
         if variable is None:
             variable = self.feature_handler.get_variables(collection)[0]
@@ -471,7 +485,10 @@ class ScatterplotComponent(DashboardComponent):
 
     def _get_group_values_for_main_group(self, collection: str, main_group: str):
         nested_level_values = self.feature_handler.get_nested_level_values(collection)
-        group_values = list(nested_level_values.get(main_group).keys())
+        if main_group == ALL_GROUP_MEMBERS:
+            group_values = list(nested_level_values.keys())
+        else:
+            group_values = list(nested_level_values.get(main_group).keys())
         group_values.sort()
         return group_values
 
@@ -494,20 +511,58 @@ class ScatterplotComponent(DashboardComponent):
             df = df[df[levels[-2]] == group_item]
         return df
 
+    @staticmethod
+    def encode_main_group_dropdown(collection: str) -> str:
+        return MAINGROUP_DROPDOWN_TEMPLATE.format(collection)
+
+    @staticmethod
+    def decode_main_group_dropdown(dropdown_id) -> str:
+        return dropdown_id[21:]
+
+    def encode_group_dropdown(self, collection: str, main_group: str) -> str:
+        new_collection = collection.replace("_", "-")
+        new_main_group = main_group.replace("_", "-")
+        self._encodings[new_collection] = collection
+        self._encodings[new_main_group] = main_group
+        return GROUP_DROPDOWN_TEMPLATE.format(new_collection, new_main_group)
+
+    def decode_group_dropdown(self, dropdown_id) -> Tuple[str, str]:
+        ids = dropdown_id.split("_")
+        collection = self._encodings.get(ids[-2], ids[-2])
+        main_group = self._encodings.get(ids[-1], ids[-1])
+        return collection, main_group
+
+    @staticmethod
+    def encode_xvar_dropdown(collection: str) -> str:
+        return POINT_X_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+
+    @staticmethod
+    def decode_xvar_dropdown(dropdown_id: str) -> str:
+        return dropdown_id[25:]
+
+    @staticmethod
+    def encode_yvar_dropdown(collection: str) -> str:
+        return POINT_Y_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+
+    @staticmethod
+    def decode_yvar_dropdown(dropdown_id: str) -> str:
+        return dropdown_id[25:]
+
+    @staticmethod
+    def encode_linevar_dropdown(collection: str) -> str:
+        return LINE_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+
+    @staticmethod
+    def decode_linevar_dropdown(dropdown_id: str) -> str:
+        return dropdown_id[22:]
+
     def register_callbacks(self, app: Dash, component_ids: List[str]):
-
-        collection = self.feature_handler.get_selected_collection()
-        group_values, main_group_values = \
-            self._get_group_and_main_group_values(collection)
-
-        collections = self.feature_handler.get_collections()
-        collection_ids = [COLLECTION_TEMPLATE.format(c) for c in collections]
 
         group_dropdown_menus = list(self.group_dropdown_menus.keys())
         group_drop_options = list(self.group_drop_options.keys())
 
         line_dropdown_menus = list(self.line_dropdown_menus.keys())
-        line_drop_options = list(self.line_drop_options.keys())
+        line_drop_options = list(self.xvar_drop_options.keys())
 
         point_x_dropdown_menus = list(self.point_x_dropdown_menus.keys())
         point_x_drop_options = list(self.point_x_drop_options.keys())
@@ -515,592 +570,452 @@ class ScatterplotComponent(DashboardComponent):
         point_y_dropdown_menus = list(self.point_y_dropdown_menus.keys())
         point_y_drop_options = list(self.point_y_drop_options.keys())
 
-        if main_group_values is not None:
-            main_group_dropdown_menus = list(self.main_group_dropdown_menus.keys())
-            main_group_drop_options = list(self.main_group_drop_options.keys())
+        main_group_dropdown_menus = list(self.main_group_dropdown_menus.keys())
+        main_group_drop_options = list(self.main_group_drop_options.keys())
 
-            style_outputs = [Output(group_dropdown_menu, 'style')
-                             for group_dropdown_menu in group_dropdown_menus]
-            label_outputs = [
-                Output(group_dropdown_menu, 'label', allow_duplicate=True)
-                for group_dropdown_menu in group_dropdown_menus]
-            outputs = style_outputs + label_outputs
-
+        if len(main_group_drop_options) > 0:
             @app.callback(
-                outputs,
+                Output(TEMP_STORE_ID, "data", allow_duplicate=True),
                 [Input(main_group_value_id, 'n_clicks_timestamp')
                  for main_group_value_id in main_group_drop_options],
                 prevent_initial_call=True
             )
-            def update_dropdown_after_main_group_change(*timestamps):
-                if not any(timestamps):  # Check if any timestamp is not None
-                    return dash.no_update
-
-                latest_timestamp_index = timestamps.index(
-                    max(t for t in timestamps if t is not None))
-
-                main_group_id = \
-                    list(self.main_group_drop_options.keys())[latest_timestamp_index]
-                group_values = self._get_group_values_for_main_group(
-                    collection, self.main_group_drop_options[main_group_id].children
-                )
-
-                valid_group_id = \
-                    GROUP_DROPDOWN_TEMPLATE.format(collection,
-                                                   self.main_group_drop_options[
-                                                       main_group_id].children)
-
-                results = []
-                for group_dropdown_menu_id, group_dropdown_menu \
-                        in self.group_dropdown_menus.items():
-                    if group_dropdown_menu_id == valid_group_id:
-                        results.append({'display': 'block'})
-                    else:
-                        results.append({'display': 'none'})
-                for group_dropdown_menu_id, group_dropdown_menu \
-                        in self.group_dropdown_menus.items():
-                    if group_dropdown_menu_id == valid_group_id:
-                        results.append(group_values[0])
-                    else:
-                        results.append('')
-                return tuple(results)
-
-            @app.callback(
-                [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-                 Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True),
-                 Output("group_selector", 'data')],
-                [Input(main_group_value_id, 'n_clicks_timestamp')
-                 for main_group_value_id in main_group_drop_options],
-                prevent_initial_call=True
-            )
-            def update_plots_and_group_store_after_main_group_change(*timestamps):
-                collection = self.feature_handler.get_selected_collection()
-                if not any(timestamps):  # Check if any timestamp is not None
-                    return dash.no_update
-                latest_timestamp_index = timestamps.index(
-                    max(t for t in timestamps if t is not None))
-
-                main_group_id = \
-                    list(self.main_group_drop_options.keys())[latest_timestamp_index]
-
-                selected_main_group_item = \
-                    self.main_group_drop_options[main_group_id].children
-
-                group_values = self._get_group_values_for_main_group(
-                    collection, selected_main_group_item
-                )
-                group_selector = {
-                    "main_group": selected_main_group_item,
-                    "group_values": group_values[0]
-                }
-
-                variables = self.feature_handler.get_variables(collection)
-                if len(variables) > 1:
-                    pointplot_fig = self.get_point_scatter_plot(
-                        collection, group_values[0], selected_main_group_item)
-                    lineplot_fig = self.get_line_scatter_plot(
-                        collection, selected_main_group_item
-                    )
-                else:
-                    pointplot_fig = None
-                    lineplot_fig = self.get_line_scatter_plot(collection)
-                return pointplot_fig, lineplot_fig, group_selector
-
-            @app.callback(
-                [Output(main_group_dropdown_menu, 'label')
-                 for main_group_dropdown_menu in main_group_dropdown_menus],
-                [Input(main_group_value_id, 'n_clicks_timestamp')
-                 for main_group_value_id in main_group_drop_options],
-                prevent_initial_call=True
-            )
-            def update_main_group_labels(*timestamps):
+            def selector_to_temp_maingroup(*timestamps):
                 if not any(timestamps):
                     return dash.no_update
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
-                collection = self.feature_handler.get_selected_collection()
                 selected_main_group_dropdown_id = \
-                    MAINGROUP_DROPDOWN_TEMPLATE.format(collection)
-                main_group_id = \
                     list(self.main_group_drop_options.keys())[latest_timestamp_index]
                 selected_main_group_item = \
-                    self.main_group_drop_options[main_group_id].children
-
-                results = []
-                for main_group_dropdown_menu_id, main_group_dropdown_menu \
-                        in self.main_group_dropdown_menus.items():
-                    if main_group_dropdown_menu_id == selected_main_group_dropdown_id:
-                        results.append(selected_main_group_item)
-                    else:
-                        results.append('')
-                return tuple(results)
-
-            style_outputs = [Output(main_group_dropdown_menu, 'style')
-                             for main_group_dropdown_menu in main_group_dropdown_menus]
-            label_outputs = [
-                Output(main_group_dropdown_menu, 'label', allow_duplicate=True)
-                for main_group_dropdown_menu in main_group_dropdown_menus]
-            outputs = style_outputs + label_outputs
-
-            @app.callback(
-                outputs,
-                [Input('general', 'data')],
-                prevent_initial_call=True
-            )
-            def update_selected_main_group_dropdown_styles(data):
-                if data is None or "collection" not in data:
-                    return dash.no_update
-                selected_collection = data.get("collection")
-                _, main_group_values = (
-                    self._get_group_and_main_group_values(selected_collection))
-                selected_main_group_dropdown_id = \
-                    MAINGROUP_DROPDOWN_TEMPLATE.format(selected_collection)
-                results = []
-                for main_group_dropdown_menu_id, main_group_dropdown_menu \
-                        in self.main_group_dropdown_menus.items():
-                    if main_group_dropdown_menu_id == selected_main_group_dropdown_id:
-                        results.append({'display': 'block'})
-                    else:
-                        results.append({'display': 'none'})
-                for main_group_dropdown_menu_id, main_group_dropdown_menu \
-                        in self.main_group_dropdown_menus.items():
-                    if main_group_dropdown_menu_id == selected_main_group_dropdown_id:
-                        results.append(main_group_values[0])
-                    else:
-                        results.append('')
-                return tuple(results)
-
+                    self.main_group_drop_options[selected_main_group_dropdown_id].children
+                temp = {
+                    MAIN_GROUP: selected_main_group_item
+                }
+                return temp
+        
         @app.callback(
-            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input("general", "data")],
-            prevent_initial_call=True
-        )
-        def update_plots_after_general_store_update(general_data):
-            if general_data is None or "collection" not in general_data:
-                return no_update
-            selected_collection = general_data["collection"]
-            if "variables" in general_data and len(general_data["variables"]) > 0:
-                variables = general_data.get("variables", {}).get(selected_collection)
-                if "groups" in general_data and len(general_data["groups"]) > 0:
-                    groups = general_data.get("groups", {}).get(selected_collection)
-                    group_value = groups["group_values"]
-                    main_group_value = groups["main_group"]
-                else:
-                    default_group_values, default_main_group_values = \
-                        self._get_group_and_main_group_values(collection)
-                    group_value = default_group_values[0]
-                    main_group_value = default_main_group_values[0]
-
-                pointplot_fig = self.get_point_scatter_plot(
-                    selected_collection, group_value,
-                    main_group_value,
-                    variables["x_variable"], variables["y_variable"]
-                )
-                lineplot_fig = self.get_line_scatter_plot(
-                    selected_collection, main_group_value,
-                    variables["line_variable"]
-                )
-                return pointplot_fig, lineplot_fig
-            else:
-                if "groups" in general_data and len(general_data["groups"]) > 0:
-                    groups = general_data.get("groups", {}).get(selected_collection)
-                    coll = selected_collection
-                    if len(groups) > 0:
-                        variables = self.feature_handler.get_variables(coll)
-                        if len(variables) > 1:
-                            pointplot_fig = self.get_point_scatter_plot(
-                                selected_collection, groups["group_values"],
-                                groups["main_group"],
-                                variables[0], variables[-1]
-                            )
-                            lineplot_fig = self.get_line_scatter_plot(
-                                selected_collection, groups["main_group"], variables[0]
-                            )
-                        else:
-                            pointplot_fig = None
-                            lineplot_fig = self.get_line_scatter_plot(coll)
-
-                        return pointplot_fig, lineplot_fig
-
-        @app.callback(
-            [[Output(group_dropdown_menu, 'label')
-              for group_dropdown_menu in group_dropdown_menus],
-             Output("group_selector", "data",
-                    allow_duplicate=True)],
+            Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(group_value_id, 'n_clicks_timestamp')
              for group_value_id in group_drop_options],
             prevent_initial_call=True
         )
-        def update_group_labels(*timestamps):
+        def selector_to_temp_group(*timestamps):
             if not any(timestamps):
                 return dash.no_update
-            collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
             selected_group_dropdown_id = \
                 list(self.group_drop_options.keys())[latest_timestamp_index]
             selected_group_item = \
                 self.group_drop_options[selected_group_dropdown_id].children
-            _, main_group_values = self._get_group_and_main_group_values(collection)
-            relevant_group_dropdown_id = GROUP_DROPDOWN_TEMPLATE.format(
-                collection, main_group_values[0]
-            )
-            selected_group = {
-                "main_group": main_group_values[0],
-                "group_values": selected_group_item
+            temp = {
+                GROUP: selected_group_item
             }
-            results = []
-            for group_dropdown_menu_id, group_dropdown_menu \
-                    in self.group_dropdown_menus.items():
-                if group_dropdown_menu_id == relevant_group_dropdown_id:
-                    results.append(selected_group_item)
-                else:
-                    results.append('')
-            return tuple(results), selected_group
-
-        group_style_outputs = [Output(group_dropdown_menu,
-                                      'style',
-                                      allow_duplicate=True)
-                               for group_dropdown_menu in group_dropdown_menus]
-
-        label_outputs = [
-            Output(group_dropdown_menu, 'label', allow_duplicate=True)
-            for group_dropdown_menu in group_dropdown_menus]
-
-        group_outputs = group_style_outputs + label_outputs
+            return temp
 
         @app.callback(
-            group_outputs,
-            [Input("general", 'data')],
-            prevent_initial_call=True
-        )
-        def update_selected_group_dropdown_styles(selected_data):
-            if not selected_data or "collection" not in selected_data:
-                return dash.no_update
-            collection = selected_data["collection"]
-            group_values, main_group_values = \
-                self._get_group_and_main_group_values(collection)
-
-            if main_group_values is not None:
-                selected_group_dropdown_id = GROUP_DROPDOWN_TEMPLATE.format(
-                    collection, main_group_values[0]
-                )
-
-                results = []
-                for group_dropdown_menu_id, group_dropdown_menu \
-                        in self.group_dropdown_menus.items():
-                    if group_dropdown_menu_id == selected_group_dropdown_id:
-                        results.append({'display': 'block'})
-                    else:
-                        results.append({'display': 'none'})
-                for group_dropdown_menu_id, group_dropdown_menu \
-                        in self.group_dropdown_menus.items():
-                    if group_dropdown_menu_id == selected_group_dropdown_id:
-                        results.append(group_values[0])
-                    else:
-                        results.append('')
-
-                return tuple(results)
-
-        @app.callback(
-            Output(COLLAPSE, "is_open"),
-            [Input("general", 'data')]
-        )
-        def collapse_when_too_few_variables_in_collection(selected_data):
-            if not selected_data or "collection" not in selected_data:
-                return dash.no_update
-            collection = selected_data["collection"]
-            variables = self.feature_handler.get_variables(collection)
-
-            return len(variables) > 1
-
-        @app.callback(
-            [[Output(line_dropdown_menu, 'label')
-              for line_dropdown_menu in line_dropdown_menus],
-             Output("variable_selector", "data", allow_duplicate=True)],
-            [Input(line_drop_id, 'n_clicks_timestamp')
-             for line_drop_id in line_drop_options],
-            prevent_initial_call=True
-        )
-        def update_line_var_dropdown_after_click(*timestamps):
-            if not any(timestamps):
-                return dash.no_update
-            collection = self.feature_handler.get_selected_collection()
-            latest_timestamp_index = timestamps.index(
-                max(t for t in timestamps if t is not None))
-
-            line_drop_option_id = \
-                list(self.line_drop_options.keys())[latest_timestamp_index]
-            line_drop_option_value = \
-                self.line_drop_options[line_drop_option_id].children
-            relevant_line_dropdown_menu_id = \
-                LINE_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-            results = []
-            for line_dropdown_menu_id, line_dropdown_menu \
-                    in self.line_dropdown_menus.items():
-                if line_dropdown_menu_id == relevant_line_dropdown_menu_id:
-                    results.append(line_drop_option_value)
-                else:
-                    results.append('')
-            variable_selector = {
-                "line_variable": line_drop_option_value
-            }
-            return tuple(results), variable_selector
-
-        @app.callback(
-            [[Output(point_x_dropdown_menu, 'label')
-              for point_x_dropdown_menu in point_x_dropdown_menus], Output(
-                'variable_selector', 'data',
-                allow_duplicate=True)],
+            Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(point_x_drop_id, 'n_clicks_timestamp')
              for point_x_drop_id in point_x_drop_options],
             prevent_initial_call=True
         )
-        def update_point_x_var_dropdown_after_click(*timestamps):
+        def selector_to_temp_xvar(*timestamps):
             if not any(timestamps):
                 return dash.no_update
-            collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
-
-            point_x_drop_option_id = \
-                list(self.point_x_drop_options.keys())[latest_timestamp_index]
-            point_x_drop_option_value = \
-                self.point_x_drop_options[point_x_drop_option_id].children
-            variable_selector = {
-                'x_variable': point_x_drop_option_value
+            xvar_drop_option_id = \
+                list(self.xvar_drop_options.keys())[latest_timestamp_index]
+            xvar_drop_option_value = \
+                self.xvar_drop_options[xvar_drop_option_id].children
+            temp_data = {
+                X_VARIABLE: xvar_drop_option_value
             }
-            relevant_point_x_dropdown_menu_id = \
-                POINT_X_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-            results = []
-            for point_x_dropdown_menu_id, point_x_dropdown_menu \
-                    in self.point_x_dropdown_menus.items():
-                if point_x_dropdown_menu_id == relevant_point_x_dropdown_menu_id:
-                    results.append(point_x_drop_option_value)
-                else:
-                    results.append('')
-            return tuple(results), variable_selector
+            return temp_data
 
         @app.callback(
-            [[Output(point_y_dropdown_menu, 'label')
-              for point_y_dropdown_menu in point_y_dropdown_menus], Output(
-                'variable_selector', 'data',
-                allow_duplicate=True)],
+            Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(point_y_drop_id, 'n_clicks_timestamp')
              for point_y_drop_id in point_y_drop_options],
             prevent_initial_call=True
         )
-        def update_point_y_var_dropdown_after_click(*timestamps):
+        def selector_to_temp_yvar(*timestamps):
             if not any(timestamps):
                 return dash.no_update
-            collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None))
-
-            point_y_drop_option_id = \
+            yvar_drop_option_id = \
                 list(self.point_y_drop_options.keys())[latest_timestamp_index]
-            point_y_drop_option_value = \
-                self.point_y_drop_options[point_y_drop_option_id].children
-
-            variable_selector = {
-                'y_variable': point_y_drop_option_value
+            yvar_drop_option_value = \
+                self.point_y_drop_options[yvar_drop_option_id].children
+            temp_data = {
+                Y_VARIABLE: yvar_drop_option_value
             }
-            relevant_point_y_dropdown_menu_id = \
-                POINT_Y_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-            results = []
-            for point_y_dropdown_menu_id, point_y_dropdown_menu \
-                    in self.point_y_dropdown_menus.items():
-                if point_y_dropdown_menu_id == relevant_point_y_dropdown_menu_id:
-                    results.append(point_y_drop_option_value)
-                else:
-                    results.append('')
-            return tuple(results), variable_selector
-
-        line_style_outputs = [Output(line_dropdown_menu,
-                                     'style',
-                                     allow_duplicate=True)
-                              for line_dropdown_menu in line_dropdown_menus]
-
-        line_label_outputs = [
-            Output(line_dropdown_menu, 'label', allow_duplicate=True)
-            for line_dropdown_menu in line_dropdown_menus]
-
-        line_outputs = line_style_outputs + line_label_outputs
-
+            return temp_data
+        
         @app.callback(
-            line_outputs,
-            [Input('general', 'data')],
+            Output(TEMP_STORE_ID, "data", allow_duplicate=True),
+            [Input(line_drop_id, 'n_clicks_timestamp')
+             for line_drop_id in line_drop_options],
             prevent_initial_call=True
         )
-        def update_line_var_dropdown_after_collection_change(selected_data):
-            if selected_data is None or "collection" not in selected_data:
-                return no_update
-            collection = selected_data["collection"]
-            variable = self.feature_handler.get_variables(collection)[0]
-
-            selected_line_dropdown_id = \
-                LINE_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-
-            results = []
-            for line_dropdown_menu_id, line_dropdown_menu \
-                    in self.line_dropdown_menus.items():
-                if line_dropdown_menu_id == selected_line_dropdown_id:
-                    results.append({'display': 'block'})
-                else:
-                    results.append({'display': 'none'})
-            for line_dropdown_menu_id, line_dropdown_menu \
-                    in self.line_dropdown_menus.items():
-                if line_dropdown_menu_id == selected_line_dropdown_id:
-                    results.append(variable)
-                else:
-                    results.append('')
-            return tuple(results)
-
-        point_x_style_outputs = [Output(point_x_dropdown_menu,
-                                        'style',
-                                        allow_duplicate=True)
-                                 for point_x_dropdown_menu in point_x_dropdown_menus]
-
-        point_x_label_outputs = [
-            Output(point_x_dropdown_menu, 'label', allow_duplicate=True)
-            for point_x_dropdown_menu in point_x_dropdown_menus]
-
-        point_x_outputs = point_x_style_outputs + point_x_label_outputs
-
-        @app.callback(
-            point_x_outputs,
-            [Input('general', 'data')],
-            prevent_initial_call=True
-        )
-        def update_point_x_var_dropdown_after_collection_change(selected_data):
-            if selected_data is None or "collection" not in selected_data:
+        def selector_to_temp_linevar(*timestamps):
+            if not any(timestamps):
                 return dash.no_update
-            collection = selected_data["collection"]
-            variable = self.feature_handler.get_variables(collection)[0]
-
-            selected_point_x_dropdown_id = \
-                POINT_X_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-
-            results = []
-            for point_x_dropdown_menu_id, point_x_dropdown_menu \
-                    in self.point_x_dropdown_menus.items():
-                if point_x_dropdown_menu_id == selected_point_x_dropdown_id:
-                    results.append({'display': 'block'})
-                else:
-                    results.append({'display': 'none'})
-            for point_x_dropdown_menu_id, point_x_dropdown_menu \
-                    in self.point_x_dropdown_menus.items():
-                if point_x_dropdown_menu_id == selected_point_x_dropdown_id:
-                    results.append(variable)
-                else:
-                    results.append('')
-            return tuple(results)
-
-        point_y_style_outputs = [Output(point_y_dropdown_menu,
-                                        'style',
-                                        allow_duplicate=True)
-                                 for point_y_dropdown_menu in point_y_dropdown_menus]
-
-        point_y_label_outputs = [
-            Output(point_y_dropdown_menu, 'label', allow_duplicate=True)
-            for point_y_dropdown_menu in point_y_dropdown_menus]
-
-        point_y_outputs = point_y_style_outputs + point_y_label_outputs
+            latest_timestamp_index = timestamps.index(
+                max(t for t in timestamps if t is not None))
+            line_drop_option_id = \
+                list(self.xvar_drop_options.keys())[latest_timestamp_index]
+            line_drop_option_value = \
+                self.xvar_drop_options[line_drop_option_id].children
+            temp_data = {
+                LINE_VARIABLE: line_drop_option_value
+            }
+            return temp_data
 
         @app.callback(
-            point_y_outputs,
-            [Input('general', 'data')],
+            Output(GENERAL_STORE_ID, 'data', allow_duplicate=True),
+            [Input(TEMP_STORE_ID, 'data')],
+            [State(GENERAL_STORE_ID, "data")],
             prevent_initial_call=True
         )
-        def update_point_y_var_dropdown_after_collection_change(selected_data):
-            if selected_data is None or "collection" not in selected_data:
-                return dash.no_update
-            collection = selected_data["collection"]
-            variable = self.feature_handler.get_variables(collection)[-1]
-
-            selected_point_y_dropdown_id = \
-                POINT_Y_VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-
-            results = []
-            for point_y_dropdown_menu_id, point_y_dropdown_menu \
-                    in self.point_y_dropdown_menus.items():
-                if point_y_dropdown_menu_id == selected_point_y_dropdown_id:
-                    results.append({'display': 'block'})
-                else:
-                    results.append({'display': 'none'})
-            for point_y_dropdown_menu_id, point_y_dropdown_menu \
-                    in self.point_y_dropdown_menus.items():
-                if point_y_dropdown_menu_id == selected_point_y_dropdown_id:
-                    results.append(variable)
-                else:
-                    results.append('')
-            return tuple(results)
-
-        @app.callback(
-            Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
-            [Input('variable_selector', 'data')],
-            prevent_initial_call=True
-        )
-        def update_point_plot_after_point_x_or_y_var_change(variable_data):
-            if variable_data is None:
-                return no_update
-
-            selected_collection = self.feature_handler.get_selected_collection()
-            variables = self.feature_handler.get_variables(selected_collection)
-
-            group_values, main_group_values = \
-                self._get_group_and_main_group_values(selected_collection)
-            if "y_variable" in variable_data:
-                y_variable = variable_data["y_variable"]
-                x_variable = variables[0]
-
-                return self.get_point_scatter_plot(
-                    collection, group_values[0], main_group_values[0],
-                    x_variable, y_variable
-                )
-            elif "x_variable" in variable_data:
-                x_variable = variable_data["x_variable"]
-                y_variable = variables[-1]
-
-                return self.get_point_scatter_plot(
-                    collection, group_values[0], main_group_values[0],
-                    x_variable, y_variable
-                )
-
-        @app.callback(
-            Output("general", 'data', allow_duplicate=True),
-            [Input('group_selector', 'data'),
-             Input('variable_selector', 'data')],
-            State("general", "data"),
-            prevent_initial_call=True
-        )
-        def update_general_store_when_group_variable_updates(selected_group_data,
-                                                             selected_variable_data,
-                                                             general_data):
+        def temp_to_general(temp_data, general_data):
             general_data = general_data or {}
             if "collection" not in general_data:
-                general_data[
-                    "collection"] = self.feature_handler.get_selected_collection()
-            if "groups" not in general_data:
-                general_data["groups"] = {}
-            if "variables" not in general_data:
-                general_data["variables"] = {}
-            group_fields = ["main_group", "group_values"]
+                general_data["collection"] = \
+                    self.feature_handler.get_default_collection()
+            if GROUPS_SECTION not in general_data:
+                general_data[GROUPS_SECTION] = {}
+            group_fields = [MAIN_GROUP, GROUP]
             collection = general_data["collection"]
-            if selected_group_data is not None:
+            if temp_data is not None:
                 for field in group_fields:
-                    if field in selected_group_data:
-                        if collection not in general_data["groups"]:
-                            general_data["groups"][collection] = {}
-                        general_data["groups"][collection][field] = selected_group_data[
-                            field]
-            selected_variable_fields = ["x_variable", "y_variable", "line_variable"]
-            if selected_variable_data is not None:
-                for field in selected_variable_fields:
-                    if field in selected_variable_data:
-                        if collection not in general_data["variables"]:
-                            general_data["variables"][collection] = {}
-                        general_data["variables"][collection][field] = \
-                            selected_variable_data[field]
+                    if field in temp_data:
+                        if collection not in general_data[GROUPS_SECTION]:
+                            general_data[GROUPS_SECTION][collection] = {}
+                        general_data[GROUPS_SECTION][collection][field] = \
+                            temp_data[field]
             return general_data
+
+        @app.callback(
+            Output(COMPONENT_STORE_ID, 'data'),
+            [Input(TEMP_STORE_ID, 'data')],
+            [State(GENERAL_STORE_ID, "data"), State(COMPONENT_STORE_ID, "data")],
+            prevent_initial_call=True
+        )
+        def temp_to_component(temp_data, general_data, component_data):
+            general_data = general_data or {}
+            component_data = component_data or {}
+            collection = general_data.get(
+                "collection", self.feature_handler.get_default_collection()
+            )
+            if VARIABLES_SECTION not in component_data:
+                component_data[VARIABLES_SECTION] = {}
+            selected_variable_fields = [X_VARIABLE, Y_VARIABLE, LINE_VARIABLE]
+            if temp_data is not None:
+                for field in selected_variable_fields:
+                    if field in temp_data:
+                        if collection not in component_data[VARIABLES_SECTION]:
+                            component_data[VARIABLES_SECTION][collection] = {}
+                        component_data[VARIABLES_SECTION][collection][field] = \
+                            temp_data[field]
+            return component_data
+
+        if len(main_group_dropdown_menus) > 0:
+            @app.callback(
+                [Output(main_group_dropdown_menu, 'style')
+                 for main_group_dropdown_menu in main_group_dropdown_menus],
+                [Input(GENERAL_STORE_ID, 'data')],
+                prevent_initial_call=True
+            )
+            def general_to_styles_maingroup(data):
+                if data is None or "collection" not in data:
+                    return dash.no_update
+                selected_collection = data.get("collection")
+                selected_main_group_dropdown_id = \
+                    self.encode_main_group_dropdown(selected_collection)
+                results = []
+                for main_group_dropdown_menu_id, main_group_dropdown_menu \
+                        in self.main_group_dropdown_menus.items():
+                    if main_group_dropdown_menu_id == selected_main_group_dropdown_id:
+                        results.append({'display': 'block'})
+                    else:
+                        results.append({'display': 'none'})
+                return tuple(results)
+    
+        @app.callback(
+            [Output(group_dropdown_menu, 'style', allow_duplicate=True)
+             for group_dropdown_menu in group_dropdown_menus],
+            [Input(GENERAL_STORE_ID, 'data')],
+            prevent_initial_call=True
+        )
+        def general_to_styles_group(general_data):
+            if not general_data or "collection" not in general_data:
+                return dash.no_update
+            collection = general_data["collection"]
+            main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
+                get(MAIN_GROUP, "all")
+            selected_group_dropdown_id = self.encode_group_dropdown(
+                collection, main_group
+            )
+            results = []
+            for group_dropdown_menu_id, group_dropdown_menu \
+                    in self.group_dropdown_menus.items():
+                if group_dropdown_menu_id == selected_group_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            return tuple(results)
+
+        @app.callback(
+            [Output(point_x_dropdown_menu, 'style', allow_duplicate=True)
+             for point_x_dropdown_menu in point_x_dropdown_menus],
+            [Input(GENERAL_STORE_ID, 'data')],
+            prevent_initial_call=True
+        )
+        def general_to_styles_xvar(selected_data):
+            if selected_data is None or "collection" not in selected_data:
+                return dash.no_update
+            collection = selected_data["collection"]
+            selected_point_x_dropdown_id = self.encode_xvar_dropdown(collection)
+            results = []
+            for point_x_dropdown_menu_id, point_x_dropdown_menu \
+                    in self.point_x_dropdown_menus.items():
+                if point_x_dropdown_menu_id == selected_point_x_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            return tuple(results)
+
+        @app.callback(
+            [Output(point_y_dropdown_menu, 'style', allow_duplicate=True)
+             for point_y_dropdown_menu in point_y_dropdown_menus],
+            [Input(GENERAL_STORE_ID, 'data')],
+            prevent_initial_call=True
+        )
+        def general_to_styles_yvar(selected_data):
+            if selected_data is None or "collection" not in selected_data:
+                return dash.no_update
+            collection = selected_data["collection"]
+            selected_point_y_dropdown_id = self.encode_yvar_dropdown(collection)
+            results = []
+            for point_y_dropdown_menu_id, point_y_dropdown_menu \
+                    in self.point_y_dropdown_menus.items():
+                if point_y_dropdown_menu_id == selected_point_y_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            return tuple(results)
+
+        @app.callback(
+            [Output(line_dropdown_menu, 'style', allow_duplicate=True)
+             for line_dropdown_menu in line_dropdown_menus],
+            [Input(GENERAL_STORE_ID, 'data')],
+            prevent_initial_call=True
+        )
+        def general_to_styles_linevar(selected_data):
+            if selected_data is None or "collection" not in selected_data:
+                return no_update
+            collection = selected_data["collection"]
+            selected_line_dropdown_id = self.encode_linevar_dropdown(collection)
+            results = []
+            for line_dropdown_menu_id, line_dropdown_menu \
+                    in self.line_dropdown_menus.items():
+                if line_dropdown_menu_id == selected_line_dropdown_id:
+                    results.append({'display': 'block'})
+                else:
+                    results.append({'display': 'none'})
+            return tuple(results)
+
+        if len(main_group_dropdown_menus) > 0:
+            @app.callback(
+                [Output(main_group_dropdown_menu, 'label')
+                 for main_group_dropdown_menu in main_group_dropdown_menus],
+                Input(GENERAL_STORE_ID, "data"),
+                prevent_initial_call=True
+            )
+            def stores_to_labels_maingroup(general_data):
+                general_data = general_data or {}
+                collection = general_data.get(
+                    "collection", self.feature_handler.get_default_collection()
+                )
+                main_group = general_data.get(GROUPS_SECTION, {}). \
+                    get(collection, {}).get(MAIN_GROUP)
+                if main_group is None:
+                    return dash.no_update
+                relevant_main_group_dropdown_id = \
+                    self.encode_main_group_dropdown(collection)
+                results = []
+                for main_group_dropdown_menu_id, main_group_dropdown_menu \
+                        in self.main_group_dropdown_menus.items():
+                    if main_group_dropdown_menu_id == relevant_main_group_dropdown_id:
+                        results.append(main_group)
+                    else:
+                        c = self.decode_main_group_dropdown(main_group_dropdown_menu_id)
+                        _, main_groups = self._get_group_and_main_group_values(c)
+
+                        results.append(main_groups[0])
+                return tuple(results)
+
+        @app.callback(
+            [Output(group_dropdown_menu, 'label')
+             for group_dropdown_menu in group_dropdown_menus],
+            Input(GENERAL_STORE_ID, "data"),
+            prevent_initial_call=True
+        )
+        def stores_to_labels_group(general_data):
+            general_data = general_data or {}
+            results = []
+            for group_dropdown_menu_id, group_dropdown_menu \
+                    in self.group_dropdown_menus.items():
+                c, main_group = \
+                    self.decode_group_dropdown(group_dropdown_menu_id)
+                default_group = \
+                    self._get_group_values_for_main_group(c, main_group)[0]
+                group = general_data.get(GROUPS_SECTION, {}).get(c, {}).\
+                    get(GROUP, default_group)
+                results.append(group)
+            return tuple(results)
+
+        @app.callback(
+            [Output(x_dropdown_menu, 'label')
+             for x_dropdown_menu in point_x_dropdown_menus],
+            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            prevent_initial_call=True
+        )
+        def stores_to_labels_xvar(component_data, general_data):
+            component_data = component_data or {}
+            general_data = general_data or {}
+            collection = general_data.get(
+                "collection", self.feature_handler.get_default_collection()
+            )
+            x_variable = component_data.get(VARIABLES_SECTION, {}).\
+                get(collection, {}).get(X_VARIABLE)
+            if x_variable is None:
+                return dash.no_update
+            relevant_x_dropdown_menu_id = self.encode_xvar_dropdown(collection)
+            results = []
+            for x_dropdown_menu_id, x_dropdown_menu \
+                    in self.point_x_dropdown_menus.items():
+                if x_dropdown_menu_id == relevant_x_dropdown_menu_id:
+                    results.append(x_variable)
+                else:
+                    c = self.decode_xvar_dropdown(x_dropdown_menu_id)
+                    default_var = self.feature_handler.get_default_variable(c)
+                    results.append(component_data.get(VARIABLES_SECTION, {}).get(c, {}).
+                                   get(X_VARIABLE, default_var))
+            return tuple(results)
+
+        @app.callback(
+            [Output(y_dropdown_menu, 'label')
+             for y_dropdown_menu in point_y_dropdown_menus],
+            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            prevent_initial_call=True
+        )
+        def stores_to_labels_yvar(component_data, general_data):
+            component_data = component_data or {}
+            general_data = general_data or {}
+            collection = general_data.get(
+                "collection", self.feature_handler.get_default_collection()
+            )
+            y_variable = component_data.get(VARIABLES_SECTION, {}).\
+                get(collection, {}).get(Y_VARIABLE)
+            if y_variable is None:
+                return dash.no_update
+            relevant_y_dropdown_menu_id = self.encode_yvar_dropdown(collection)
+            results = []
+            for y_dropdown_menu_id, y_dropdown_menu \
+                    in self.point_y_dropdown_menus.items():
+                if y_dropdown_menu_id == relevant_y_dropdown_menu_id:
+                    results.append(y_variable)
+                else:
+                    c = self.decode_yvar_dropdown(y_dropdown_menu_id)
+                    default_var = self.feature_handler.get_variables()[-1]
+                    results.append(component_data.get(VARIABLES_SECTION, {}).get(c, {}).
+                                   get(Y_VARIABLE, default_var))
+            return tuple(results)
+
+        @app.callback(
+            [Output(line_dropdown_menu, 'label')
+             for line_dropdown_menu in line_dropdown_menus],
+            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            prevent_initial_call=True
+        )
+        def stores_to_labels_linevar(component_data, general_data):
+            component_data = component_data or {}
+            general_data = general_data or {}
+            collection = general_data.get(
+                "collection", self.feature_handler.get_default_collection()
+            )
+            line_variable = component_data.get(VARIABLES_SECTION, {}).\
+                get(collection, {}).get(LINE_VARIABLE)
+            if line_variable is None:
+                return dash.no_update
+            relevant_line_dropdown_menu_id = self.encode_linevar_dropdown(collection)
+            results = []
+            for line_dropdown_menu_id, line_dropdown_menu \
+                    in self.line_dropdown_menus.items():
+                if line_dropdown_menu_id == relevant_line_dropdown_menu_id:
+                    results.append(line_variable)
+                else:
+                    c = self.decode_linevar_dropdown(line_dropdown_menu_id)
+                    default_var = self.feature_handler.get_default_variable(c)
+                    results.append(component_data.get(VARIABLES_SECTION, {}).get(c, {}).
+                                   get(LINE_VARIABLE, default_var))
+            return tuple(results)
+
+        @app.callback(
+            [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
+             Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
+            [Input(GENERAL_STORE_ID, "data"), Input(COMPONENT_STORE_ID, "data")],
+            prevent_initial_call=True
+        )
+        def stores_to_plots(general_data, component_data):
+            component_data = component_data or {}
+            if general_data is None or "collection" not in general_data:
+                return no_update
+            collection = general_data["collection"]
+            _, main_group_values =\
+                self._get_group_and_main_group_values(collection)
+            if main_group_values is None:
+                main_group = None
+                default_group = self._get_group_values_for_main_group(
+                    collection, ALL_GROUP_MEMBERS
+                )[0]
+            else:
+                main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
+                    get(MAIN_GROUP, main_group_values[0])
+                default_group = self._get_group_values_for_main_group(
+                    collection, main_group
+                )[0]
+            group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
+                get(GROUP, default_group)
+            variables = self.feature_handler.get_variables(collection)
+            x_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}).\
+                get(X_VARIABLE, variables[0])
+            y_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}).\
+                get(Y_VARIABLE, variables[-1])
+            line_variable = component_data.get(VARIABLES_SECTION, {}).\
+                get(collection, {}).get(LINE_VARIABLE, variables[0])
+
+            print(collection, main_group, group, x_variable, y_variable, line_variable)
+
+            pointplot_fig = self.get_point_scatter_plot(
+                collection, group, main_group, x_variable, y_variable
+            )
+            lineplot_fig = self.get_line_scatter_plot(
+                collection, main_group, line_variable
+            )
+            return pointplot_fig, lineplot_fig
+
+        @app.callback(
+            Output(COLLAPSE, "is_open"),
+            [Input(GENERAL_STORE_ID, 'data')]
+        )
+        def general_to_collapse(selected_data):
+            if not selected_data or "collection" not in selected_data:
+                return dash.no_update
+            collection = selected_data["collection"]
+            variables = self.feature_handler.get_variables(collection)
+            return len(variables) > 1

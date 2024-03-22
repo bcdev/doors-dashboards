@@ -18,19 +18,11 @@ class FeatureHandler:
         self._configs = {c["id"]: c for c in configs}
         self._dfs = {}
         self._eez_frame = self._load_eez(eez)
-        self._selected_collection = self.get_collections()[0] \
+        self._default_collection = self.get_collections()[0] \
             if len(self.get_collections()) > 0 else None
 
-    def select_collection(self, collection_name: str):
-        if collection_name not in self.get_collections():
-            raise ValueError(f"Unknown collection {collection_name}")
-        self._selected_collection = collection_name
-
-    def get_selected_collection(self) -> Optional[str]:
-        return self._selected_collection
-
     def get_default_collection(self) -> str:
-        return self.get_collections()[0]
+        return self._default_collection
 
     def get_default_variable(self, collection: str) -> str:
         return self.get_variables(collection)[0]
@@ -47,7 +39,7 @@ class FeatureHandler:
         return list(self._configs.keys())
 
     def get_df(self, collection: str = None) -> gpd.GeoDataFrame:
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         if collection not in self._dfs:
             if collection not in self._configs:
                 raise ValueError(
@@ -59,7 +51,7 @@ class FeatureHandler:
         return self._dfs[collection]
 
     def get_variables(self, collection: str = None):
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         variables = self._configs.get(collection, {}).get("params", {}).\
             get("variables")
         time_column_name = self.get_time_column_name(collection)
@@ -77,7 +69,7 @@ class FeatureHandler:
         return variables
 
     def get_time_column_name(self, collection: str = None):
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
             get("time_column", "timestamp")
 
@@ -96,12 +88,12 @@ class FeatureHandler:
                 get("colorcodevariable", {}))
 
     def get_levels(self, collection: str = None) -> List[str]:
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
             get("levels", [])
 
     def get_color(self, collection: str = None) -> str:
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         return self._configs.get(collection, {}).get("params", {}).\
             get("color", "blue")
 
@@ -125,7 +117,7 @@ class FeatureHandler:
 
     def get_nested_level_values(self, collection: str = None) \
             -> Optional[Union[List[str], Dict[str, Any]]]:
-        collection = self._selected_collection if not collection else collection
+        collection = self._default_collection if not collection else collection
         levels = self.get_levels(collection)
         if not levels:
             return None
@@ -161,13 +153,12 @@ class FeatureHandler:
             )
 
     def get_points_as_tuples(self, collection: str = None) -> \
-            Tuple[List[float], List[float], List[str], List[float], List[str]]:
-        collection = self._selected_collection if not collection else collection
+            Tuple[List[float], List[float], List[str], List[float]]:
+        collection = self._default_collection if not collection else collection
         gdf = self.get_df(collection)
 
         lons = list(gdf.geometry.apply(lambda p: p.x))
         lats = list(gdf.geometry.apply(lambda p: p.y))
-        customdata = [collection] * len(lons)
         label = self._get_label_column_name(collection)
         if label:
             labels = list(gdf[label])
@@ -181,5 +172,5 @@ class FeatureHandler:
                 labels.append(res[:-4])
         ccvar = self.get_color_code_config(collection).get("name")
         values = list(gdf[ccvar]) if ccvar else None
-        return lons, lats, labels, values, customdata
+        return lons, lats, labels, values
 
