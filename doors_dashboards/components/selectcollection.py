@@ -38,7 +38,6 @@ class SelectCollectionComponent(DashboardComponent):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None))
                 selected_collection = collections[latest_timestamp_index]
-                self.feature_handler.select_collection(selected_collection)
                 return selected_collection
             else:
                 return dash.no_update

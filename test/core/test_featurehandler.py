@@ -100,13 +100,13 @@ class FeatureHandlerClass(TestCase):
                          self.feature_handler.get_nested_level_values("4"))
 
     def test_get_points_as_tuples_1(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("1")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("1")
         self.assertEqual([20.5, 28.5, 22.5], lons)
         self.assertEqual([22.2, 42.2, 62.2], lats)
         self.assertEqual(["x", "y", "z"], labels)
 
     def test_get_points_as_tuples_2(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("2")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("2")
         self.assertEqual([28.1, 10.2, -10.3], lons)
         self.assertEqual([42.4, 55.3, 45.2], lats)
         self.assertEqual([
@@ -120,7 +120,7 @@ class FeatureHandlerClass(TestCase):
         )
 
     def test_get_points_as_tuples_3(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("3")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("3")
         self.assertEqual(
             [27.479, 27.47, 27.467, 27.457, 27.53, 27.728, 27.687], lons
         )
@@ -133,7 +133,7 @@ class FeatureHandlerClass(TestCase):
                          labels)
 
     def test_get_points_as_tuples_4(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("4")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("4")
         self.assertEqual(
             [30.2518, 30.2518, 31.0021, 31.0021,
              36.0697, 36.0697, 31.5675, 31.5675], lons
@@ -151,7 +151,7 @@ class FeatureHandlerClass(TestCase):
 
     def _test_methods(self, exp: str):
         self.assertEqual(exp,
-                         self.feature_handler.get_selected_collection())
+                         self.feature_handler.get_default_collection())
         self.assertEqual(self.feature_handler.get_levels(exp),
                          self.feature_handler.get_levels())
         self.assertEqual(self.feature_handler.get_variables(exp),
@@ -161,13 +161,6 @@ class FeatureHandlerClass(TestCase):
         self.assertEqual(self.feature_handler.get_nested_level_values(exp),
                          self.feature_handler.get_nested_level_values())
 
-    def test_select_and_get_selected(self):
-        self._test_methods("1")
-        self.feature_handler.select_collection("2")
-        self._test_methods("2")
-        self.feature_handler.select_collection("3")
-        self._test_methods("3")
-
 
 class FeatureHandlerClassWithEez(TestCase):
 
@@ -175,13 +168,13 @@ class FeatureHandlerClassWithEez(TestCase):
         self.feature_handler = FeatureHandler(_TEST_CONFIG, "BG_eez")
 
     def test_feature_handler_with_eez_1(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("1")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("1")
         self.assertEqual([28.5], lons)
         self.assertEqual([42.2], lats)
         self.assertEqual(["y"], labels)
 
     def test_feature_handler_with_eez_2(self):
-        lons, lats, labels = self.feature_handler.get_points_as_tuples("2")
+        lons, lats, labels, values = self.feature_handler.get_points_as_tuples("2")
         self.assertEqual([28.1], lons)
         self.assertEqual([42.4], lats)
         self.assertEqual([
