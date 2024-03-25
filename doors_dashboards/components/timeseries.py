@@ -118,7 +118,7 @@ class TimeSeriesComponent(DashboardComponent):
                         member,
                         id=group_drop_option_id,
                         n_clicks=1,
-                        style={'fontSize': FONT_SIZE, 'fontfamily': FONT_FAMILY}
+                        style={'fontSize': FONT_SIZE, 'fontFamily': FONT_FAMILY}
                     )
                 group_drop_menu_items.append(group_drop_option)
                 self.group_drop_options[group_drop_option_id] = \

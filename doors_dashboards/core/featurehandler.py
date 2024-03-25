@@ -156,7 +156,6 @@ class FeatureHandler:
             Tuple[List[float], List[float], List[str], List[float]]:
         collection = self._default_collection if not collection else collection
         gdf = self.get_df(collection)
-
         lons = list(gdf.geometry.apply(lambda p: p.x))
         lats = list(gdf.geometry.apply(lambda p: p.y))
         label = self._get_label_column_name(collection)

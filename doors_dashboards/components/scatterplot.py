@@ -6,6 +6,7 @@ import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 
+from doors_dashboards.components.constant import COLLECTION_TEMPLATE
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR
@@ -593,7 +594,7 @@ class ScatterplotComponent(DashboardComponent):
                     MAIN_GROUP: selected_main_group_item
                 }
                 return temp
-        
+
         @app.callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(group_value_id, 'n_clicks_timestamp')
@@ -653,7 +654,7 @@ class ScatterplotComponent(DashboardComponent):
                 Y_VARIABLE: yvar_drop_option_value
             }
             return temp_data
-        
+
         @app.callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(line_drop_id, 'n_clicks_timestamp')
@@ -743,7 +744,7 @@ class ScatterplotComponent(DashboardComponent):
                     else:
                         results.append({'display': 'none'})
                 return tuple(results)
-    
+
         @app.callback(
             [Output(group_dropdown_menu, 'style', allow_duplicate=True)
              for group_dropdown_menu in group_dropdown_menus],

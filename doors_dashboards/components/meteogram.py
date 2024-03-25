@@ -10,8 +10,11 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, PLOT_BGCOLOR, \
-    FONT_SIZE, FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import FONT_FAMILY
+from doors_dashboards.components.constant import FONT_SIZE
+from doors_dashboards.components.constant import FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -93,7 +96,6 @@ class MeteogramComponent(DashboardComponent):
                 'padding': '35px',
                 'border-radius': '15px',
                 'flex': '1',
-                # 'margin-top': '4px',
                 'display': 'flex',
                 'flexDirection': 'column',
                 'alignItems': 'center',
@@ -156,7 +158,7 @@ class MeteogramComponent(DashboardComponent):
                 [
                     dbc.Label("Date", className='col-2',
                               style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize':FONT_SIZE_NUMBER, 'float': 'left',
+                                     'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
                                      'margin-top': '59px', 'padding-left': '28px'}),
                     dcc.DatePickerSingle(
                         id=METEOGRAM_DATE_PICKER_ID,
@@ -172,7 +174,6 @@ class MeteogramComponent(DashboardComponent):
                 className='col-xs-6 col-sm-2 mb-4',
                 style={'margin-top': '-32px', 'margin-right': '-180px',
                        'minWidth': '450px'},
-                #width='4'
             ),
             dbc.Col([
                 dbc.Label('Forecast Type', className='mb-2',
@@ -184,8 +185,8 @@ class MeteogramComponent(DashboardComponent):
                     options=[{'label': option['label'], 'value': option['value']} for
                              option in OPTIONS],
                     value=OPTIONS[0]['value'],
-                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE, 'width':
-                        '350px'},
+                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE,
+                               'width': '350px'},
                     className="m-4",
                     size="lg",
                 )

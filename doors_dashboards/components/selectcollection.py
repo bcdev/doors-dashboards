@@ -1,5 +1,9 @@
 from typing import Dict, List
-from dash import Dash, Input, Output, dash, State, no_update
+from dash import Dash, dash
+from dash import Input
+from dash import no_update
+from dash import Output
+from dash import State
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
@@ -117,5 +121,5 @@ class SelectCollectionComponent(DashboardComponent):
         ],
             width=4,
             className='mb-4',
-            style={'margin': '23px 0 0 -19px'}
+            style={'margin': '0 0 0 -19px'}
         )
