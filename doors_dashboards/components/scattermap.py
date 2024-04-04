@@ -145,7 +145,7 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '50px',
+                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
                 'border-radius': '15px',
                 'margin-right': '5px'
             }
@@ -158,7 +158,6 @@ class ScatterMapComponent(DashboardComponent):
         @app.callback(
             Output("general", "data"),
             Input("scattermap", 'clickData'),
-            State("general", "data")
         )
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:

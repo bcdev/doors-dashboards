@@ -1,4 +1,4 @@
-from dash import dcc, html, dash, Input, Output
+from dash import dcc, html, dash, Input, Output, State, no_update
 from dash.development.base_component import Component
 from copy import deepcopy
 from datetime import date
@@ -10,7 +10,8 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import FONT_COLOR, GROUP, GENERAL_STORE_ID, \
+    GROUPS_SECTION, METEOGRAM_TYPE_TEMPLATE
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import FONT_SIZE
 from doors_dashboards.components.constant import FONT_SIZE_NUMBER
@@ -37,6 +38,9 @@ OPTIONS = [
     {'label': 'Classical wave', 'value': 'classical_wave'}
 
 ]
+COMPONENT_STORE_ID = "meteogram_component_store"
+OPTION_TO_ID = {option["value"]: METEOGRAM_TYPE_TEMPLATE.format(option["value"]) for
+                option in OPTIONS}
 
 
 class MeteogramComponent(DashboardComponent):
@@ -85,23 +89,19 @@ class MeteogramComponent(DashboardComponent):
         )
         return dbc.Col(
             meteogram_image,
-            # width="50%",
-            style={  # 'marginBottom': '15px',
+            style={
                 'color': FONT_COLOR,
                 'fontSize': FONT_SIZE,
-                'fontFamily':
-                    FONT_FAMILY,
-                'fontWeight': 'bold',
+                'fontFamily': FONT_FAMILY,
                 'backgroundColor': PLOT_BGCOLOR,
-                'padding': '35px',
                 'border-radius': '15px',
                 'flex': '1',
                 'display': 'flex',
                 'flexDirection': 'column',
-                'alignItems': 'center',
-                'height': '1200px',
+                'height': '100%'
             },
-            id=sub_component_id
+            id=sub_component_id,
+            className="p-4 text-center font-weight-bold"
         )
 
     def _get_meteogram_image(
@@ -129,8 +129,8 @@ class MeteogramComponent(DashboardComponent):
                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
                                     'fontSize': FONT_SIZE_NUMBER})
         image = html.Img(src=image_url, style={'padding': '20px', 'maxWidth': '100%',
-                                               'maxHeight': '1200px', 'width': '100%',
-                                               'height': '1100px'},
+                                               'width': '100%', 'height': '95vh'
+                                               },
                          className="col-lg-6")
         self._previous_images[key] = image
         return image
@@ -153,6 +153,8 @@ class MeteogramComponent(DashboardComponent):
         current_date = datetime.now().date()
         min_date_allowed = current_date - timedelta(days=10)
         max_date_allowed = current_date
+        default_value = OPTIONS[0]['value']
+
         return dbc.Row([
             dbc.Col(
                 [
@@ -166,33 +168,39 @@ class MeteogramComponent(DashboardComponent):
                         max_date_allowed=max_date_allowed,
                         initial_visible_month=current_date,
                         date=current_date,
-                        day_size=70,
+                        day_size=50,
                         style={'width': '100%', 'margin': '-48px 0px 0px 101px',
-                               'float': 'left', 'font-family': FONT_FAMILY}
+                               'float': 'left', 'font-family': FONT_FAMILY},
+                        className="mb-3"
                     )
                 ],
-                className='col-xs-6 col-sm-2 mb-4',
+                className='col-xs-6 col-sm-2 mb-3',
                 style={'margin-top': '-32px', 'margin-right': '-180px',
                        'minWidth': '450px'},
             ),
             dbc.Col([
                 dbc.Label('Forecast Type', className='mb-2',
-                          style={'fontSize': FONT_SIZE_NUMBER, 'float': 'left', 'fontFamily':
-                              FONT_FAMILY, 'color': FONT_COLOR,
+                          style={'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
+                                 'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
                                  'padding': '29px 20px 0px 40px'}),
-                dbc.Select(
+                dbc.DropdownMenu(
                     id=METEOGRAM_CHOOSER_ID,
-                    options=[{'label': option['label'], 'value': option['value']} for
-                             option in OPTIONS],
-                    value=OPTIONS[0]['value'],
-                    style={'fontFamily': FONT_FAMILY, 'fontSize': FONT_SIZE,
-                               'width': '350px'},
+                    label=default_value,
+                    children=[
+                        dbc.DropdownMenuItem(
+                            option, id=option_id, n_clicks=1,
+                            style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY})
+                        for option, option_id in OPTION_TO_ID.items()
+                    ],
+                    style={'fontFamily': FONT_FAMILY,
+                           'color': FONT_COLOR, 'fontSize': FONT_SIZE},
                     className="m-4",
-                    size="lg",
+                    color="secondary",
+                    size="lg"
                 )
             ],
                 width=4,
-                className='col-xs-6 col-sm-3 mb-4',
+                className='col-xs-6 col-sm-3 mb-3',
                 style={'min-width': '600px'}
 
             ),
@@ -208,18 +216,57 @@ class MeteogramComponent(DashboardComponent):
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
-            [Input("scattermap", 'clickData'),
-             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
-             Input(METEOGRAM_CHOOSER_ID, 'value')]
+            Input(GENERAL_STORE_ID, 'data'),
+            Input(COMPONENT_STORE_ID, 'data')
         )
-        def update_meteogram_image(click_data, date_value, forecast_value):
-            meteo_lon = click_data['points'][0]['lon'] if click_data else lon
-            meteo_lat = click_data['points'][0]['lat'] if click_data else lat
-            meteo_label = click_data['points'][0]['text'] if click_data \
+        def update_meteogram_image(general_data):
+            meteo_lon = general_data["meteogram_data"]['lon'] \
+                if general_data["meteogram_data"] else lon
+            meteo_lat = general_data["meteogram_data"]['lat'] \
+                if general_data["meteogram_data"] else lat
+            meteo_label = general_data["meteogram_data"]['text'] \
+                if general_data["meteogram_data"] \
                 else label
-            date_string = date.fromisoformat(date_value). \
-                strftime('%Y-%m-%dT00:00:00Z') if date_value else None
 
+            date_string = date.fromisoformat(general_data["component_data"]["date"]). \
+                strftime('%Y-%m-%dT00:00:00Z') if general_data[
+                "component_data"] else None
+            forecast_value = general_data["component_data"]["meteogram_type"] \
+                if general_data["component_data"] else None
             return meteo_label, self._get_meteogram_image(
                 meteo_lon, meteo_lat, date_string, forecast_value
             )
+
+        @app.callback(
+            Output(COMPONENT_STORE_ID, "data"),
+            [Input(dropdown_id, 'n_clicks_timestamp')
+             for dropdown_id in list(OPTION_TO_ID.values())],
+        )
+        def selector_to_component_store(*timestamps, date_value):
+            clicked_index = next((i for i, x in enumerate(timestamps) if x),
+                                 None) if timestamps else None
+            meteogram_drp_option_label = OPTIONS[clicked_index]['label']
+
+            date_string = date.fromisoformat(date_value). \
+                strftime('%Y-%m-%dT00:00:00Z') if date_value else None
+            component_data = {
+                'meteogram_type': meteogram_drp_option_label,
+                'date': date_string
+            }
+            return component_data
+
+        @app.callback(
+            Output(COMPONENT_STORE_ID, "data"),
+            Input(METEOGRAM_DATE_PICKER_ID, 'date'),
+            State(COMPONENT_STORE_ID,'data')
+        )
+        def datepicker_to_component_store(component_data, date_value):
+
+            component_data = component_data or {}
+            date_string = date.fromisoformat(date_value). \
+                strftime('%Y-%m-%dT00:00:00Z') if date_value else None
+            component_data = {
+                'date': date_string
+            }
+            return component_data
+
