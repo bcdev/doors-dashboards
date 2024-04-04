@@ -1,6 +1,7 @@
 COLLECTION_TEMPLATE = 'collection_drp_option_{0}'
 GROUP_DROPDOWN_TEMPLATE = 'group_drp_option_{0}_{1}'
 MAINGROUP_DROPDOWN_TEMPLATE = 'maingroup_drp_option_{0}'
+METEOGRAM_TYPE_TEMPLATE = 'meteogram_drp_option_{0}'
 SCATTER_PLOT_ID = 'scatter-plot-point'
 SCATTER_PLOT_LINE_ID = 'scatter-plot-line'
 PLOT_BGCOLOR = '#3B4758'
@@ -10,3 +11,4 @@ FONT_COLOR = "#FFFFFF"
 FONT_FAMILY = "Roboto, Helvetica, Arial, sans-serif"
 FONT_SIZE_NUMBER = '25px'
 FONT_SIZE = 'x-large'
+GENERAL_STORE_ID = "general"

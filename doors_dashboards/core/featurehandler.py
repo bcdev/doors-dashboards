@@ -33,7 +33,8 @@ class FeatureHandler:
         return self.get_collections()[0]
 
     def get_default_variable(self, collection: str) -> str:
-        return self.get_variables(collection)[0]
+        variables = self.get_variables(collection)
+        return variables[0] if variables else None
 
     @staticmethod
     def _load_eez(eez: str = None):
@@ -97,8 +98,8 @@ class FeatureHandler:
 
     def get_levels(self, collection: str = None) -> List[str]:
         collection = self._selected_collection if not collection else collection
-        return self._configs.get(collection, {}).get("params", {}).\
-            get("levels", [])
+        levels = self._configs.get(collection, {}).get("params", {}).get("levels")
+        return levels if levels else []
 
     def get_color(self, collection: str = None) -> str:
         collection = self._selected_collection if not collection else collection

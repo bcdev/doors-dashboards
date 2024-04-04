@@ -141,10 +141,12 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '40px',
                 'border-radius': '15px',
-                'margin-right': '5px'
-            }
+                'margin-right': '5px',
+                'height': '100%'
+            },
         )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
@@ -166,19 +168,29 @@ class ScatterMapComponent(DashboardComponent):
                 general_data["collection"] = (
                     collection_name)
             if "groups" not in general_data:
-                group_name = self.feature_handler.get_levels(collection_name)[-1]
+                group_name = self.feature_handler.get_levels(collection_name)[-1] if \
+                    self.feature_handler.get_levels(collection_name) else ""
                 lon = click_data['points'][0]['lon']
                 lat = click_data['points'][0]['lat']
                 p = Point(lon, lat)
                 gdf = self.feature_handler.get_df(collection_name)
                 gdf = gdf[gdf["geometry"].geom_equals(p)]
                 if len(gdf) > 0:
-                    group = gdf.iloc[0][group_name]
-                    general_data["groups"] = {}
-                    general_data["groups"][collection_name] = (
-                     group)
+                    if group_name is "":
+                        text = click_data['points'][0]['text']
+                        general_data["meteogram_data"] = {
+                            'lon': lon,
+                            'lat': lat,
+                            'label': text
+                        }
+                    else:
+                        group = gdf.iloc[0][group_name]
+                        general_data["groups"] = {}
+                        general_data["groups"][collection_name] = (
+                            group)
             if "variable" not in general_data:
                 general_data["variable"] = {}
             general_data["variable"][collection_name] = (
                 self.feature_handler.get_default_variable(collection_name))
             return general_data
+
