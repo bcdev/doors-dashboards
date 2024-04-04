@@ -1,4 +1,9 @@
-from dash import dcc, html, dash, Input, Output, State, no_update
+from dash import dcc
+from dash import html
+from dash import dash
+from dash import Input
+from dash import State
+from dash import Output
 from dash.development.base_component import Component
 from copy import deepcopy
 from datetime import date
@@ -10,8 +15,9 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_COLOR, GROUP, GENERAL_STORE_ID, \
-    GROUPS_SECTION, METEOGRAM_TYPE_TEMPLATE
+from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import METEOGRAM_TYPE_TEMPLATE
+from doors_dashboards.components.constant import GENERAL_STORE_ID
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import FONT_SIZE
 from doors_dashboards.components.constant import FONT_SIZE_NUMBER
