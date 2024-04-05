@@ -25,13 +25,14 @@ from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-METEOGRAM_ENDPOINT = \
-    "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram/"
-HEADERS = {"accept": "application/json"}
+
 BASE_PARAMS = {
     "format": "png"
 }
-
+COMPONENT_STORE_ID = "meteogram_component_store"
+HEADERS = {"accept": "application/json"}
+METEOGRAM_ENDPOINT = \
+    "https://charts.ecmwf.int/opencharts-api/v1/products/opencharts_meteogram/"
 METEOGRAM_IMAGE_ID = "meteogram_image"
 METEOGRAM_DATE_PICKER_ID = "meteogram_date_picker"
 METEOGRAM_CHOOSER_ID = "meteogram_chooser"
@@ -44,9 +45,9 @@ OPTIONS = [
     {'label': 'Classical wave', 'value': 'classical_wave'}
 
 ]
-COMPONENT_STORE_ID = "meteogram_component_store"
 OPTION_TO_ID = {option["value"]: METEOGRAM_TYPE_TEMPLATE.format(option["value"]) for
                 option in OPTIONS}
+TEMP_STORE_ID = "meteogram_temp_store"
 
 
 class MeteogramComponent(DashboardComponent):
@@ -96,6 +97,7 @@ class MeteogramComponent(DashboardComponent):
         return html.Div(
             children=[
                 dcc.Store(id=COMPONENT_STORE_ID),
+                dcc.Store(id=TEMP_STORE_ID),
                 dbc.Col(
                     meteogram_image,
                     style={
@@ -248,7 +250,8 @@ class MeteogramComponent(DashboardComponent):
                     component_data = component_state_data
                 date_string = component_data.get("date", "") if component_data.get(
                     "date") else None
-                forecast_value = component_data.get("meteogram_type", OPTIONS[0]["value"])
+                forecast_value = component_data.get("meteogram_type",
+                                                    OPTIONS[0]["value"])
             else:
                 date_string = None
                 forecast_value = OPTIONS[0]["value"]
@@ -258,23 +261,21 @@ class MeteogramComponent(DashboardComponent):
             )
 
         @app.callback(
-            Output(COMPONENT_STORE_ID, "data", allow_duplicate=True),
+            Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(OPTION_TO_ID.values())],
-            State(COMPONENT_STORE_ID, 'data'),
             prevent_initial_call=True
         )
-        def selector_to_component_store(*timestamps, component_data=None):
-            component_data = component_data or {}
-            clicked_index = next((i for i, x in enumerate(timestamps) if x),
-                                 None) if timestamps else None
+        def selector_to_component_store(*timestamps):
+            clicked_index = timestamps.index(
+                    max(t for t in timestamps if t is not None))
             meteogram_drp_option_label = OPTIONS[clicked_index]['value']
 
-            selected_type = {
+            temp_data = {
                 'meteogram_type': meteogram_drp_option_label,
             }
-            component_data.update(selected_type)
-            return component_data
+
+            return temp_data
 
         @app.callback(
             Output(METEOGRAM_CHOOSER_ID, "label"),
@@ -293,7 +294,7 @@ class MeteogramComponent(DashboardComponent):
             State(COMPONENT_STORE_ID, 'data'),
             prevent_initial_call=True
         )
-        def datepicker_to_component_store(date_value,component_data):
+        def datepicker_to_component_store(date_value, component_data):
             if component_data is not None:
                 component_data = component_data or {}
             date_string = date.fromisoformat(date_value). \
@@ -302,4 +303,20 @@ class MeteogramComponent(DashboardComponent):
                 'date': date_string
             }
             component_data.update(selected_date)
+            return component_data
+
+        @app.callback(
+            Output(COMPONENT_STORE_ID, "data", allow_duplicate=True),
+            Input(TEMP_STORE_ID, 'data'),
+            State(COMPONENT_STORE_ID, 'data'),
+            prevent_initial_call=True
+        )
+        def datepicker_to_component_store(temp_data, component_data):
+            if temp_data is None:
+                return  no_update
+            if component_data is not None:
+                component_data = component_data or {}
+            else:
+                component_data = {}
+            component_data.update(temp_data)
             return component_data
