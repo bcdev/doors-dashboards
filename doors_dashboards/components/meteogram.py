@@ -229,7 +229,7 @@ class MeteogramComponent(DashboardComponent):
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
-            Input("general", "data"),
+            Input(GENERAL_STORE_ID, "data"),
             Input(COMPONENT_STORE_ID, 'data'),
             State(COMPONENT_STORE_ID, 'data')
         )
