@@ -14,7 +14,11 @@ from typing import List
 from typing import Tuple
 from shapely.geometry import Point
 
-from doors_dashboards.components.constant import PLOT_BGCOLOR, FONT_FAMILY
+from doors_dashboards.components.constant import FONT_FAMILY
+from doors_dashboards.components.constant import GROUP
+from doors_dashboards.components.constant import GROUPS_SECTION
+from doors_dashboards.components.constant import MAIN_GROUP
+from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -141,7 +145,7 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
+                'backgroundColor': PLOT_BGCOLOR, 'padding': '50px',
                 'border-radius': '15px',
                 'margin-right': '5px'
             }
@@ -154,31 +158,31 @@ class ScatterMapComponent(DashboardComponent):
         @app.callback(
             Output("general", "data"),
             Input("scattermap", 'clickData'),
+            State("general", "data")
         )
-        def update_general_store_after_station_selection(
-                click_data
-        ):
+        def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
                 return no_update
-            general_data = {}
+            general_data = general_data or {}
             collection_name = click_data['points'][0]['customdata']
-            if "collection" not in general_data:
-                general_data["collection"] = (
-                    collection_name)
-            if "groups" not in general_data:
-                group_name = self.feature_handler.get_levels(collection_name)[-1]
-                lon = click_data['points'][0]['lon']
-                lat = click_data['points'][0]['lat']
-                p = Point(lon, lat)
-                gdf = self.feature_handler.get_df(collection_name)
-                gdf = gdf[gdf["geometry"].geom_equals(p)]
-                if len(gdf) > 0:
-                    group = gdf.iloc[0][group_name]
-                    general_data["groups"] = {}
-                    general_data["groups"][collection_name] = (
-                     group)
-            if "variable" not in general_data:
-                general_data["variable"] = {}
-            general_data["variable"][collection_name] = (
-                self.feature_handler.get_default_variable(collection_name))
+            general_data["collection"] = collection_name
+            if GROUPS_SECTION not in general_data:
+                general_data[GROUPS_SECTION] = {}
+            lon = click_data['points'][0]['lon']
+            lat = click_data['points'][0]['lat']
+            p = Point(lon, lat)
+            gdf = self.feature_handler.get_df(collection_name)
+            gdf = gdf[gdf["geometry"].geom_equals(p)]
+            levels = self.feature_handler.get_levels(collection_name)
+            if len(levels) == 3:
+                series = gdf.iloc[0][[levels[0], levels[1]]]
+                general_data[GROUPS_SECTION][collection_name] = {
+                    MAIN_GROUP: series[levels[0]],
+                    GROUP: series[levels[1]]
+                }
+            else:
+                series = gdf.iloc[0][[levels[0]]]
+                general_data[GROUPS_SECTION][collection_name] = {
+                    GROUP: series[levels[0]]
+                }
             return general_data
