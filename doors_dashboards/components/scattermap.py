@@ -145,10 +145,12 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '40px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '40px',
                 'border-radius': '15px',
-                'margin-right': '5px'
-            }
+                'margin-right': '5px',
+                'height': '100%'
+            },
         )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
