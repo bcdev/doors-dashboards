@@ -158,6 +158,7 @@ class ScatterMapComponent(DashboardComponent):
         @app.callback(
             Output("general", "data"),
             Input("scattermap", 'clickData'),
+            State("general", "data")
         )
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
@@ -173,15 +174,22 @@ class ScatterMapComponent(DashboardComponent):
             gdf = self.feature_handler.get_df(collection_name)
             gdf = gdf[gdf["geometry"].geom_equals(p)]
             levels = self.feature_handler.get_levels(collection_name)
-            if len(levels) == 3:
-                series = gdf.iloc[0][[levels[0], levels[1]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    MAIN_GROUP: series[levels[0]],
-                    GROUP: series[levels[1]]
-                }
-            else:
-                series = gdf.iloc[0][[levels[0]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    GROUP: series[levels[0]]
-                }
+            text = click_data['points'][0]['text']
+            general_data["selected_data"] = {
+                'lon': lon,
+                'lat': lat,
+                'label': text
+            }
+            if len(levels) > 0:
+                if len(levels) == 3:
+                    series = gdf.iloc[0][[levels[0], levels[1]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        MAIN_GROUP: series[levels[0]],
+                        GROUP: series[levels[1]]
+                    }
+                else:
+                    series = gdf.iloc[0][[levels[0]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        GROUP: series[levels[0]]
+                    }
             return general_data

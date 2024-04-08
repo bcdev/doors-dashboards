@@ -238,7 +238,7 @@ class MeteogramComponent(DashboardComponent):
         )
         def update_meteogram_image(general_data, component_data, component_state_data):
             if general_data is not None:
-                meteogram_data = general_data.get("meteogram_data")
+                meteogram_data = general_data.get("selected_data")
                 meteo_lon = meteogram_data.get('lon') if meteogram_data else lon
                 meteo_lat = meteogram_data.get('lat') if meteogram_data else lat
                 meteo_label = meteogram_data.get('label') if meteogram_data else label
