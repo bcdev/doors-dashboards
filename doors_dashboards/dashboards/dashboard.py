@@ -105,7 +105,6 @@ def create_dashboard(config: Dict) -> Dash:
         id=dashboard_id,
         fluid=True,
         children=[
-            dcc.Store(id='map-value-store', storage_type='local'),
             dcc.Store(id='general'),
             dcc.Store(id='collection_selector'),
             dcc.Store(id='group_selector'),

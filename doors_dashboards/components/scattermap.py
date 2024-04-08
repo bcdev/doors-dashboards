@@ -145,10 +145,12 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '50px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '40px',
                 'border-radius': '15px',
-                'margin-right': '5px'
-            }
+                'margin-right': '5px',
+                'height': '100%'
+            },
         )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
@@ -174,15 +176,22 @@ class ScatterMapComponent(DashboardComponent):
             gdf = self.feature_handler.get_df(collection_name)
             gdf = gdf[gdf["geometry"].geom_equals(p)]
             levels = self.feature_handler.get_levels(collection_name)
-            if len(levels) == 3:
-                series = gdf.iloc[0][[levels[0], levels[1]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    MAIN_GROUP: series[levels[0]],
-                    GROUP: series[levels[1]]
-                }
-            else:
-                series = gdf.iloc[0][[levels[0]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    GROUP: series[levels[0]]
-                }
+            text = click_data['points'][0]['text']
+            general_data["selected_data"] = {
+                'lon': lon,
+                'lat': lat,
+                'label': text
+            }
+            if len(levels) > 0:
+                if len(levels) == 3:
+                    series = gdf.iloc[0][[levels[0], levels[1]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        MAIN_GROUP: series[levels[0]],
+                        GROUP: series[levels[1]]
+                    }
+                else:
+                    series = gdf.iloc[0][[levels[0]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        GROUP: series[levels[0]]
+                    }
             return general_data
