@@ -195,3 +195,52 @@ class ScatterMapComponent(DashboardComponent):
                         GROUP: series[levels[0]]
                     }
             return general_data
+
+        @app.callback(
+            Output("scattermap", 'figure'),
+            [Input("general", "data")],
+            State('scattermap', 'figure'),
+            prevent_initial_call=True
+        )
+        def update_selected_dropdown_point_on_scattermap(general_data, current_figure):
+            if "collection" in general_data:
+                collection_name = general_data["collection"]
+                levels = self.feature_handler.get_levels(collection_name)
+                if len(levels) == 1 and levels[0] != "station":
+                    if isinstance(current_figure, dict) and "data" in current_figure:
+                        current_figure = go.Figure(current_figure)
+                        current_figure['data'] = [trace for trace in
+                                                  current_figure['data'] if
+                                                  trace['name'] != "Selected Station"]
+                        return current_figure
+
+            if "groups" in general_data:
+                group_value = general_data.get("groups", {}).get(general_data["collection"])
+            else:
+                collection_name = general_data.get("collection", {})
+                group_values = self.feature_handler.get_nested_level_values(
+                    collection_name)
+                group_values.sort()
+                group_value = group_values[0] if len(group_values) > 1 else group_values
+
+            df = self.feature_handler.get_df(general_data.get("collection", {}))
+            geometry = df[df["station"] == group_value]["geometry"]
+            lon, lat = geometry.x.values, geometry.y.values
+            highlighted_trace = go.Scattermapbox(
+                lat=lat,
+                lon=lon,
+                mode='markers',
+                marker=dict(
+                    size=10,
+                    color="yellow",
+                ),
+                name="Selected Station",
+                text=group_value
+            )
+
+            if isinstance(current_figure, dict) and "data" in current_figure:
+                current_figure = go.Figure(current_figure)
+                current_figure['data'] = [trace for trace in current_figure['data'] if
+                                          trace['name'] != "Selected Station"]
+                current_figure.add_trace(highlighted_trace)
+                return current_figure
