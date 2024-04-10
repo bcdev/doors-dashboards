@@ -91,8 +91,8 @@ class ScatterMapComponent(DashboardComponent):
                 text=labels,
                 name=collection,
                 customdata=customdata,
-                selected=go.scattermapbox.Selected(marker={"color": "yellow",
-                                                           "size": 25}
+                selected=go.scattermapbox.Selected(marker={"color": "#5C050B",
+                                                           "size": 15}
                                                    )
             ))
 
@@ -145,10 +145,12 @@ class ScatterMapComponent(DashboardComponent):
                 'flex': '1',
                 'margin': '2px',
                 'alignItems': 'center',
-                'backgroundColor': PLOT_BGCOLOR, 'padding': '50px',
+                'backgroundColor': PLOT_BGCOLOR,
+                'padding': '40px',
                 'border-radius': '15px',
-                'margin-right': '5px'
-            }
+                'margin-right': '5px',
+                'height': '100%'
+            },
         )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
@@ -174,15 +176,74 @@ class ScatterMapComponent(DashboardComponent):
             gdf = self.feature_handler.get_df(collection_name)
             gdf = gdf[gdf["geometry"].geom_equals(p)]
             levels = self.feature_handler.get_levels(collection_name)
-            if len(levels) == 3:
-                series = gdf.iloc[0][[levels[0], levels[1]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    MAIN_GROUP: series[levels[0]],
-                    GROUP: series[levels[1]]
-                }
-            else:
-                series = gdf.iloc[0][[levels[0]]]
-                general_data[GROUPS_SECTION][collection_name] = {
-                    GROUP: series[levels[0]]
-                }
+            text = click_data['points'][0]['text']
+            general_data["selected_data"] = {
+                'lon': lon,
+                'lat': lat,
+                'label': text
+            }
+            if len(levels) > 0:
+                if len(levels) == 3:
+                    series = gdf.iloc[0][[levels[0], levels[1]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        MAIN_GROUP: series[levels[0]],
+                        GROUP: series[levels[1]]
+                    }
+                else:
+                    series = gdf.iloc[0][[levels[0]]]
+                    general_data[GROUPS_SECTION][collection_name] = {
+                        GROUP: series[levels[0]]
+                    }
             return general_data
+
+        @app.callback(
+            Output("scattermap", 'figure'),
+            [Input("general", "data")],
+            State('scattermap', 'figure'),
+            prevent_initial_call=True
+        )
+        def update_selected_dropdown_point_on_scattermap(general_data, current_figure):
+            if "collection" in general_data:
+                collection_name = general_data["collection"]
+                levels = self.feature_handler.get_levels(collection_name)
+                if len(levels) == 1 and levels[0] != "station":
+                    if isinstance(current_figure, dict) and "data" in current_figure:
+                        current_figure = go.Figure(current_figure)
+                        current_figure['data'] = [trace for trace in
+                                                  current_figure['data'] if
+                                                  trace['name'] != "Selected Station"]
+                        return current_figure
+
+            if "groups" in general_data:
+                group_value = general_data.get("groups", {}).\
+                    get(general_data["collection"])
+                if isinstance(group_value, dict) and 'group' in group_value:
+                    group_value = group_value['group']
+            else:
+                collection_name = general_data.get("collection", {})
+                group_values = self.feature_handler.get_nested_level_values(
+                    collection_name)
+                group_values.sort()
+                group_value = group_values[0] if len(group_values) > 1 else group_values
+
+            df = self.feature_handler.get_df(general_data.get("collection", {}))
+            geometry = df[df["station"] == group_value]["geometry"]
+            lon, lat = geometry.x.values, geometry.y.values
+            highlighted_trace = go.Scattermapbox(
+                lat=lat,
+                lon=lon,
+                mode='markers',
+                marker=dict(
+                    size=15,
+                    color="#5C050B",
+                ),
+                name="Selected Station",
+                text=group_value
+            )
+
+            if isinstance(current_figure, dict) and "data" in current_figure:
+                current_figure = go.Figure(current_figure)
+                current_figure['data'] = [trace for trace in current_figure['data'] if
+                                          trace['name'] != "Selected Station"]
+                current_figure.add_trace(highlighted_trace)
+                return current_figure

@@ -589,7 +589,8 @@ class ScatterplotComponent(DashboardComponent):
                 selected_main_group_dropdown_id = \
                     list(self.main_group_drop_options.keys())[latest_timestamp_index]
                 selected_main_group_item = \
-                    self.main_group_drop_options[selected_main_group_dropdown_id].children
+                    self.main_group_drop_options[
+                        selected_main_group_dropdown_id].children
                 temp = {
                     MAIN_GROUP: selected_main_group_item
                 }
@@ -755,8 +756,10 @@ class ScatterplotComponent(DashboardComponent):
             if not general_data or "collection" not in general_data:
                 return dash.no_update
             collection = general_data["collection"]
-            main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
-                get(MAIN_GROUP, "all")
+            group_values, main_group_values = \
+                self._get_group_and_main_group_values(collection)
+            main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}). \
+                get(MAIN_GROUP, main_group_values[0])
             selected_group_dropdown_id = self.encode_group_dropdown(
                 collection, main_group
             )
@@ -874,7 +877,7 @@ class ScatterplotComponent(DashboardComponent):
                     self.decode_group_dropdown(group_dropdown_menu_id)
                 default_group = \
                     self._get_group_values_for_main_group(c, main_group)[0]
-                group = general_data.get(GROUPS_SECTION, {}).get(c, {}).\
+                group = general_data.get(GROUPS_SECTION, {}).get(c, {}). \
                     get(GROUP, default_group)
                 results.append(group)
             return tuple(results)
@@ -891,7 +894,7 @@ class ScatterplotComponent(DashboardComponent):
             collection = general_data.get(
                 "collection", self.feature_handler.get_default_collection()
             )
-            x_variable = component_data.get(VARIABLES_SECTION, {}).\
+            x_variable = component_data.get(VARIABLES_SECTION, {}). \
                 get(collection, {}).get(X_VARIABLE)
             if x_variable is None:
                 return dash.no_update
@@ -920,7 +923,7 @@ class ScatterplotComponent(DashboardComponent):
             collection = general_data.get(
                 "collection", self.feature_handler.get_default_collection()
             )
-            y_variable = component_data.get(VARIABLES_SECTION, {}).\
+            y_variable = component_data.get(VARIABLES_SECTION, {}). \
                 get(collection, {}).get(Y_VARIABLE)
             if y_variable is None:
                 return dash.no_update
@@ -949,7 +952,7 @@ class ScatterplotComponent(DashboardComponent):
             collection = general_data.get(
                 "collection", self.feature_handler.get_default_collection()
             )
-            line_variable = component_data.get(VARIABLES_SECTION, {}).\
+            line_variable = component_data.get(VARIABLES_SECTION, {}). \
                 get(collection, {}).get(LINE_VARIABLE)
             if line_variable is None:
                 return dash.no_update
@@ -977,7 +980,7 @@ class ScatterplotComponent(DashboardComponent):
             if general_data is None or "collection" not in general_data:
                 return no_update
             collection = general_data["collection"]
-            _, main_group_values =\
+            _, main_group_values = \
                 self._get_group_and_main_group_values(collection)
             if main_group_values is None:
                 main_group = None
@@ -985,19 +988,19 @@ class ScatterplotComponent(DashboardComponent):
                     collection, ALL_GROUP_MEMBERS
                 )[0]
             else:
-                main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
+                main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}). \
                     get(MAIN_GROUP, main_group_values[0])
                 default_group = self._get_group_values_for_main_group(
                     collection, main_group
                 )[0]
-            group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
+            group = general_data.get(GROUPS_SECTION, {}).get(collection, {}). \
                 get(GROUP, default_group)
             variables = self.feature_handler.get_variables(collection)
-            x_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}).\
+            x_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}). \
                 get(X_VARIABLE, variables[0])
-            y_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}).\
+            y_variable = component_data.get(VARIABLES_SECTION, {}).get(collection, {}). \
                 get(Y_VARIABLE, variables[-1])
-            line_variable = component_data.get(VARIABLES_SECTION, {}).\
+            line_variable = component_data.get(VARIABLES_SECTION, {}). \
                 get(collection, {}).get(LINE_VARIABLE, variables[0])
 
             print(collection, main_group, group, x_variable, y_variable, line_variable)
