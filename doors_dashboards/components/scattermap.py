@@ -91,8 +91,8 @@ class ScatterMapComponent(DashboardComponent):
                 text=labels,
                 name=collection,
                 customdata=customdata,
-                selected=go.scattermapbox.Selected(marker={"color": "yellow",
-                                                           "size": 25}
+                selected=go.scattermapbox.Selected(marker={"color": "#5C050B",
+                                                           "size": 15}
                                                    )
             ))
 
@@ -215,7 +215,10 @@ class ScatterMapComponent(DashboardComponent):
                         return current_figure
 
             if "groups" in general_data:
-                group_value = general_data.get("groups", {}).get(general_data["collection"])
+                group_value = general_data.get("groups", {}).\
+                    get(general_data["collection"])
+                if isinstance(group_value, dict) and 'group' in group_value:
+                    group_value = group_value['group']
             else:
                 collection_name = general_data.get("collection", {})
                 group_values = self.feature_handler.get_nested_level_values(
@@ -231,8 +234,8 @@ class ScatterMapComponent(DashboardComponent):
                 lon=lon,
                 mode='markers',
                 marker=dict(
-                    size=10,
-                    color="yellow",
+                    size=15,
+                    color="#5C050B",
                 ),
                 name="Selected Station",
                 text=group_value
