@@ -282,23 +282,25 @@ class ScatterplotComponent(DashboardComponent):
             dbc.Label('Cruise', style={'color': FONT_COLOR,
                                        'fontFamily': FONT_FAMILY,
                                        'fontSize': 'larger',
-                                       'padding': '10px 0 0 12px',
+                                       'padding': '10px 0 0 45px',
                                        },
                       className="col-sm-1 col-md-1"),
             dbc.Col(
                 main_group_drop_down_menus,
                 className="col-sm-3 col-md-3",
-                style={'padding-left': '0px'}
+                style={'padding-left': '38px'}
             ),
             dbc.Label('Variable', style={'color': FONT_COLOR,
                                          'fontFamily': FONT_FAMILY,
                                          'fontSize': 'larger',
                                          'paddingTop': '10px',
+                                         'paddingLeft': '53px'
                                          },
                       className="col-sm-1 col-md-1"),
             dbc.Col(
                 line_drop_down_menus,
-                className="col-sm-3 col-md-4"
+                className="col-sm-3 col-md-4",
+                style={'padding-left': '60px'}
             )
         ]
         )
@@ -375,7 +377,7 @@ class ScatterplotComponent(DashboardComponent):
                 children=dbc.Col(
                     html.Div(lower_components,
                              style={'backgroundColor': PLOT_BGCOLOR,
-                                    'padding': '10px',
+                                    'padding': '8px',
                                     'border-radius': '15px',
                                     }
                              ),
@@ -755,8 +757,10 @@ class ScatterplotComponent(DashboardComponent):
             if not general_data or "collection" not in general_data:
                 return dash.no_update
             collection = general_data["collection"]
-            main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}).\
-                get(MAIN_GROUP, "all")
+            group_values, main_group_values = \
+                self._get_group_and_main_group_values(collection)
+            main_group = general_data.get(GROUPS_SECTION, {}).get(collection, {}). \
+                get(MAIN_GROUP, main_group_values[0])
             selected_group_dropdown_id = self.encode_group_dropdown(
                 collection, main_group
             )

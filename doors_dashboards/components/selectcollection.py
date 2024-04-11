@@ -120,6 +120,6 @@ class SelectCollectionComponent(DashboardComponent):
             )
         ],
             width=4,
-            className='mb-4',
+            className='mb-3',
             style={'margin': '0 0 0 -19px'}
         )

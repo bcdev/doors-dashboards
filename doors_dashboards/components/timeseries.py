@@ -165,7 +165,7 @@ class TimeSeriesComponent(DashboardComponent):
                 dbc.Col(
                     var_drop_down_menus,
                     className="col-sm-2",
-                    style={'min-width': '350px', 'padding-left': '30px'}
+                    style={'min-width': '350px', 'padding-left': '40px'}
                 ),
                 dbc.Col(
                     dbc.Label('Station', style={'color': FONT_COLOR,
@@ -179,6 +179,7 @@ class TimeSeriesComponent(DashboardComponent):
                 dbc.Col(
                     group_drop_down_menus,
                     className="col-sm-2",
+                    style={'min-width': '350px', 'padding-left': '25px'}
                 )
             ])
             sub_components = [
@@ -320,7 +321,7 @@ class TimeSeriesComponent(DashboardComponent):
         return dcc.Graph(
             id=timeseries_id,
             figure=fig,
-            style={'width': '100%', 'height': '700px'}
+            style={'width': '100%', 'height': '60vh'}
         )
 
     def _get_time_slider(self, time_slider_id: str) -> Component:
@@ -430,7 +431,7 @@ class TimeSeriesComponent(DashboardComponent):
             if "groups" not in general_data:
                 general_data["groups"] = {}
             collection = general_data["collection"]
-            general_data["groups"][collection] = selected_data["selected_group"]
+            general_data["groups"][collection] = selected_data["groups"]
             return general_data
 
         @app.callback(
@@ -449,7 +450,7 @@ class TimeSeriesComponent(DashboardComponent):
             selected_group = \
                 self.group_drop_options[group_drop_option_id].children
             return {
-                'selected_group': selected_group
+                'groups': selected_group
             }
 
         @app.callback(
@@ -568,6 +569,15 @@ class TimeSeriesComponent(DashboardComponent):
                         collection,
                         group_values[0]
                     )
+                    num_items = len(group_values)
+                    if num_items > 10:
+                        max_height = '200px'
+                        overflow_y = 'scroll'
+                        group_drop_menu.style.update({
+                            'maxHeight': max_height,
+                            'overflowY': overflow_y,
+                            'overflowX': 'hidden',  # Hide horizontal scrollbar
+                        })
                     results.append(group)
                 else:
                     results.append('')
