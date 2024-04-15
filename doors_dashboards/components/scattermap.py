@@ -124,7 +124,7 @@ class ScatterMapComponent(DashboardComponent):
             figure=figure,
             style={
                 'width': '100%',
-                'height': '95vh',
+                'height': '80vh',
             },
         )
         figure.update_layout(
@@ -146,7 +146,7 @@ class ScatterMapComponent(DashboardComponent):
                 'margin': '2px',
                 'alignItems': 'center',
                 'backgroundColor': PLOT_BGCOLOR,
-                'padding': '40px',
+                'padding': '20px',
                 'border-radius': '15px',
                 'margin-right': '5px',
                 'height': '100%'

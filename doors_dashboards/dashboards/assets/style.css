@@ -1,5 +1,6 @@
 body {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .dropdown-menu.show{

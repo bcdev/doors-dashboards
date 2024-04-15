@@ -19,7 +19,7 @@ from doors_dashboards.components.constant import MAIN_GROUP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-DISPLAY_STYLE = {'height': '45vh'}
+DISPLAY_STYLE = {'height': '44vh'}
 GROUP_DROP_OPTION_TEMPLATE = 'group_drp_option_{0}_{1}_{2}'
 MAIN_GROUP_DROP_OPTION_TEMPLATE = 'main_group_drp_option_{0}_{1}'
 GROUP_DROPDOWN_TEMPLATE = 'group_drp_option_{0}_{1}'
@@ -367,11 +367,10 @@ class ScatterplotComponent(DashboardComponent):
                                 'padding': '10px',
                                 'border-radius': '15px'}
                          ),
-                className='col-lg-12',
-                style={'marginBottom': '15px'
-                       },
+                className='col-lg-10',
+                style={'margin': '0 0 15px -26px'
+                    , 'width': '100%'},
             ),
-            html.Div(className="w-100"),
             dbc.Collapse(
                 id=COLLAPSE,
                 children=dbc.Col(
@@ -381,8 +380,8 @@ class ScatterplotComponent(DashboardComponent):
                                     'border-radius': '15px',
                                     }
                              ),
-                    className='col-lg-12',
-                    style={'marginBottom': '15px'}
+                    className='col-lg-10',
+                    style={'margin': '-13px 0px 0px -26px', 'width': '100%'}
                 ),
                 is_open=len(lower_components) > 0
             )

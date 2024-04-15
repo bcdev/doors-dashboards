@@ -1,5 +1,6 @@
 from typing import Dict, List
 from dash import Dash, dash
+from dash import html
 from dash import Input
 from dash import no_update
 from dash import Output
@@ -97,11 +98,12 @@ class SelectCollectionComponent(DashboardComponent):
             sub_config: Dict) -> Component:
         collections = list(self.collection_to_id.keys())
         default_value = collections[0]
-        return dbc.Col([
+        return html.Div(
+        [
             dbc.Label('Collection', className='col-',
                       style={'fontSize': '25px', 'float': 'left', 'fontFamily':
                           FONT_FAMILY, 'color': FONT_COLOR,
-                             'padding': '29px 20px 0px 40px'}),
+                             'padding': '5px 20px 0px 462px'}),
             dbc.DropdownMenu(
                 id=SELECT_COLLECTION_DRP,
                 label=default_value,
@@ -118,8 +120,5 @@ class SelectCollectionComponent(DashboardComponent):
                 color="secondary",
                 size="lg"
             )
-        ],
-            width=4,
-            className='mb-3',
-            style={'margin': '0 0 0 -19px'}
-        )
+        ]
+    )

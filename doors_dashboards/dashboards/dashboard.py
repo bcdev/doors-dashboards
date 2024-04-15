@@ -48,6 +48,7 @@ def create_dashboard(config: Dict) -> Dash:
                 append((component, sub_component))
 
     main_children = {}
+    top_children = {}
     middle_children = {}
     for placement, components_at_placement in component_placements.items():
         if not components_at_placement:
@@ -62,7 +63,9 @@ def create_dashboard(config: Dict) -> Dash:
                 sub_component, sub_component, sub_component_params
             )
             place_children.append(component_div)
-        if placement == "top" or placement == "bottom":
+        if placement == "top":
+            top_children[placement] = place_children
+        if placement == "bottom":
             main_children[placement] = dbc.Row(
                 children=place_children
             )
@@ -87,70 +90,62 @@ def create_dashboard(config: Dict) -> Dash:
             main_children['middle'] = dbc.Row(
                 [
                     dbc.Col(middle_children['left'], width="50%",
-                            className='col-lg-6', style={'margin-top': '-15px'}),
+                            className='col-lg-6', style={'margin-top': '0px'}),
                     dbc.Col(middle_children['right'], width="50%",
-                            className='col-lg-6', style={'margin-top': '-15px',
-                                                         'height': '95vh'})
+                            className='col-lg-6', style={'margin-top': '2px',
+                                                         })
                 ]
             )
 
     main = []
-    if "top" in main_children:
-        main.append(main_children["top"])
     if "middle" in main_children:
         main.append(main_children["middle"])
     if "bottom" in main_children:
         main.append(main_children["bottom"])
 
-    app.layout = dbc.Container(
-        id=dashboard_id,
-        fluid=True,
-        children=[
-            dcc.Store(id='general'),
-            dcc.Store(id='collection_selector'),
-            dcc.Store(id='group_selector'),
-            dcc.Store(id="variable_selector"),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            # Header
-                            dbc.Row(
-                                [
-                                    dbc.Col(html.Img(src="assets/logo.png",
-                                                     style={'width': '200px'}),
-                                            width=3),
-                                    dbc.Col(html.H1(dashboard_title,
-                                                    className="text-center "
-                                                              "text-primary, mb-4"),
-                                            width=6, style={'color': FONT_COLOR}),
-                                ],
-                                style={'backgroundColor': HEADER_BGCOLOR,
-                                       'padding': '20px', 'margin-left': '-29px'}
-                            ),
-                            # Plots
-                            *main,
-                            # Footer
-                            dbc.Row(
-                                [
-                                    dbc.Col(html.P(
-                                        "© 2024 Brockmann Consult GmbH. All rights reserved.",
-                                        className="text-center "
-                                                  "text-primary",
-                                        style={'color': FONT_COLOR}),
-                                        width=12),
-                                ],
-                                style={'backgroundColor': CONTAINER_BGCOLOR,
-                                       'padding': '10px'}
-                            ),
-                        ],
-                        width=12,
-                    ),
-                ],
-            ),
-        ],
-        style={'backgroundColor': CONTAINER_BGCOLOR, }
-    )
+    app.layout = html.Div([
+        dcc.Store(id='general'),
+        dcc.Store(id='collection_selector'),
+        dcc.Store(id='group_selector'),
+        dcc.Store(id="variable_selector"),
+        # Header
+        dbc.Row(
+            [
+                dbc.Col(html.Img(src="assets/logo.png",
+                                 style={'width': '200px',
+                                        'paddingTop': '5px'}),
+                        width=3),
+                dbc.Col(html.H1(dashboard_title,
+                                className="text-center "
+                                          "text-primary, mb-4"),
+                        width=3, style={'color': FONT_COLOR,
+                                        'paddingTop': '5px'}),
+                dbc.Col(top_children["top"], width=6,
+                        style={'marginTop': '-15px'}),
+            ],
+            style={'backgroundColor': HEADER_BGCOLOR,
+                   'margin-left': '-29px'}
+        ),
+        # Plots
+        *main,
+        # Footer
+        dbc.Row(
+            [
+                dbc.Col(html.P(
+                    "© 2024 Brockmann Consult GmbH. All rights reserved.",
+                    className="text-center "
+                              "text-primary",
+                    style={'color': FONT_COLOR}),
+                    width=12),
+            ],
+            style={'backgroundColor': CONTAINER_BGCOLOR,
+                   'padding': '10px'}
+        ),
+    ], style={'backgroundColor': CONTAINER_BGCOLOR,
+              'width': '100vw',
+              'height': '100vh',
+              'overflow/z': 'hidden',
+              })
 
     for component in components.values():
         component.register_callbacks(app, list(components.keys()))
