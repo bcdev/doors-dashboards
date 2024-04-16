@@ -88,6 +88,10 @@ class FeatureHandler:
         return (self._configs.get(collection, {}).get("params", {}).
                 get("colorcodevariable", {}))
 
+    def get_map_mode_config(self, collection: str) -> str:
+        return str(
+            self._configs.get(collection, {}).get("params", {}).get("mapmode", ""))
+
     def get_levels(self, collection: str = None) -> List[str]:
         collection = self._default_collection if not collection else collection
         levels = self._configs.get(collection, {}).get("params", {}).get("levels")

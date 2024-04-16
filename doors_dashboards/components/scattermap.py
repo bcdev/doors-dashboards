@@ -8,6 +8,7 @@ import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 import math
 import os
+import random
 import plotly.graph_objs as go
 from typing import Dict
 from typing import List
@@ -49,7 +50,6 @@ class ScatterMapComponent(DashboardComponent):
             sub_config: Dict) -> Component:
         points = sub_config.get("points")
         marker_size = sub_config.get("marker_size", 10)
-        marker_color = sub_config.get("marker_color", "blue")
         mapbox_style = sub_config.get("mapbox_style", "carto-positron")
         selected_variable = sub_config.get("selected_variable", "")
 
@@ -58,18 +58,26 @@ class ScatterMapComponent(DashboardComponent):
         all_lons = []
         all_lats = []
 
-        for collection in self.feature_handler.get_collections():
+        # List of colors to choose from
+        colors = [
+            "blue", "red", "green", "yellow", "orange",
+            "purple", "cyan", "magenta", "lime",
+            "teal", "brown", "navy"
+        ]
 
+        for collection in self.feature_handler.get_collections():
             lons, lats, labels, variable_values = (
                 self.feature_handler.get_points_as_tuples(collection)
             )
             customdata = [collection] * len(lons)
             all_lons.extend(lons)
             all_lats.extend(lats)
+
+            color_index = random.randint(0, len(colors) - 1)
+
             if variable_values:
                 color_code_config = self.feature_handler.get_color_code_config(
-                    collection
-                )
+                    collection)
                 marker = go.scattermapbox.Marker(
                     size=marker_size,
                     color=variable_values,
@@ -79,27 +87,31 @@ class ScatterMapComponent(DashboardComponent):
                     cmax=color_code_config.get("color_max_value")
                 )
             else:
-                marker_color = self.feature_handler.get_color(collection)
                 marker = go.scattermapbox.Marker(
                     size=marker_size,
-                    color=marker_color
+                    color=colors[color_index]
                 )
+                del colors[color_index]
+
+            map_mode_config = self.feature_handler.get_map_mode_config(collection)
+            if map_mode_config != '':
+                config_dict = eval(map_mode_config.replace("'", '"'))
+                mode = config_dict.get("mode", "")
+            else:
+                mode = 'markers'
 
             figure.add_trace(go.Scattermapbox(
-                lat=lats, lon=lons, mode='markers',
+                lat=lats, lon=lons, mode=mode,
                 marker=marker,
                 text=labels,
                 name=collection,
                 customdata=customdata,
-                selected=go.scattermapbox.Selected(marker={"color": "#5C050B",
-                                                           "size": 15}
-                                                   )
+                selected=go.scattermapbox.Selected(
+                    marker={"color": "#5C050B", "size": 15})
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
-
         zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat)
-
         mapbox_token = os.environ.get("MAPBOX_TOKEN")
 
         mapbox = dict(
@@ -107,6 +119,7 @@ class ScatterMapComponent(DashboardComponent):
             accesstoken=mapbox_token,
             center=dict(lat=center_lat, lon=center_lon),
         )
+
         figure.update_layout(
             clickmode='event+select',
             margin=dict(l=0, r=0, t=0, b=0),
@@ -117,17 +130,6 @@ class ScatterMapComponent(DashboardComponent):
                 font_color="white",
                 font_family=FONT_FAMILY
             ),
-        )
-        figure.update_layout(mapbox=mapbox)
-        scattermap_graph = dcc.Graph(
-            id=sub_component_id,
-            figure=figure,
-            style={
-                'width': '100%',
-                'height': '80vh',
-            },
-        )
-        figure.update_layout(
             legend=dict(
                 x=0,
                 y=1,
@@ -139,6 +141,18 @@ class ScatterMapComponent(DashboardComponent):
                 ),
             )
         )
+
+        figure.update_layout(mapbox=mapbox)
+
+        scattermap_graph = dcc.Graph(
+            id=sub_component_id,
+            figure=figure,
+            style={
+                'width': '100%',
+                'height': '80vh',
+            },
+        )
+
         return dbc.Col(
             scattermap_graph,
             style={
@@ -215,7 +229,7 @@ class ScatterMapComponent(DashboardComponent):
                         return current_figure
 
             if "groups" in general_data:
-                group_value = general_data.get("groups", {}).\
+                group_value = general_data.get("groups", {}). \
                     get(general_data["collection"])
                 if isinstance(group_value, dict) and 'group' in group_value:
                     group_value = group_value['group']

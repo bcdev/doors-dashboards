@@ -90,10 +90,11 @@ def create_dashboard(config: Dict) -> Dash:
             main_children['middle'] = dbc.Row(
                 [
                     dbc.Col(middle_children['left'], width="50%",
-                            className='col-lg-6', style={'margin-top': '0px'}),
+                            className='col-lg-6', style={'margin-top': '0px',
+                                                         'margin-left': '4px'}),
                     dbc.Col(middle_children['right'], width="50%",
                             className='col-lg-6', style={'margin-top': '2px',
-                                                         })
+                                                         'margin-left': '-10px'})
                 ]
             )
 
@@ -123,8 +124,7 @@ def create_dashboard(config: Dict) -> Dash:
                 dbc.Col(top_children["top"], width=6,
                         style={'marginTop': '-15px'}),
             ],
-            style={'backgroundColor': HEADER_BGCOLOR,
-                   'margin-left': '-29px'}
+            style={'backgroundColor': HEADER_BGCOLOR}
         ),
         # Plots
         *main,
@@ -144,7 +144,7 @@ def create_dashboard(config: Dict) -> Dash:
     ], style={'backgroundColor': CONTAINER_BGCOLOR,
               'width': '100vw',
               'height': '100vh',
-              'overflow/z': 'hidden',
+              'overflow': 'hidden',
               })
 
     for component in components.values():
