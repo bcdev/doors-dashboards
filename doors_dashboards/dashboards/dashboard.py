@@ -114,7 +114,8 @@ def create_dashboard(config: Dict) -> Dash:
             [
                 dbc.Col(html.Img(src="assets/logo.png",
                                  style={'width': '200px',
-                                        'paddingTop': '5px'}),
+                                        'paddingTop': '5px',
+                                        'text-wrap': 'nowrap'}),
                         width=3),
                 dbc.Col(html.H1(dashboard_title,
                                 className="text-center "

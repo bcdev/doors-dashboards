@@ -58,7 +58,6 @@ class ScatterMapComponent(DashboardComponent):
         all_lons = []
         all_lats = []
 
-        # List of colors to choose from
         colors = [
             "blue", "red", "green", "yellow", "orange",
             "purple", "cyan", "magenta", "lime",
@@ -106,8 +105,6 @@ class ScatterMapComponent(DashboardComponent):
                 text=labels,
                 name=collection,
                 customdata=customdata,
-                selected=go.scattermapbox.Selected(
-                    marker={"color": "#5C050B", "size": 15})
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
@@ -237,11 +234,17 @@ class ScatterMapComponent(DashboardComponent):
                 collection_name = general_data.get("collection", {})
                 group_values = self.feature_handler.get_nested_level_values(
                     collection_name)
-                group_values.sort()
-                group_value = group_values[0] if len(group_values) > 1 else group_values
-
+                if isinstance(group_values, dict):
+                    default_key = list(group_values.keys())[0]
+                    group_value = default_key
+                else:
+                    group_values.sort()
+                    group_value = group_values[0] if len(
+                        group_values) > 1 else group_values
             df = self.feature_handler.get_df(general_data.get("collection", {}))
             geometry = df[df["station"] == group_value]["geometry"]
+            if geometry.empty:
+                return no_update
             lon, lat = geometry.x.values, geometry.y.values
             highlighted_trace = go.Scattermapbox(
                 lat=lat,
@@ -256,8 +259,8 @@ class ScatterMapComponent(DashboardComponent):
             )
 
             if isinstance(current_figure, dict) and "data" in current_figure:
-                current_figure = go.Figure(current_figure)
                 current_figure['data'] = [trace for trace in current_figure['data'] if
                                           trace['name'] != "Selected Station"]
+                current_figure = go.Figure(current_figure)
                 current_figure.add_trace(highlighted_trace)
                 return current_figure
