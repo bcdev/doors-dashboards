@@ -10,7 +10,7 @@
   font-weight: bold;
   padding-right: 10px;
   padding-left: 10px;
-  font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
+  fontFamily: 'Roboto', 'Helvetica', Arial, sans-serif;
 }
 
 /* Style for Date Picker Input */
@@ -23,7 +23,7 @@
 
 /* Style for Date Picker Calendar Popover */
 .react-datepicker {
-  font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
+  fontFamily: 'Roboto', 'Helvetica', Arial, sans-serif;
 }
 
 /* Style for Date Picker Calendar Header */
