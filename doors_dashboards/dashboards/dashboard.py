@@ -1,7 +1,5 @@
-from dash import Dash, dcc
-from dash import html
+from dash import Dash, dcc, html
 from typing import Dict
-from typing import List
 import dash_bootstrap_components as dbc
 
 from doors_dashboards.components.constant import HEADER_BGCOLOR, CONTAINER_BGCOLOR, \
@@ -22,14 +20,15 @@ _COMPONENTS = {
 }
 
 
-def create_dashboard(config: Dict) -> Dash:
+def create_dashboard(config: Dict, app: Dash) -> Dash:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
-    app = Dash(__name__, suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP],
-               title=dashboard_title
-               )
-
+    store_ids = {
+        "general": f"{dashboard_id}-general",
+        "collection_selector": f"{dashboard_id}-collection_selector",
+        "group_selector": f"{dashboard_id}-group_selector",
+        "variable_selector": f"{dashboard_id}-variable_selector"
+    }
     components = {}
     component_placements = dict(
         top=[],
@@ -41,7 +40,7 @@ def create_dashboard(config: Dict) -> Dash:
     feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
     for component, component_dict in config.get("components", []).items():
-        components[component] = _COMPONENTS[component]()
+        components[component] = _COMPONENTS[component](dashboard_id)
         components[component].set_feature_handler(feature_handler)
         for sub_component, sub_component_config in component_dict.items():
             component_placements[sub_component_config['placement']]. \
@@ -90,11 +89,11 @@ def create_dashboard(config: Dict) -> Dash:
             main_children['middle'] = dbc.Row(
                 [
                     dbc.Col(middle_children['left'], width="50%",
-                            className='col-lg-6', style={'margin-top': '0px',
-                                                         'margin-left': '4px'}),
+                            className='col-lg-6', style={'marginTop': '0px',
+                                                         'marginLeft': '4px'}),
                     dbc.Col(middle_children['right'], width="50%",
-                            className='col-lg-6', style={'margin-top': '2px',
-                                                         'margin-left': '-10px'})
+                            className='col-lg-6', style={'marginTop': '2px',
+                                                         'marginLeft': '-10px'})
                 ]
             )
 
@@ -105,17 +104,17 @@ def create_dashboard(config: Dict) -> Dash:
         main.append(main_children["bottom"])
 
     app.layout = html.Div([
-        dcc.Store(id='general'),
-        dcc.Store(id='collection_selector'),
-        dcc.Store(id='group_selector'),
-        dcc.Store(id="variable_selector"),
+        dcc.Store(id=store_ids['general']),
+        dcc.Store(id=store_ids['collection_selector']),
+        dcc.Store(id=store_ids['group_selector']),
+        dcc.Store(id=store_ids['variable_selector']),
         # Header
         dbc.Row(
             [
                 dbc.Col(html.Img(src="assets/logo.png",
                                  style={'width': '200px',
                                         'paddingTop': '5px',
-                                        'text-wrap': 'nowrap'}),
+                                        'textWrap': 'nowrap'}),
                         width=3),
                 dbc.Col(html.H1(dashboard_title,
                                 className="text-center "
@@ -149,6 +148,6 @@ def create_dashboard(config: Dict) -> Dash:
               })
 
     for component in components.values():
-        component.register_callbacks(app, list(components.keys()))
+        component.register_callbacks(app, list(components.keys()), dashboard_id)
 
     return app

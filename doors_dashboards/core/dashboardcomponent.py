@@ -22,5 +22,6 @@ class DashboardComponent(ABC):
         pass
 
     @abstractmethod
-    def register_callbacks(self, app: Dash, component_ids: List[str]):
+    def register_callbacks(self, app: Dash, component_ids: List[str],
+                           dashboard_id: str):
         pass

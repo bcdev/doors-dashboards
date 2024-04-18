@@ -21,11 +21,13 @@ COLLECTION_TO_ID = {}
 
 class SelectCollectionComponent(DashboardComponent):
 
-    def __init__(self):
+    def __init__(self, dashboard_id: str = None):
         self.feature_handler = None
         self.collection_to_id = {}
+        self._dashboard_id = dashboard_id
 
-    def register_callbacks(self, app: Dash, component_ids: List[str]):
+    def register_callbacks(self, app: Dash, component_ids: List[str],
+                           dashboard_id: str=None):
 
         @app.callback(
             Output(SELECT_COLLECTION_DRP, 'label'),

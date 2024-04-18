@@ -34,7 +34,7 @@ def serve_layout(dashboard_id):
     config_path = os.path.join(_CONFIGS_PATH, f"{dashboard_id}.yml")
     with open(config_path, "r", encoding="utf-8") as config_stream:
         config = yaml.safe_load(config_stream)
-    layout = create_dashboard(config).layout
+    layout = create_dashboard(config, app).layout
     return layout
 
 
@@ -52,6 +52,7 @@ def open_dashboard_in_new_tab(*args):
     dashboard_id = clicked_btn_id.replace('btn-', '')
 
     if dashboard_id in get_dashboard_ids():
+        serve_layout(dashboard_id)
         open_in_new_tab(f"http://127.0.0.1:8050/{dashboard_id}")
     return dash.no_update
 

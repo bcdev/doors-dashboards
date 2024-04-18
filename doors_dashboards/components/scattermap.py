@@ -15,7 +15,7 @@ from typing import List
 from typing import Tuple
 from shapely.geometry import Point
 
-from doors_dashboards.components.constant import FONT_FAMILY
+from doors_dashboards.components.constant import FONT_FAMILY, GENERAL_STORE_ID
 from doors_dashboards.components.constant import GROUP
 from doors_dashboards.components.constant import GROUPS_SECTION
 from doors_dashboards.components.constant import MAIN_GROUP
@@ -43,8 +43,9 @@ def get_zoom_level(lons: List[float], lats: List[float],
 
 class ScatterMapComponent(DashboardComponent):
 
-    def __init__(self):
+    def __init__(self, dashboard_id: str = None):
         self.feature_handler = None
+        self._dashboard_id = dashboard_id
 
     def get(self, sub_component: str, sub_component_id: str,
             sub_config: Dict) -> Component:
@@ -158,8 +159,8 @@ class ScatterMapComponent(DashboardComponent):
                 'alignItems': 'center',
                 'backgroundColor': PLOT_BGCOLOR,
                 'padding': '20px',
-                'border-radius': '15px',
-                'margin-right': '5px',
+                'borderRadius': '15px',
+                'marginRight': '5px',
                 'height': '100%'
             },
         )
@@ -167,11 +168,12 @@ class ScatterMapComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
-    def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+    def register_callbacks(self, app: Dash, component_ids: Dict[str, str],
+                           dashboard_id: str):
         @app.callback(
             Output("general", "data"),
             Input("scattermap", 'clickData'),
-            State("general", "data")
+            State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data")
         )
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
@@ -209,7 +211,7 @@ class ScatterMapComponent(DashboardComponent):
 
         @app.callback(
             Output("scattermap", 'figure'),
-            [Input("general", "data")],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data")],
             State('scattermap', 'figure'),
             prevent_initial_call=True
         )

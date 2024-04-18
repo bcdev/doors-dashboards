@@ -25,7 +25,6 @@ from doors_dashboards.components.constant import PLOT_BGCOLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
-
 BASE_PARAMS = {
     "format": "png"
 }
@@ -46,19 +45,19 @@ METEOGRAM_TYPES = [
 
 ]
 METEOGRAM_TYPE_TO_ID = {meteogram["label"]: METEOGRAM_TYPE_TEMPLATE.format(meteogram[
-                                                                             "value"])
-                     for
-                meteogram in METEOGRAM_TYPES}
+                                                                               "value"])
+                        for
+                        meteogram in METEOGRAM_TYPES}
 TEMP_STORE_ID = "meteogram_temp_store"
 
 
 class MeteogramComponent(DashboardComponent):
-
-    def __init__(self):
+    def __init__(self, dashboard_id: str = None):
         self._default_tuple = None
         self._feature_handler = None
         self._meteogram_image = None
         self._previous_images = dict()
+        self._dashboard_id = dashboard_id
 
     def get(
             self, sub_component: str, sub_component_id: str, sub_config: Dict
@@ -98,7 +97,7 @@ class MeteogramComponent(DashboardComponent):
         )
         return html.Div(
             children=[
-                dcc.Store(id=COMPONENT_STORE_ID),
+                dcc.Store(id=f"{self._dashboard_id}-{COMPONENT_STORE_ID}"),
                 dcc.Store(id=TEMP_STORE_ID),
                 dbc.Col(
                     meteogram_image,
@@ -107,7 +106,7 @@ class MeteogramComponent(DashboardComponent):
                         'fontSize': FONT_SIZE,
                         'fontFamily': FONT_FAMILY,
                         'backgroundColor': PLOT_BGCOLOR,
-                        'border-radius': '15px',
+                        'borderRadius': '15px',
                         'flex': '1',
                         'display': 'flex',
                         'flexDirection': 'column',
@@ -176,7 +175,7 @@ class MeteogramComponent(DashboardComponent):
                     dbc.Label("Date", className='col-2',
                               style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
                                      'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
-                                     'margin-top': '59px', 'padding-left': '28px'}),
+                                     'marginTop': '59px', 'paddingLeft': '28px'}),
                     dcc.DatePickerSingle(
                         id=METEOGRAM_DATE_PICKER_ID,
                         min_date_allowed=min_date_allowed,
@@ -185,12 +184,12 @@ class MeteogramComponent(DashboardComponent):
                         date=current_date,
                         day_size=50,
                         style={'width': '100%', 'margin': '-48px 0px 0px 101px',
-                               'float': 'left', 'font-family': FONT_FAMILY},
+                               'float': 'left', 'fontFamily': FONT_FAMILY},
                         className="mb-3"
                     )
                 ],
                 className='col-xs-6 col-sm-2 mb-3',
-                style={'margin-top': '-32px', 'margin-right': '-180px',
+                style={'marginTop': '-32px', 'marginRight': '-180px',
                        'minWidth': '450px'},
             ),
             dbc.Col([
@@ -217,7 +216,7 @@ class MeteogramComponent(DashboardComponent):
             ],
                 width=4,
                 className='col-xs-6 col-sm-3 mb-3',
-                style={'min-width': '600px'}
+                style={'minWidth': '600px'}
 
             ),
             dbc.Col(className='col-sm-7')])
@@ -225,16 +224,18 @@ class MeteogramComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
 
-    def register_callbacks(self, app: dash.Dash, component_ids: List[str]):
+    def register_callbacks(self, app: dash.Dash, component_ids: List[str],
+                           dashboard_id: str
+                           ):
         lon = self._get_default_tuple()[0]
         lat = self._get_default_tuple()[1]
         label = self._get_default_tuple()[2]
 
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
-            Input(GENERAL_STORE_ID, "data"),
-            Input(COMPONENT_STORE_ID, 'data'),
-            State(COMPONENT_STORE_ID, 'data')
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
+            Input(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
+            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data')
         )
         def update_meteogram_image(general_data, component_data, component_state_data):
             if general_data is not None:
@@ -283,19 +284,20 @@ class MeteogramComponent(DashboardComponent):
 
         @app.callback(
             Output(METEOGRAM_CHOOSER_ID, "label"),
-            Input(COMPONENT_STORE_ID, "data"),
+            Input(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def component_store_to_drp_label(component_data):
             if component_data is None:
                 return no_update
-            selected_label = component_data.get("meteogram_type_label", METEOGRAM_TYPES[0]["label"])
+            selected_label = component_data.get("meteogram_type_label",
+                                                METEOGRAM_TYPES[0]["label"])
             return selected_label
 
         @app.callback(
             Output(COMPONENT_STORE_ID, "data"),
             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
-            State(COMPONENT_STORE_ID, 'data'),
+            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def datepicker_to_component_store(date_value, component_data):
@@ -312,7 +314,7 @@ class MeteogramComponent(DashboardComponent):
         @app.callback(
             Output(COMPONENT_STORE_ID, "data", allow_duplicate=True),
             Input(TEMP_STORE_ID, 'data'),
-            State(COMPONENT_STORE_ID, 'data'),
+            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def temp_to_component_store(temp_data, component_data):

@@ -50,7 +50,7 @@ Y_VARIABLE = "y_variable"
 
 class ScatterplotComponent(DashboardComponent):
 
-    def __init__(self):
+    def __init__(self, dashboard_id: str = None):
         self.feature_handler = None
         self.group_dropdown_menus = dict()
         self.group_drop_options = dict()
@@ -64,6 +64,7 @@ class ScatterplotComponent(DashboardComponent):
         self.point_y_dropdown_menus = dict()
         self.point_y_drop_options = dict()
         self._encodings = dict()
+        self._dashboard_id = dashboard_id
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
@@ -558,7 +559,8 @@ class ScatterplotComponent(DashboardComponent):
     def decode_linevar_dropdown(dropdown_id: str) -> str:
         return dropdown_id[22:]
 
-    def register_callbacks(self, app: Dash, component_ids: List[str]):
+    def register_callbacks(self, app: Dash, component_ids: List[str], dashboard_id:
+    str = None):
 
         group_dropdown_menus = list(self.group_dropdown_menus.keys())
         group_drop_options = list(self.group_drop_options.keys())

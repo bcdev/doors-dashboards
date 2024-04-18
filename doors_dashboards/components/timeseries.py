@@ -6,7 +6,6 @@ from dash import no_update
 from dash import Output
 from dash import State
 from dash.development.base_component import Component
-from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objects as go
@@ -35,12 +34,13 @@ GROUP_DROP_OPTION_TEMPLATE = \
 
 class TimeSeriesComponent(DashboardComponent):
 
-    def __init__(self):
+    def __init__(self, dashboard_id: str = None):
         self.features = None
         self.var_drop_menus = dict()
         self.var_drop_options = dict()
         self.group_drop_menus = dict()
         self.group_drop_options = dict()
+        self._dashboard_id = dashboard_id
 
     @staticmethod
     def _get_dropdown_menu(
@@ -344,7 +344,8 @@ class TimeSeriesComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
-    def register_callbacks(self, app: Dash, component_ids: Dict[str, str]):
+    def register_callbacks(self, app: Dash, component_ids: Dict[str, str],
+                           dashboard_id: str):
         group_drop_menus = list(self.group_drop_menus.keys())
         group_drop_options = list(self.group_drop_options.keys())
 

@@ -8,15 +8,15 @@
 #my-date-picker-single label {
   font-size: 14px;
   font-weight: bold;
-  padding-right: 10px;
-  padding-left: 10px;
+  paddingRight: 10px;
+  paddingLeft: 10px;
   fontFamily: 'Roboto', 'Helvetica', Arial, sans-serif;
 }
 
 /* Style for Date Picker Input */
 #my-date-picker-single input {
   border: 1px solid #ccc;
-  border-radius: 4px;
+  borderRadius: 4px;
   padding: 8px;
   font-size: 14px;
 }
