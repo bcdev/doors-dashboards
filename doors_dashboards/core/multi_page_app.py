@@ -20,7 +20,9 @@ config_files = [f for f in os.listdir(_CONFIGS_PATH) if f.endswith('.yml')]
 
 
 def get_dashboard_ids():
-    return [os.path.splitext(config)[0] for config in config_files]
+    list_of_ids = [os.path.splitext(config)[0] for config in config_files]
+    list_of_ids.remove("tr1")
+    return list_of_ids
 
 
 def create_dashboard_button(dashboard_id):
