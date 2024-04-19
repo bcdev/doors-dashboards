@@ -228,37 +228,50 @@ class ScatterMapComponent(DashboardComponent):
                                                   trace['name'] != "Selected Station"]
                         return current_figure
 
-            if "groups" in general_data:
-                group_value = general_data.get("groups", {}). \
-                    get(general_data["collection"])
-                if isinstance(group_value, dict) and 'group' in group_value:
-                    group_value = group_value['group']
+            if "selected_data" in general_data:
+                selected_data = general_data.get("selected_data", {})
+                lon = selected_data.get("lon")
+                lat = selected_data.get("lat")
+            elif "groups" in general_data:
+                collection_name = general_data.get("collection")
+                group_value = general_data.get("groups", {}).get(collection_name,
+                                                                 {}).get("group")
+                df = self.feature_handler.get_df(collection_name)
+                if "station" in df.columns:
+                    geometry = df[df["station"] == group_value]["geometry"]
+                    lon, lat = geometry.x.values, geometry.y.values
+                else:
+                    lon, lat = None, None
             else:
                 collection_name = general_data.get("collection", {})
-                group_values = self.feature_handler.get_nested_level_values(
-                    collection_name)
-                if isinstance(group_values, dict):
-                    default_key = list(group_values.keys())[0]
-                    group_value = default_key
+                df = self.feature_handler.get_df(collection_name)
+                if "station" in df.columns:
+                    group_values = self.feature_handler.get_nested_level_values(
+                        collection_name)
+                    if isinstance(group_values, dict):
+                        default_key = list(group_values.keys())[0]
+                        group_value = default_key
+                    else:
+                        group_values.sort()
+                        group_value = group_values[0] if len(
+                            group_values) > 1 else group_values
+                    geometry = df[df["station"] == group_value]["geometry"]
+                    lon, lat = geometry.x.values, geometry.y.values
                 else:
-                    group_values.sort()
-                    group_value = group_values[0] if len(
-                        group_values) > 1 else group_values
-            df = self.feature_handler.get_df(general_data.get("collection", {}))
-            geometry = df[df["station"] == group_value]["geometry"]
-            if geometry.empty:
+                    lon, lat = None, None
+
+            if lon is None or lat is None:
                 return no_update
-            lon, lat = geometry.x.values, geometry.y.values
+
             highlighted_trace = go.Scattermapbox(
-                lat=lat,
-                lon=lon,
+                lat=[lat],
+                lon=[lon],
                 mode='markers',
                 marker=dict(
                     size=15,
                     color="#5C050B",
                 ),
                 name="Selected Station",
-                text=group_value
             )
 
             if isinstance(current_figure, dict) and "data" in current_figure:

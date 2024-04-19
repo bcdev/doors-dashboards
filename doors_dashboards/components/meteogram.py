@@ -97,8 +97,8 @@ class MeteogramComponent(DashboardComponent):
         )
         return html.Div(
             children=[
-                dcc.Store(id=COMPONENT_STORE_ID),
-                dcc.Store(id=TEMP_STORE_ID),
+                dcc.Store(id=COMPONENT_STORE_ID, storage_type='session'),
+                dcc.Store(id=TEMP_STORE_ID, storage_type='session'),
                 dbc.Col(
                     meteogram_image,
                     style={

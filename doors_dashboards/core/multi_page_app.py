@@ -8,6 +8,7 @@ import yaml
 import os
 import webbrowser
 
+from flask import request
 from waitress import serve
 
 from doors_dashboards.dashboards.dashboard import create_dashboard
@@ -59,7 +60,8 @@ def open_dashboard_in_new_tab(*args):
 
     if dashboard_id in get_dashboard_ids():
         serve_layout(dashboard_id)
-        open_in_new_tab(f"http://doors-dash.brockmann-consult.de/{dashboard_id}")
+        current_url = request.url_root
+        open_in_new_tab(f"{current_url}{dashboard_id}")
     return dash.no_update
 
 
