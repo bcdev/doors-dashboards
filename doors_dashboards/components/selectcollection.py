@@ -8,7 +8,7 @@ from dash import State
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE
+from doors_dashboards.components.constant import COLLECTION_TEMPLATE, GENERAL_STORE_ID
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
@@ -27,10 +27,11 @@ class SelectCollectionComponent(DashboardComponent):
         self._dashboard_id = dashboard_id
 
     def register_callbacks(self, app: Dash, component_ids: List[str],
-                           dashboard_id: str=None):
+                           dashboard_id: str = None):
 
         @app.callback(
-            Output(SELECT_COLLECTION_DRP, 'label'),
+            Output(f"{dashboard_id}-{SELECT_COLLECTION_DRP}",
+                   'label'),
             # Update the label of the dropdown menu
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(self.collection_to_id.values())]
@@ -46,11 +47,12 @@ class SelectCollectionComponent(DashboardComponent):
                 return dash.no_update
 
         @app.callback(
-            [Output("general", "data",
-                    allow_duplicate=True),
-             Output(SELECT_COLLECTION_DRP, 'label', allow_duplicate=True)],
-            Input("collection_selector", 'data'),
-            State("general", "data"),
+            [Output(f"{dashboard_id}-general",
+                    "data", allow_duplicate=True),
+             Output(f"{dashboard_id}-{SELECT_COLLECTION_DRP}",
+                    'label',allow_duplicate=True)],
+            Input(f"{dashboard_id}-collection_selector", "data"),
+            State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def update_general_store(selected_data, general_data):
@@ -60,8 +62,8 @@ class SelectCollectionComponent(DashboardComponent):
             return general_data, selected_data["collection"]
 
         @app.callback(
-            Output("collection_selector", "data"),
-            Input("general", "data")
+            Output(f"{dashboard_id}-collection_selector", "data"),
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
         def update_collection_selector_store_after_general_store_update(general_data):
             if general_data is None:
@@ -69,12 +71,12 @@ class SelectCollectionComponent(DashboardComponent):
 
             collection = general_data["collection"]
             coll = {
-                    "collection": collection
+                "collection": collection
             }
             return coll
 
         @app.callback(
-            Output("collection_selector", 'data', allow_duplicate=True),
+            Output(f"{dashboard_id}-collection_selector", "data", allow_duplicate=True),
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(self.collection_to_id.values())],
             prevent_initial_call=True
@@ -101,26 +103,26 @@ class SelectCollectionComponent(DashboardComponent):
         collections = list(self.collection_to_id.keys())
         default_value = collections[0]
         return html.Div(
-        [
-            dbc.Label('Collection', className='col-',
-                      style={'fontSize': '25px', 'float': 'left', 'fontFamily':
-                          FONT_FAMILY, 'color': FONT_COLOR,
-                             'padding': '5px 20px 0px 462px'}),
-            dbc.DropdownMenu(
-                id=SELECT_COLLECTION_DRP,
-                label=default_value,
-                children=[
-                    dbc.DropdownMenuItem(
-                        collection, id=collection_id, n_clicks=1, style={'fontSize':
-                                                                             'larger',
-                                                                         'fontfamily': FONT_FAMILY})
-                    for collection, collection_id in self.collection_to_id.items()
-                ],
-                style={'fontFamily': FONT_FAMILY,
-                       'color': FONT_COLOR, 'width': '1000px'},
-                className="m-4",
-                color="secondary",
-                size="lg"
-            )
-        ]
-    )
+            [
+                dbc.Label('Collection', className='col-',
+                          style={'fontSize': '25px', 'float': 'left', 'fontFamily':
+                              FONT_FAMILY, 'color': FONT_COLOR,
+                                 'padding': '5px 20px 0px 462px'}),
+                dbc.DropdownMenu(
+                    id=f"{self._dashboard_id}-{SELECT_COLLECTION_DRP}",
+                    label=default_value,
+                    children=[
+                        dbc.DropdownMenuItem(
+                            collection, id=collection_id, n_clicks=1, style={'fontSize':
+                                                                                 'larger',
+                                                                             'fontfamily': FONT_FAMILY})
+                        for collection, collection_id in self.collection_to_id.items()
+                    ],
+                    style={'fontFamily': FONT_FAMILY,
+                           'color': FONT_COLOR, 'width': '1000px'},
+                    className="m-4",
+                    color="secondary",
+                    size="lg"
+                )
+            ]
+        )

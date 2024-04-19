@@ -171,9 +171,10 @@ class ScatterMapComponent(DashboardComponent):
     def register_callbacks(self, app: Dash, component_ids: Dict[str, str],
                            dashboard_id: str):
         @app.callback(
-            Output("general", "data"),
+            Output(f"{dashboard_id}-general", "data", allow_duplicate=True),
             Input("scattermap", 'clickData'),
-            State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data")
+            State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
+            prevent_initial_call=True
         )
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
@@ -210,7 +211,7 @@ class ScatterMapComponent(DashboardComponent):
             return general_data
 
         @app.callback(
-            Output("scattermap", 'figure'),
+            Output("scattermap", 'figure', allow_duplicate=True),
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data")],
             State('scattermap', 'figure'),
             prevent_initial_call=True

@@ -40,9 +40,9 @@ POINT_Y_VAR_DROP_OPTION_TEMPLATE = \
 
 ALL_GROUP_MEMBERS = "all"
 COLLAPSE = "collapse_id"
-COMPONENT_STORE_ID = "component_store"
+COMPONENT_STORE_ID = "scatterplot_component_store"
 LINE_VARIABLE = "line_variable"
-TEMP_STORE_ID = "temp_store"
+TEMP_STORE_ID = "scatterplot_temp_store"
 VARIABLES_SECTION = "variables"
 X_VARIABLE = "x_variable"
 Y_VARIABLE = "y_variable"
@@ -289,7 +289,7 @@ class ScatterplotComponent(DashboardComponent):
             dbc.Col(
                 main_group_drop_down_menus,
                 className="col-sm-3 col-md-3",
-                style={'padding-left': '38px'}
+                style={'paddingLeft': '38px'}
             ),
             dbc.Label('Variable', style={'color': FONT_COLOR,
                                          'fontFamily': FONT_FAMILY,
@@ -301,7 +301,7 @@ class ScatterplotComponent(DashboardComponent):
             dbc.Col(
                 line_drop_down_menus,
                 className="col-sm-3 col-md-4",
-                style={'padding-left': '60px'}
+                style={'paddingLeft': '60px'}
             )
         ]
         )
@@ -334,7 +334,7 @@ class ScatterplotComponent(DashboardComponent):
                                            'fontFamily': FONT_FAMILY,
                                            'fontSize': 'larger',
                                            'paddingTop': '10px',
-                                           'text-wrap': 'nowrap',
+                                           'textWrap': 'nowrap',
                                            'paddingLeft': '59px'},
                       className="col-sm-2"),
             dbc.Col(
@@ -346,7 +346,7 @@ class ScatterplotComponent(DashboardComponent):
                                            'fontFamily': FONT_FAMILY,
                                            'fontSize': 'larger',
                                            'paddingTop': '10px',
-                                           'text-wrap': 'nowrap',
+                                           'textWrap': 'nowrap',
                                            'paddingLeft': '68px'},
                       className="col-sm-2"),
             dbc.Col(
@@ -366,7 +366,7 @@ class ScatterplotComponent(DashboardComponent):
                 html.Div(upper_components,
                          style={'backgroundColor': PLOT_BGCOLOR,
                                 'padding': '10px',
-                                'border-radius': '15px'}
+                                'borderRadius': '15px'}
                          ),
                 className='col-lg-10',
                 style={'margin': '0 0 15px 0'
@@ -378,7 +378,7 @@ class ScatterplotComponent(DashboardComponent):
                     html.Div(lower_components,
                              style={'backgroundColor': PLOT_BGCOLOR,
                                     'padding': '8px',
-                                    'border-radius': '15px',
+                                    'borderRadius': '15px',
                                     }
                              ),
                     className='col-lg-10',
@@ -680,9 +680,9 @@ class ScatterplotComponent(DashboardComponent):
             return temp_data
 
         @app.callback(
-            Output(GENERAL_STORE_ID, 'data', allow_duplicate=True),
+            Output(f"{dashboard_id}-{GENERAL_STORE_ID}", "data", allow_duplicate=True),
             [Input(TEMP_STORE_ID, 'data')],
-            [State(GENERAL_STORE_ID, "data")],
+            [State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data')],
             prevent_initial_call=True
         )
         def temp_to_general(temp_data, general_data):
@@ -706,7 +706,8 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             Output(COMPONENT_STORE_ID, 'data'),
             [Input(TEMP_STORE_ID, 'data')],
-            [State(GENERAL_STORE_ID, "data"), State(COMPONENT_STORE_ID, "data")],
+            [State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
+             State(COMPONENT_STORE_ID, "data")],
             prevent_initial_call=True
         )
         def temp_to_component(temp_data, general_data, component_data):
@@ -731,7 +732,7 @@ class ScatterplotComponent(DashboardComponent):
             @app.callback(
                 [Output(main_group_dropdown_menu, 'style')
                  for main_group_dropdown_menu in main_group_dropdown_menus],
-                [Input(GENERAL_STORE_ID, 'data')],
+                [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
                 prevent_initial_call=True
             )
             def general_to_styles_maingroup(data):
@@ -752,7 +753,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(group_dropdown_menu, 'style', allow_duplicate=True)
              for group_dropdown_menu in group_dropdown_menus],
-            [Input(GENERAL_STORE_ID, 'data')],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
             prevent_initial_call=True
         )
         def general_to_styles_group(general_data):
@@ -778,7 +779,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(point_x_dropdown_menu, 'style', allow_duplicate=True)
              for point_x_dropdown_menu in point_x_dropdown_menus],
-            [Input(GENERAL_STORE_ID, 'data')],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
             prevent_initial_call=True
         )
         def general_to_styles_xvar(selected_data):
@@ -798,7 +799,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(point_y_dropdown_menu, 'style', allow_duplicate=True)
              for point_y_dropdown_menu in point_y_dropdown_menus],
-            [Input(GENERAL_STORE_ID, 'data')],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
             prevent_initial_call=True
         )
         def general_to_styles_yvar(selected_data):
@@ -818,7 +819,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(line_dropdown_menu, 'style', allow_duplicate=True)
              for line_dropdown_menu in line_dropdown_menus],
-            [Input(GENERAL_STORE_ID, 'data')],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
             prevent_initial_call=True
         )
         def general_to_styles_linevar(selected_data):
@@ -839,7 +840,7 @@ class ScatterplotComponent(DashboardComponent):
             @app.callback(
                 [Output(main_group_dropdown_menu, 'label')
                  for main_group_dropdown_menu in main_group_dropdown_menus],
-                Input(GENERAL_STORE_ID, "data"),
+                Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
                 prevent_initial_call=True
             )
             def stores_to_labels_maingroup(general_data):
@@ -868,7 +869,7 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(group_dropdown_menu, 'label')
              for group_dropdown_menu in group_dropdown_menus],
-            Input(GENERAL_STORE_ID, "data"),
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def stores_to_labels_group(general_data):
@@ -888,7 +889,8 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(x_dropdown_menu, 'label')
              for x_dropdown_menu in point_x_dropdown_menus],
-            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            [Input(COMPONENT_STORE_ID, "data"),
+             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data')],
             prevent_initial_call=True
         )
         def stores_to_labels_xvar(component_data, general_data):
@@ -917,7 +919,8 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(y_dropdown_menu, 'label')
              for y_dropdown_menu in point_y_dropdown_menus],
-            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            [Input(COMPONENT_STORE_ID, "data"),
+             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data')],
             prevent_initial_call=True
         )
         def stores_to_labels_yvar(component_data, general_data):
@@ -946,7 +949,8 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(line_dropdown_menu, 'label')
              for line_dropdown_menu in line_dropdown_menus],
-            [Input(COMPONENT_STORE_ID, "data"), Input(GENERAL_STORE_ID, "data")],
+            [Input(COMPONENT_STORE_ID, "data"),
+             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data')],
             prevent_initial_call=True
         )
         def stores_to_labels_linevar(component_data, general_data):
@@ -975,7 +979,8 @@ class ScatterplotComponent(DashboardComponent):
         @app.callback(
             [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
              Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
-            [Input(GENERAL_STORE_ID, "data"), Input(COMPONENT_STORE_ID, "data")],
+            [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
+             Input(COMPONENT_STORE_ID, "data")],
             prevent_initial_call=True
         )
         def stores_to_plots(general_data, component_data):
@@ -1018,7 +1023,7 @@ class ScatterplotComponent(DashboardComponent):
 
         @app.callback(
             Output(COLLAPSE, "is_open"),
-            [Input(GENERAL_STORE_ID, 'data')]
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
         def general_to_collapse(selected_data):
             if not selected_data or "collection" not in selected_data:

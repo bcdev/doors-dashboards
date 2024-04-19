@@ -97,7 +97,7 @@ class MeteogramComponent(DashboardComponent):
         )
         return html.Div(
             children=[
-                dcc.Store(id=f"{self._dashboard_id}-{COMPONENT_STORE_ID}"),
+                dcc.Store(id=COMPONENT_STORE_ID),
                 dcc.Store(id=TEMP_STORE_ID),
                 dbc.Col(
                     meteogram_image,
@@ -234,8 +234,8 @@ class MeteogramComponent(DashboardComponent):
         @app.callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
-            Input(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
-            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data')
+            Input(COMPONENT_STORE_ID, "data"),
+            State(COMPONENT_STORE_ID, "data"),
         )
         def update_meteogram_image(general_data, component_data, component_state_data):
             if general_data is not None:
@@ -284,7 +284,7 @@ class MeteogramComponent(DashboardComponent):
 
         @app.callback(
             Output(METEOGRAM_CHOOSER_ID, "label"),
-            Input(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
+            Input(COMPONENT_STORE_ID, "data"),
             prevent_initial_call=True
         )
         def component_store_to_drp_label(component_data):
@@ -295,9 +295,10 @@ class MeteogramComponent(DashboardComponent):
             return selected_label
 
         @app.callback(
-            Output(COMPONENT_STORE_ID, "data"),
+            Output(COMPONENT_STORE_ID, "data",
+                   allow_duplicate=True),
             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
-            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
+            State(COMPONENT_STORE_ID, "data"),
             prevent_initial_call=True
         )
         def datepicker_to_component_store(date_value, component_data):
@@ -314,7 +315,7 @@ class MeteogramComponent(DashboardComponent):
         @app.callback(
             Output(COMPONENT_STORE_ID, "data", allow_duplicate=True),
             Input(TEMP_STORE_ID, 'data'),
-            State(f"{dashboard_id}-{COMPONENT_STORE_ID}", 'data'),
+            State(COMPONENT_STORE_ID, "data"),
             prevent_initial_call=True
         )
         def temp_to_component_store(temp_data, component_data):

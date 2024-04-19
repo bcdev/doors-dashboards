@@ -16,7 +16,8 @@ from typing import Optional
 
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
-from doors_dashboards.components.constant import FONT_COLOR, FONT_SIZE, FONT_SIZE_NUMBER
+from doors_dashboards.components.constant import FONT_COLOR, FONT_SIZE, \
+    FONT_SIZE_NUMBER, GENERAL_STORE_ID
 from doors_dashboards.components.constant import FONT_FAMILY
 from doors_dashboards.components.constant import PLOT_BGCOLOR
 
@@ -159,27 +160,27 @@ class TimeSeriesComponent(DashboardComponent):
                                                  'fontSize': FONT_SIZE_NUMBER,
                                                  'paddingTop': '5px'}),
                     className="col-sm-1",
-                    style={'min-width': '100px', 'padding-left': '35px'}
+                    style={'minWidth': '100px', 'paddingLeft': '35px'}
 
                 ),
                 dbc.Col(
                     var_drop_down_menus,
                     className="col-sm-2",
-                    style={'min-width': '350px', 'padding-left': '40px'}
+                    style={'minWidth': '350px', 'paddingLeft': '40px'}
                 ),
                 dbc.Col(
                     dbc.Label('Station', style={'color': FONT_COLOR,
                                                 'fontFamily': FONT_FAMILY,
                                                 'fontSize': FONT_SIZE_NUMBER,
-                                                'paddingTop': '5px', 'padding-left':
+                                                'paddingTop': '5px', 'paddingLeft':
                                                     '20px'}),
                     className="col-sm-1",
-                    style={'min-width': '100px'}
+                    style={'minWidth': '100px'}
                 ),
                 dbc.Col(
                     group_drop_down_menus,
                     className="col-sm-2",
-                    style={'min-width': '350px', 'padding-left': '25px'}
+                    style={'minWidth': '350px', 'paddingLeft': '25px'}
                 )
             ])
             sub_components = [
@@ -191,7 +192,7 @@ class TimeSeriesComponent(DashboardComponent):
                         ],
                         style={'backgroundColor': PLOT_BGCOLOR,
                                'padding': '10px',
-                               'border-radius': '15px'}
+                               'borderRadius': '15px'}
                     ),
                     className='col-lg-12',
                     style={
@@ -353,10 +354,10 @@ class TimeSeriesComponent(DashboardComponent):
         var_drop_options = list(self.var_drop_options.keys())
 
         @app.callback(
-            Output("general", "data",
-                   allow_duplicate=True),
-            Input("variable_selector", 'data'),
-            State("general", "data"),
+            Output(f"{dashboard_id}-{GENERAL_STORE_ID}",
+                   "data", allow_duplicate=True),
+            Input(f"{dashboard_id}-variable_selector", 'data'),
+            State(f"{dashboard_id}-general", "data"),
             prevent_initial_call=True
         )
         def update_general_store_after_variable_selection(
@@ -375,7 +376,7 @@ class TimeSeriesComponent(DashboardComponent):
             return general_data
 
         @app.callback(
-            Output("variable_selector", 'data'),
+            Output(f"{dashboard_id}-variable_selector", 'data'),
             [Input(var_drop_id, 'n_clicks_timestamp')
              for var_drop_id in var_drop_options]
         )
@@ -396,7 +397,7 @@ class TimeSeriesComponent(DashboardComponent):
         @app.callback(
             [Output(var_drop_menu, 'label')
              for var_drop_menu in var_drop_menus],
-            Input("general", "data")
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
         def update_variable_drop_down_labels(general_data):
             if general_data is None:
@@ -414,10 +415,10 @@ class TimeSeriesComponent(DashboardComponent):
             return tuple(results)
 
         @app.callback(
-            Output("general", "data",
-                   allow_duplicate=True),
-            Input("group_selector", 'data'),
-            State("general", "data"),
+            Output(f"{dashboard_id}-{GENERAL_STORE_ID}",
+                   "data", allow_duplicate=True),
+            Input(f"{dashboard_id}-group_selector", 'data'),
+            State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def update_general_store_after_group_selection(
@@ -436,7 +437,8 @@ class TimeSeriesComponent(DashboardComponent):
             return general_data
 
         @app.callback(
-            Output("group_selector", 'data'),
+            Output(f"{dashboard_id}-group_selector",
+                   'data'),
             [Input(group_drop_id, 'n_clicks_timestamp')
              for group_drop_id in group_drop_options]
         )
@@ -457,7 +459,7 @@ class TimeSeriesComponent(DashboardComponent):
         @app.callback(
             [Output(group_drop_menu, 'label')
              for group_drop_menu in group_drop_menus],
-            Input("general", "data")
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
         def update_group_drop_down_labels(general_data):
             if general_data is None:
@@ -477,7 +479,7 @@ class TimeSeriesComponent(DashboardComponent):
 
         @app.callback(
             Output(TIMEGRAPH_ID, 'children'),
-            Input("general", "data")
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
         def update_time_plots_after_general_data_change(general_data):
             if general_data is None:
@@ -504,7 +506,7 @@ class TimeSeriesComponent(DashboardComponent):
 
         @app.callback(
             variable_outputs,
-            Input("general", "data"),
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
         )
         def update_variable_outputs(general_data):
@@ -544,7 +546,8 @@ class TimeSeriesComponent(DashboardComponent):
 
         @app.callback(
             group_outputs,
-            Input("general", "data"),
+            Input(f"{dashboard_id}-{GENERAL_STORE_ID}",
+                  'data'),
             prevent_initial_call=True
         )
         def update_group_outputs(general_data):
