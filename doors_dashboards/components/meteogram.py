@@ -110,7 +110,8 @@ class MeteogramComponent(DashboardComponent):
                         'flex': '1',
                         'display': 'flex',
                         'flexDirection': 'column',
-                        'height': '100%'
+                        'height': '80vh',
+                        'width': '100%'
                     },
                     id=sub_component_id,
                     className="p-4 text-center font-weight-bold"
@@ -143,7 +144,7 @@ class MeteogramComponent(DashboardComponent):
                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
                                     'fontSize': FONT_SIZE_NUMBER})
         image = html.Img(src=image_url, style={'padding': '20px', 'maxWidth': '100%',
-                                               'width': '100%', 'height': '95vh'
+                                               'width': '100%', 'height': '70vh'
                                                },
                          className="col-lg-6")
         self._previous_images[key] = image
@@ -272,7 +273,7 @@ class MeteogramComponent(DashboardComponent):
         )
         def selector_to_temp_store(*timestamps):
             clicked_index = timestamps.index(
-                    max(t for t in timestamps if t is not None))
+                max(t for t in timestamps if t is not None))
             meteogram_drp_option_value = METEOGRAM_TYPES[clicked_index]['value']
             meteogram_drp_option_label = METEOGRAM_TYPES[clicked_index]['label']
             temp_data = {

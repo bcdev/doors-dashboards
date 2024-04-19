@@ -111,16 +111,16 @@ def create_dashboard(config: Dict, app: Dash) -> Dash:
         # Header
         dbc.Row(
             [
-                dbc.Col(html.Img(src="assets/logo.png",
+                dbc.Col(html.Img(src="../assets/logo.png",
                                  style={'width': '200px',
                                         'paddingTop': '5px',
-                                        'textWrap': 'nowrap'}),
+                                        }),
                         width=3),
                 dbc.Col(html.H1(dashboard_title,
                                 className="text-center "
                                           "text-primary, mb-4"),
                         width=3, style={'color': FONT_COLOR,
-                                        'paddingTop': '5px'}),
+                                        'paddingTop': '5px', 'textWrap': 'nowrap'}),
                 dbc.Col(top_children["top"], width=6,
                         style={'marginTop': '-15px'}),
             ],

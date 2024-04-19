@@ -6,6 +6,8 @@ import yaml
 import os
 import webbrowser
 
+from waitress import serve
+
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -86,4 +88,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    serve(app.server, host="0.0.0.0", port=8787)
