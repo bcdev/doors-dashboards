@@ -1,3 +1,5 @@
+import sys
+
 import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output
@@ -57,7 +59,7 @@ def open_dashboard_in_new_tab(*args):
 
     if dashboard_id in get_dashboard_ids():
         serve_layout(dashboard_id)
-        open_in_new_tab(f"http://127.0.0.1:8050/{dashboard_id}")
+        open_in_new_tab(f"http://doors-dash.brockmann-consult.de/{dashboard_id}")
     return dash.no_update
 
 
