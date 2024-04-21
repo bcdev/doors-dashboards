@@ -1,0 +1,370 @@
+id: ml
+title: UPC Marine Litter
+features:
+  - id: marine_litter_trajectory_40
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_40.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 40
+    type: local
+  - id: marine_litter_trajectory_41
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_41.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 41
+    type: local
+  - id: marine_litter_trajectory_42
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_42.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 42
+    type: local
+  - id: marine_litter_trajectory_43
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_43.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 43
+    type: local
+  - id: marine_litter_trajectory_44
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_44.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 44
+    type: local
+  - id: marine_litter_trajectory_45
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_45.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 45
+    type: local
+  - id: marine_litter_trajectory_46
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_46.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 46
+    type: local
+  - id: marine_litter_trajectory_47
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_47.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 47
+    type: local
+  - id: marine_litter_trajectory_48
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_48.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 48
+    type: local
+  - id: marine_litter_trajectory_49
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_49.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 49
+    type: local
+  - id: marine_litter_trajectory_50
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_50.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 50
+    type: local
+  - id: marine_litter_trajectory_51
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_51.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 51
+    type: local
+  - id: marine_litter_trajectory_52
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_52.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 52
+    type: local
+  - id: marine_litter_trajectory_53
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_53.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 53
+    type: local
+  - id: marine_litter_trajectory_54
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_54.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 54
+    type: local
+  - id: marine_litter_trajectory_55
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_55.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 55
+    type: local
+  - id: marine_litter_trajectory_56
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_56.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 56
+    type: local
+  - id: marine_litter_trajectory_57
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_57.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 57
+    type: local
+  - id: marine_litter_trajectory_58
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_58.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 58
+    type: local
+  - id: marine_litter_trajectory_59
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_59.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 59
+    type: local
+  - id: marine_litter_trajectory_60
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_60.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 60
+    type: local
+  - id: marine_litter_trajectory_61
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_61.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 61
+    type: local
+  - id: marine_litter_trajectory_62
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_62.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 62
+    type: local
+  - id: marine_litter_trajectory_63
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_63.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 63
+    type: local
+  - id: marine_litter_trajectory_64
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_64.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 64
+    type: local
+  - id: marine_litter_trajectory_65
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_65.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 65
+    type: local
+  - id: marine_litter_trajectory_66
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_66.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 66
+    type: local
+  - id: marine_litter_trajectory_67
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_67.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 67
+    type: local
+  - id: marine_litter_trajectory_68
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_68.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 68
+    type: local
+  - id: marine_litter_trajectory_69
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_69.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 69
+    type: local
+  - id: marine_litter_trajectory_70
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_70.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 70
+    type: local
+  - id: marine_litter_trajectory_71
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_71.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 71
+    type: local
+  - id: marine_litter_trajectory_72
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_72.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 72
+    type: local
+  - id: marine_litter_trajectory_73
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_73.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 73
+    type: local
+  - id: marine_litter_trajectory_74
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_74.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 74
+    type: local
+  - id: marine_litter_trajectory_75
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_75.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 75
+    type: local
+  - id: marine_litter_trajectory_76
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_76.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 76
+    type: local
+  - id: marine_litter_trajectory_77
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_77.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 77
+    type: local
+  - id: marine_litter_trajectory_78
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_78.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 78
+    type: local
+  - id: marine_litter_trajectory_79
+    params:
+      color: red
+      file: ../../data/collections/upc_marine_litter_trajectory_79.csv
+      label: trajectory
+      mapmode:
+        mode: lines+markers
+      title: Trajectory 79
+    type: local
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top

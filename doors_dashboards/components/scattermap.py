@@ -7,8 +7,8 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 import math
+import numpy as np
 import os
-import random
 import plotly.graph_objs as go
 from typing import Dict
 from typing import List
@@ -58,14 +58,7 @@ class ScatterMapComponent(DashboardComponent):
         all_lons = []
         all_lats = []
 
-        # List of colors to choose from
-        colors = [
-            "blue", "red", "green", "yellow", "orange",
-            "purple", "cyan", "magenta", "lime",
-            "teal", "brown", "navy"
-        ]
-
-        for collection in self.feature_handler.get_collections():
+        for i, collection in enumerate(self.feature_handler.get_collections()):
             lons, lats, labels, variable_values = (
                 self.feature_handler.get_points_as_tuples(collection)
             )
@@ -73,7 +66,7 @@ class ScatterMapComponent(DashboardComponent):
             all_lons.extend(lons)
             all_lats.extend(lats)
 
-            color_index = random.randint(0, len(colors) - 1)
+            color = list(np.random.choice(range(256), size=3))
 
             if variable_values:
                 color_code_config = self.feature_handler.get_color_code_config(
@@ -89,9 +82,8 @@ class ScatterMapComponent(DashboardComponent):
             else:
                 marker = go.scattermapbox.Marker(
                     size=marker_size,
-                    color=colors[color_index]
+                    color=color
                 )
-                del colors[color_index]
 
             map_mode_config = self.feature_handler.get_map_mode_config(collection)
             if map_mode_config != '':
@@ -107,7 +99,8 @@ class ScatterMapComponent(DashboardComponent):
                 name=collection,
                 customdata=customdata,
                 selected=go.scattermapbox.Selected(
-                    marker={"color": "#5C050B", "size": 15})
+                    marker={"color": "#5C050B", "size": 15}
+                )
             ))
 
         center_lon, center_lat = get_center(all_lons, all_lats)
