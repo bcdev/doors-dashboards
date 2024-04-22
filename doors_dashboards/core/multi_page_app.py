@@ -1,5 +1,3 @@
-import sys
-
 import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output
@@ -8,7 +6,6 @@ import yaml
 import os
 import webbrowser
 
-from flask import request
 from waitress import serve
 
 from doors_dashboards.dashboards.dashboard import create_dashboard
@@ -41,38 +38,14 @@ def serve_layout(dashboard_id):
     config_path = os.path.join(_CONFIGS_PATH, f"{dashboard_id}.yml")
     with open(config_path, "r", encoding="utf-8") as config_stream:
         config = yaml.safe_load(config_stream)
-    layout = create_dashboard(config, app).layout
+    layout = create_dashboard(config).layout
     return layout
-
-
-@app.callback(
-    Output('dummy-output', 'children'),
-    [Input(f'btn-{dashboard_id}', 'n_clicks') for dashboard_id in get_dashboard_ids()],
-    prevent_initial_call=True
-)
-def open_dashboard_in_new_tab(*args):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
-
-    clicked_btn_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    dashboard_id = clicked_btn_id.replace('btn-', '')
-
-    if dashboard_id in get_dashboard_ids():
-        serve_layout(dashboard_id)
-        current_url = request.url_root
-        open_in_new_tab(f"{current_url}{dashboard_id}")
-    return dash.no_update
-
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),
     html.Div(id='dummy-output', style={'display': 'none'}),
     # Dummy output to trigger the callback
-    html.Div(
-        [create_dashboard_button(dashboard_id) for dashboard_id in get_dashboard_ids()],
-        id='buttons-container')
 ])
 
 

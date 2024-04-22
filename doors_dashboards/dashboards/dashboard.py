@@ -20,9 +20,13 @@ _COMPONENTS = {
 }
 
 
-def create_dashboard(config: Dict, app: Dash) -> Dash:
+def create_dashboard(config: Dict) -> Dash:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
+    app = Dash(__name__, suppress_callback_exceptions=True,
+               external_stylesheets=[dbc.themes.BOOTSTRAP],
+               title=dashboard_title
+               )
     store_ids = {
         "general": f"{dashboard_id}-general",
         "collection_selector": f"{dashboard_id}-collection_selector",
