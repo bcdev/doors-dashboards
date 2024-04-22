@@ -115,7 +115,7 @@ def create_dashboard(config: Dict) -> Dash:
         # Header
         dbc.Row(
             [
-                dbc.Col(html.Img(src="../assets/logo.png",
+                dbc.Col(html.Img(src="/assets/logo.png",
                                  style={'width': '200px',
                                         'paddingTop': '5px',
                                         }),
