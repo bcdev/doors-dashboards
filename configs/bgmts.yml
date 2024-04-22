@@ -1,5 +1,5 @@
 id: bgmts
-title: Bulgaria MAF Time Series
+title: Bulgaria Moorings Time Series
 eez: BG_eez
 features:
   - id: moorings_Varna_Bay_wavebuoy
