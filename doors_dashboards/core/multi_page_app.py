@@ -11,7 +11,8 @@ from waitress import serve
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
-                suppress_callback_exceptions=True)
+                suppress_callback_exceptions=True,
+                title="DOORS Dashboard")
 
 _CONFIGS_PATH = "../../configs"
 
