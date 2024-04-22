@@ -1,5 +1,5 @@
-id: blcksea
-title: Black Sea ARGO FLOATS Map
+id: argo
+title: Black Sea Argo Floats
 features:
   - id: WMO6901828
     type: geodb

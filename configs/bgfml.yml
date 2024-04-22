@@ -1,5 +1,5 @@
-id: bgmmaps
-title: Bulgaria MAF Map
+id: bgfml
+title: Bulgaria Floating Marine Litter
 eez: BG_eez
 features:
   - id: BG_FML_2016-2018
