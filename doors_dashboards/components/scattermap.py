@@ -60,6 +60,13 @@ class ScatterMapComponent(DashboardComponent):
         all_lons = []
         all_lats = []
 
+        # List of colors to choose from
+        colors = [
+            "blue", "red", "green", "yellow", "orange",
+            "purple", "cyan", "magenta", "lime",
+            "teal", "brown", "navy"
+        ]
+
         for i, collection in enumerate(self.feature_handler.get_collections()):
             lons, lats, labels, variable_values = (
                 self.feature_handler.get_points_as_tuples(collection)
@@ -68,7 +75,10 @@ class ScatterMapComponent(DashboardComponent):
             all_lons.extend(lons)
             all_lats.extend(lats)
 
-            color = list(np.random.choice(range(256), size=3))
+            # color = list(np.random.choice(range(256), size=3))
+            color_index = random.randint(0, len(colors) - 1)
+            color = colors[color_index]
+            del colors[color_index]
 
             if variable_values:
                 color_code_config = self.feature_handler.get_color_code_config(
