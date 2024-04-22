@@ -7,7 +7,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_40.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 40
     type: local
   - id: marine_litter_trajectory_41
@@ -16,7 +16,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_41.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 41
     type: local
   - id: marine_litter_trajectory_42
@@ -25,7 +25,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_42.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 42
     type: local
   - id: marine_litter_trajectory_43
@@ -34,7 +34,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_43.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 43
     type: local
   - id: marine_litter_trajectory_44
@@ -43,7 +43,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_44.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 44
     type: local
   - id: marine_litter_trajectory_45
@@ -52,7 +52,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_45.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 45
     type: local
   - id: marine_litter_trajectory_46
@@ -61,7 +61,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_46.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 46
     type: local
   - id: marine_litter_trajectory_47
@@ -70,7 +70,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_47.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 47
     type: local
   - id: marine_litter_trajectory_48
@@ -79,7 +79,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_48.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 48
     type: local
   - id: marine_litter_trajectory_49
@@ -88,7 +88,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_49.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 49
     type: local
   - id: marine_litter_trajectory_50
@@ -97,7 +97,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_50.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 50
     type: local
   - id: marine_litter_trajectory_51
@@ -106,7 +106,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_51.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 51
     type: local
   - id: marine_litter_trajectory_52
@@ -115,7 +115,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_52.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 52
     type: local
   - id: marine_litter_trajectory_53
@@ -124,7 +124,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_53.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 53
     type: local
   - id: marine_litter_trajectory_54
@@ -133,7 +133,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_54.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 54
     type: local
   - id: marine_litter_trajectory_55
@@ -142,7 +142,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_55.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 55
     type: local
   - id: marine_litter_trajectory_56
@@ -151,7 +151,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_56.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 56
     type: local
   - id: marine_litter_trajectory_57
@@ -160,7 +160,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_57.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 57
     type: local
   - id: marine_litter_trajectory_58
@@ -169,7 +169,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_58.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 58
     type: local
   - id: marine_litter_trajectory_59
@@ -178,7 +178,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_59.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 59
     type: local
   - id: marine_litter_trajectory_60
@@ -187,7 +187,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_60.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 60
     type: local
   - id: marine_litter_trajectory_61
@@ -196,7 +196,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_61.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 61
     type: local
   - id: marine_litter_trajectory_62
@@ -205,7 +205,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_62.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 62
     type: local
   - id: marine_litter_trajectory_63
@@ -214,7 +214,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_63.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 63
     type: local
   - id: marine_litter_trajectory_64
@@ -223,7 +223,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_64.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 64
     type: local
   - id: marine_litter_trajectory_65
@@ -232,7 +232,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_65.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 65
     type: local
   - id: marine_litter_trajectory_66
@@ -241,7 +241,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_66.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 66
     type: local
   - id: marine_litter_trajectory_67
@@ -250,7 +250,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_67.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 67
     type: local
   - id: marine_litter_trajectory_68
@@ -259,7 +259,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_68.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 68
     type: local
   - id: marine_litter_trajectory_69
@@ -268,7 +268,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_69.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 69
     type: local
   - id: marine_litter_trajectory_70
@@ -277,7 +277,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_70.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 70
     type: local
   - id: marine_litter_trajectory_71
@@ -286,7 +286,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_71.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 71
     type: local
   - id: marine_litter_trajectory_72
@@ -295,7 +295,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_72.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 72
     type: local
   - id: marine_litter_trajectory_73
@@ -304,7 +304,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_73.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 73
     type: local
   - id: marine_litter_trajectory_74
@@ -313,7 +313,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_74.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 74
     type: local
   - id: marine_litter_trajectory_75
@@ -322,7 +322,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_75.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 75
     type: local
   - id: marine_litter_trajectory_76
@@ -331,7 +331,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_76.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 76
     type: local
   - id: marine_litter_trajectory_77
@@ -340,7 +340,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_77.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 77
     type: local
   - id: marine_litter_trajectory_78
@@ -349,7 +349,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_78.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 78
     type: local
   - id: marine_litter_trajectory_79
@@ -358,7 +358,7 @@ features:
       file: ../../data/collections/upc_marine_litter_trajectory_79.csv
       label: trajectory
       mapmode:
-        mode: lines+markers
+        mode: lines
       title: Trajectory 79
     type: local
 components:
