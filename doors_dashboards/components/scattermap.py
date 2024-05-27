@@ -1,4 +1,4 @@
-from dash import Dash
+from dash import callback
 from dash import Input
 from dash import no_update
 from dash import Output
@@ -16,11 +16,8 @@ from typing import List
 from typing import Tuple
 from shapely.geometry import Point
 
-from doors_dashboards.components.constant import FONT_FAMILY, GENERAL_STORE_ID
-from doors_dashboards.components.constant import GROUP
-from doors_dashboards.components.constant import GROUPS_SECTION
-from doors_dashboards.components.constant import MAIN_GROUP
-from doors_dashboards.components.constant import PLOT_BGCOLOR
+from doors_dashboards.components.constant import FONT_FAMILY, PLOT_BGCOLOR, \
+    GENERAL_STORE_ID, GROUPS_SECTION, MAIN_GROUP, GROUP
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -175,9 +172,9 @@ class ScatterMapComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
-    def register_callbacks(self, app: Dash, component_ids: Dict[str, str],
+    def register_callbacks(self, component_ids: Dict[str, str],
                            dashboard_id: str):
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-general", "data", allow_duplicate=True),
             Input("scattermap", 'clickData'),
             State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
@@ -217,7 +214,7 @@ class ScatterMapComponent(DashboardComponent):
                     }
             return general_data
 
-        @app.callback(
+        @callback(
             Output("scattermap", 'figure', allow_duplicate=True),
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data")],
             State('scattermap', 'figure'),
@@ -242,7 +239,7 @@ class ScatterMapComponent(DashboardComponent):
             elif "groups" in general_data:
                 collection_name = general_data.get("collection")
                 group_value = general_data.get("groups", {}).get(collection_name,
-                                                                 {}).get("group")
+                                                                 {})
                 df = self.feature_handler.get_df(collection_name)
                 if "station" in df.columns:
                     geometry = df[df["station"] == group_value]["geometry"]

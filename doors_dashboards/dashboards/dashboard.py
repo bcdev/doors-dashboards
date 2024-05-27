@@ -2,10 +2,10 @@ from dash import Dash, dcc, html
 from typing import Dict
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import HEADER_BGCOLOR, CONTAINER_BGCOLOR, \
-    FONT_COLOR
-from doors_dashboards.components.scattermap import ScatterMapComponent
+from doors_dashboards.components.constant import FONT_COLOR, HEADER_BGCOLOR, \
+    CONTAINER_BGCOLOR
 from doors_dashboards.components.meteogram import MeteogramComponent
+from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.scatterplot import ScatterplotComponent
 from doors_dashboards.components.selectcollection import SelectCollectionComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
@@ -20,13 +20,9 @@ _COMPONENTS = {
 }
 
 
-def create_dashboard(config: Dict) -> Dash:
+def create_dashboard(config: Dict) -> html.Div:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
-    app = Dash(__name__, suppress_callback_exceptions=True,
-               external_stylesheets=[dbc.themes.BOOTSTRAP],
-               title=dashboard_title
-               )
     store_ids = {
         "general": f"{dashboard_id}-general",
         "collection_selector": f"{dashboard_id}-collection_selector",
@@ -92,12 +88,8 @@ def create_dashboard(config: Dict) -> Dash:
         else:
             main_children['middle'] = dbc.Row(
                 [
-                    dbc.Col(middle_children['left'], width="50%",
-                            className='col-lg-6', style={'marginTop': '0px',
-                                                         'marginLeft': '4px'}),
-                    dbc.Col(middle_children['right'], width="50%",
-                            className='col-lg-6', style={'marginTop': '2px',
-                                                         'marginLeft': '-10px'})
+                    dbc.Col(middle_children['left'], xs=12, md=6, className='mb-4'),
+                    dbc.Col(middle_children['right'], xs=12, md=6, className='mb-4')
                 ]
             )
 
@@ -107,7 +99,7 @@ def create_dashboard(config: Dict) -> Dash:
     if "bottom" in main_children:
         main.append(main_children["bottom"])
 
-    app.layout = html.Div([
+    layout = html.Div([
         dcc.Store(id=store_ids['general']),
         dcc.Store(id=store_ids['collection_selector']),
         dcc.Store(id=store_ids['group_selector']),
@@ -115,43 +107,16 @@ def create_dashboard(config: Dict) -> Dash:
         # Header
         dbc.Row(
             [
-                dbc.Col(html.Img(src="/assets/logo.png",
-                                 style={'width': '200px',
-                                        'paddingTop': '5px',
-                                        }),
-                        width=3),
-                dbc.Col(html.H1(dashboard_title,
-                                className="text-center "
-                                          "text-primary, mb-4"),
-                        width=3, style={'color': FONT_COLOR,
-                                        'paddingTop': '5px', 'textWrap': 'nowrap'}),
-                dbc.Col(top_children["top"], width=6,
-                        style={'marginTop': '-15px'}),
-            ],
-            style={'backgroundColor': HEADER_BGCOLOR}
+                dbc.Col(html.H1(dashboard_title, className="text-center mb-4"),
+                        xs=12, md=6, style={'color': FONT_COLOR, 'paddingTop': '5px'}),
+                dbc.Col(top_children["top"], xs=12, md=6, style={'marginTop': '-15px'}),
+            ]
         ),
         # Plots
         *main,
-        # Footer
-        dbc.Row(
-            [
-                dbc.Col(html.P(
-                    "© 2024 Brockmann Consult GmbH. All rights reserved.",
-                    className="text-center "
-                              "text-primary",
-                    style={'color': FONT_COLOR}),
-                    width=12),
-            ],
-            style={'backgroundColor': CONTAINER_BGCOLOR,
-                   'padding': '10px'}
-        ),
-    ], style={'backgroundColor': CONTAINER_BGCOLOR,
-              'width': '100vw',
-              'height': '100vh',
-              'overflow': 'hidden',
-              })
+    ], className="scalable container-fluid")
 
     for component in components.values():
-        component.register_callbacks(app, list(components.keys()), dashboard_id)
+        component.register_callbacks(list(components.keys()), dashboard_id)
 
-    return app
+    return layout

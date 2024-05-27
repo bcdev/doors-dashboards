@@ -2,6 +2,11 @@ body {
     overflow-x: hidden;
     overflow-y: hidden;
 }
+.container.scalable {
+  width: 100%;
+  max-width: none;
+  height: calc(100vh - 100px)
+}
 
 .dropdown-menu.show{
     max-height: 250px !important;

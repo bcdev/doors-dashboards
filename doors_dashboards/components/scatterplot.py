@@ -1,21 +1,14 @@
 from typing import Dict
 from typing import List
 from typing import Tuple
-from dash import dcc, html, Dash, Input, Output, dash, no_update, State
+from dash import dcc, html, Dash, Input, Output, dash, no_update, State, callback
 import plotly.express as px
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE
-from doors_dashboards.components.constant import FONT_COLOR
-from doors_dashboards.components.constant import FONT_FAMILY
-from doors_dashboards.components.constant import PLOT_BGCOLOR
-from doors_dashboards.components.constant import SCATTER_PLOT_ID
-from doors_dashboards.components.constant import SCATTER_PLOT_LINE_ID
-from doors_dashboards.components.constant import GENERAL_STORE_ID
-from doors_dashboards.components.constant import GROUP
-from doors_dashboards.components.constant import GROUPS_SECTION
-from doors_dashboards.components.constant import MAIN_GROUP
+from doors_dashboards.components.constant import FONT_FAMILY, FONT_COLOR, \
+    SCATTER_PLOT_LINE_ID, PLOT_BGCOLOR, SCATTER_PLOT_ID, MAIN_GROUP, GROUP, \
+    GENERAL_STORE_ID, GROUPS_SECTION
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -559,8 +552,7 @@ class ScatterplotComponent(DashboardComponent):
     def decode_linevar_dropdown(dropdown_id: str) -> str:
         return dropdown_id[22:]
 
-    def register_callbacks(self, app: Dash, component_ids: List[str], dashboard_id:
-    str = None):
+    def register_callbacks(self, component_ids: List[str], dashboard_id: str = None):
 
         group_dropdown_menus = list(self.group_dropdown_menus.keys())
         group_drop_options = list(self.group_drop_options.keys())
@@ -578,7 +570,7 @@ class ScatterplotComponent(DashboardComponent):
         main_group_drop_options = list(self.main_group_drop_options.keys())
 
         if len(main_group_drop_options) > 0:
-            @app.callback(
+            @callback(
                 Output(TEMP_STORE_ID, "data", allow_duplicate=True),
                 [Input(main_group_value_id, 'n_clicks_timestamp')
                  for main_group_value_id in main_group_drop_options],
@@ -599,7 +591,7 @@ class ScatterplotComponent(DashboardComponent):
                 }
                 return temp
 
-        @app.callback(
+        @callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(group_value_id, 'n_clicks_timestamp')
              for group_value_id in group_drop_options],
@@ -619,7 +611,7 @@ class ScatterplotComponent(DashboardComponent):
             }
             return temp
 
-        @app.callback(
+        @callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(point_x_drop_id, 'n_clicks_timestamp')
              for point_x_drop_id in point_x_drop_options],
@@ -639,7 +631,7 @@ class ScatterplotComponent(DashboardComponent):
             }
             return temp_data
 
-        @app.callback(
+        @callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(point_y_drop_id, 'n_clicks_timestamp')
              for point_y_drop_id in point_y_drop_options],
@@ -659,7 +651,7 @@ class ScatterplotComponent(DashboardComponent):
             }
             return temp_data
 
-        @app.callback(
+        @callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(line_drop_id, 'n_clicks_timestamp')
              for line_drop_id in line_drop_options],
@@ -679,7 +671,7 @@ class ScatterplotComponent(DashboardComponent):
             }
             return temp_data
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-{GENERAL_STORE_ID}", "data", allow_duplicate=True),
             [Input(TEMP_STORE_ID, 'data')],
             [State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data')],
@@ -703,7 +695,7 @@ class ScatterplotComponent(DashboardComponent):
                             temp_data[field]
             return general_data
 
-        @app.callback(
+        @callback(
             Output(COMPONENT_STORE_ID, 'data'),
             [Input(TEMP_STORE_ID, 'data')],
             [State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -729,7 +721,7 @@ class ScatterplotComponent(DashboardComponent):
             return component_data
 
         if len(main_group_dropdown_menus) > 0:
-            @app.callback(
+            @callback(
                 [Output(main_group_dropdown_menu, 'style')
                  for main_group_dropdown_menu in main_group_dropdown_menus],
                 [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
@@ -750,7 +742,7 @@ class ScatterplotComponent(DashboardComponent):
                         results.append({'display': 'none'})
                 return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(group_dropdown_menu, 'style', allow_duplicate=True)
              for group_dropdown_menu in group_dropdown_menus],
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
@@ -776,7 +768,7 @@ class ScatterplotComponent(DashboardComponent):
                     results.append({'display': 'none'})
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(point_x_dropdown_menu, 'style', allow_duplicate=True)
              for point_x_dropdown_menu in point_x_dropdown_menus],
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
@@ -796,7 +788,7 @@ class ScatterplotComponent(DashboardComponent):
                     results.append({'display': 'none'})
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(point_y_dropdown_menu, 'style', allow_duplicate=True)
              for point_y_dropdown_menu in point_y_dropdown_menus],
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
@@ -816,7 +808,7 @@ class ScatterplotComponent(DashboardComponent):
                     results.append({'display': 'none'})
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(line_dropdown_menu, 'style', allow_duplicate=True)
              for line_dropdown_menu in line_dropdown_menus],
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'), ],
@@ -837,7 +829,7 @@ class ScatterplotComponent(DashboardComponent):
             return tuple(results)
 
         if len(main_group_dropdown_menus) > 0:
-            @app.callback(
+            @callback(
                 [Output(main_group_dropdown_menu, 'label')
                  for main_group_dropdown_menu in main_group_dropdown_menus],
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -866,7 +858,7 @@ class ScatterplotComponent(DashboardComponent):
                         results.append(main_groups[0])
                 return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(group_dropdown_menu, 'label')
              for group_dropdown_menu in group_dropdown_menus],
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -886,7 +878,7 @@ class ScatterplotComponent(DashboardComponent):
                 results.append(group)
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(x_dropdown_menu, 'label')
              for x_dropdown_menu in point_x_dropdown_menus],
             [Input(COMPONENT_STORE_ID, "data"),
@@ -916,7 +908,7 @@ class ScatterplotComponent(DashboardComponent):
                                    get(X_VARIABLE, default_var))
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(y_dropdown_menu, 'label')
              for y_dropdown_menu in point_y_dropdown_menus],
             [Input(COMPONENT_STORE_ID, "data"),
@@ -946,7 +938,7 @@ class ScatterplotComponent(DashboardComponent):
                                    get(Y_VARIABLE, default_var))
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(line_dropdown_menu, 'label')
              for line_dropdown_menu in line_dropdown_menus],
             [Input(COMPONENT_STORE_ID, "data"),
@@ -976,7 +968,7 @@ class ScatterplotComponent(DashboardComponent):
                                    get(LINE_VARIABLE, default_var))
             return tuple(results)
 
-        @app.callback(
+        @callback(
             [Output(SCATTER_PLOT_ID, 'figure', allow_duplicate=True),
              Output(SCATTER_PLOT_LINE_ID, 'figure', allow_duplicate=True)],
             [Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -1021,7 +1013,7 @@ class ScatterplotComponent(DashboardComponent):
             )
             return pointplot_fig, lineplot_fig
 
-        @app.callback(
+        @callback(
             Output(COLLAPSE, "is_open"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )

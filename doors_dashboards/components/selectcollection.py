@@ -1,5 +1,5 @@
 from typing import Dict, List
-from dash import Dash, dash
+from dash import Dash, dash, callback
 from dash import html
 from dash import Input
 from dash import no_update
@@ -8,9 +8,8 @@ from dash import State
 import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
 
-from doors_dashboards.components.constant import COLLECTION_TEMPLATE, GENERAL_STORE_ID
-from doors_dashboards.components.constant import FONT_FAMILY
-from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.components.constant import GENERAL_STORE_ID, COLLECTION_TEMPLATE, \
+    FONT_FAMILY, FONT_COLOR
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -26,10 +25,10 @@ class SelectCollectionComponent(DashboardComponent):
         self.collection_to_id = {}
         self._dashboard_id = dashboard_id
 
-    def register_callbacks(self, app: Dash, component_ids: List[str],
+    def register_callbacks(self, component_ids: List[str],
                            dashboard_id: str = None):
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-{SELECT_COLLECTION_DRP}",
                    'label'),
             # Update the label of the dropdown menu
@@ -46,11 +45,11 @@ class SelectCollectionComponent(DashboardComponent):
             else:
                 return dash.no_update
 
-        @app.callback(
+        @callback(
             [Output(f"{dashboard_id}-general",
                     "data", allow_duplicate=True),
              Output(f"{dashboard_id}-{SELECT_COLLECTION_DRP}",
-                    'label',allow_duplicate=True)],
+                    'label', allow_duplicate=True)],
             Input(f"{dashboard_id}-collection_selector", "data"),
             State(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
@@ -61,7 +60,7 @@ class SelectCollectionComponent(DashboardComponent):
                 general_data['collection'] = selected_data["collection"]
             return general_data, selected_data["collection"]
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-collection_selector", "data"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
@@ -75,7 +74,7 @@ class SelectCollectionComponent(DashboardComponent):
             }
             return coll
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-collection_selector", "data", allow_duplicate=True),
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(self.collection_to_id.values())],
@@ -106,8 +105,8 @@ class SelectCollectionComponent(DashboardComponent):
             [
                 dbc.Label('Collection', className='col-',
                           style={'fontSize': '25px', 'float': 'left', 'fontFamily':
-                              FONT_FAMILY, 'color': FONT_COLOR,
-                                 'padding': '5px 20px 0px 462px'}),
+                              FONT_FAMILY, 'color': FONT_COLOR, 'padding-right': '15px'
+                                 }),
                 dbc.DropdownMenu(
                     id=f"{self._dashboard_id}-{SELECT_COLLECTION_DRP}",
                     label=default_value,
@@ -119,7 +118,7 @@ class SelectCollectionComponent(DashboardComponent):
                         for collection, collection_id in self.collection_to_id.items()
                     ],
                     style={'fontFamily': FONT_FAMILY,
-                           'color': FONT_COLOR, 'width': '1000px'},
+                           'color': FONT_COLOR},
                     className="m-4",
                     color="secondary",
                     size="lg"

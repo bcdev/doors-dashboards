@@ -1,4 +1,4 @@
-from dash import dcc, no_update
+from dash import dcc, no_update, callback
 from dash import html
 from dash import dash
 from dash import Input
@@ -15,13 +15,8 @@ from typing import List
 from typing import Tuple
 import dash_bootstrap_components as dbc
 
-from doors_dashboards.components.constant import FONT_COLOR
-from doors_dashboards.components.constant import METEOGRAM_TYPE_TEMPLATE
-from doors_dashboards.components.constant import GENERAL_STORE_ID
-from doors_dashboards.components.constant import FONT_FAMILY
-from doors_dashboards.components.constant import FONT_SIZE
-from doors_dashboards.components.constant import FONT_SIZE_NUMBER
-from doors_dashboards.components.constant import PLOT_BGCOLOR
+from doors_dashboards.components.constant import METEOGRAM_TYPE_TEMPLATE, FONT_COLOR, \
+    FONT_SIZE, FONT_FAMILY, PLOT_BGCOLOR, FONT_SIZE_NUMBER, GENERAL_STORE_ID
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -225,14 +220,12 @@ class MeteogramComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
 
-    def register_callbacks(self, app: dash.Dash, component_ids: List[str],
-                           dashboard_id: str
-                           ):
+    def register_callbacks(self, component_ids: List[str], dashboard_id: str):
         lon = self._get_default_tuple()[0]
         lat = self._get_default_tuple()[1]
         label = self._get_default_tuple()[2]
 
-        @app.callback(
+        @callback(
             Output(METEOGRAM_IMAGE_ID, 'children'),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             Input(COMPONENT_STORE_ID, "data"),
@@ -265,7 +258,7 @@ class MeteogramComponent(DashboardComponent):
                 meteo_lon, meteo_lat, date_string, forecast_value
             )
 
-        @app.callback(
+        @callback(
             Output(TEMP_STORE_ID, "data", allow_duplicate=True),
             [Input(dropdown_id, 'n_clicks_timestamp')
              for dropdown_id in list(METEOGRAM_TYPE_TO_ID.values())],
@@ -283,7 +276,7 @@ class MeteogramComponent(DashboardComponent):
 
             return temp_data
 
-        @app.callback(
+        @callback(
             Output(METEOGRAM_CHOOSER_ID, "label"),
             Input(COMPONENT_STORE_ID, "data"),
             prevent_initial_call=True
@@ -295,7 +288,7 @@ class MeteogramComponent(DashboardComponent):
                                                 METEOGRAM_TYPES[0]["label"])
             return selected_label
 
-        @app.callback(
+        @callback(
             Output(COMPONENT_STORE_ID, "data",
                    allow_duplicate=True),
             Input(METEOGRAM_DATE_PICKER_ID, 'date'),
@@ -313,7 +306,7 @@ class MeteogramComponent(DashboardComponent):
             component_data.update(selected_date)
             return component_data
 
-        @app.callback(
+        @callback(
             Output(COMPONENT_STORE_ID, "data", allow_duplicate=True),
             Input(TEMP_STORE_ID, 'data'),
             State(COMPONENT_STORE_ID, "data"),

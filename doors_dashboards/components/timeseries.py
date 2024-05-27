@@ -5,6 +5,7 @@ from dash import Input
 from dash import no_update
 from dash import Output
 from dash import State
+from dash import callback
 from dash.development.base_component import Component
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -14,12 +15,10 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+from doors_dashboards.components.constant import FONT_FAMILY, FONT_SIZE, FONT_COLOR, \
+    FONT_SIZE_NUMBER, PLOT_BGCOLOR, GENERAL_STORE_ID
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
-from doors_dashboards.components.constant import FONT_COLOR, FONT_SIZE, \
-    FONT_SIZE_NUMBER, GENERAL_STORE_ID
-from doors_dashboards.components.constant import FONT_FAMILY
-from doors_dashboards.components.constant import PLOT_BGCOLOR
 
 TIMEGRAPH_ID = "timeplots_graph"
 TIMEPLOTS_ID = "timeplots"
@@ -153,36 +152,42 @@ class TimeSeriesComponent(DashboardComponent):
             group_drop_down_menus = list(self.group_drop_menus.values())
             group_drop_down_menus[0].style['display'] = 'block'
 
-            row = dbc.Row([
-                dbc.Col(
-                    dbc.Label('Variable', style={'color': FONT_COLOR,
-                                                 'fontFamily': FONT_FAMILY,
-                                                 'fontSize': FONT_SIZE_NUMBER,
-                                                 'paddingTop': '5px'}),
-                    className="col-sm-1",
-                    style={'minWidth': '100px', 'paddingLeft': '35px'}
-
-                ),
-                dbc.Col(
-                    var_drop_down_menus,
-                    className="col-sm-2",
-                    style={'minWidth': '350px', 'paddingLeft': '40px'}
-                ),
-                dbc.Col(
-                    dbc.Label('Station', style={'color': FONT_COLOR,
-                                                'fontFamily': FONT_FAMILY,
-                                                'fontSize': FONT_SIZE_NUMBER,
-                                                'paddingTop': '5px', 'paddingLeft':
-                                                    '20px'}),
-                    className="col-sm-1",
-                    style={'minWidth': '100px'}
-                ),
-                dbc.Col(
-                    group_drop_down_menus,
-                    className="col-sm-2",
-                    style={'minWidth': '350px', 'paddingLeft': '25px'}
-                )
-            ])
+            row = dbc.Row(
+                [
+                    dbc.Col(
+                        dbc.Label('Variable', style={
+                            'color': FONT_COLOR,
+                            'fontFamily': FONT_FAMILY,
+                            'fontSize': FONT_SIZE_NUMBER,
+                            'paddingTop': '5px'
+                        }),
+                        xs=12, sm=3, md=2, lg=1,
+                        className="d-flex justify-content-center justify-content-sm-start"
+                    ),
+                    dbc.Col(
+                        var_drop_down_menus,
+                        xs=12, sm=9, md=4, lg=3,
+                        className="d-flex justify-content-center justify-content-sm-start"
+                    ),
+                    dbc.Col(
+                        dbc.Label('Station', style={
+                            'color': FONT_COLOR,
+                            'fontFamily': FONT_FAMILY,
+                            'fontSize': FONT_SIZE_NUMBER,
+                            'paddingTop': '5px',
+                            'paddingLeft': '20px'
+                        }),
+                        xs=12, sm=3, md=2, lg=1,
+                        className="d-flex justify-content-center justify-content-sm-start"
+                    ),
+                    dbc.Col(
+                        group_drop_down_menus,
+                        xs=12, sm=9, md=4, lg=3,
+                        className="d-flex justify-content-center justify-content-sm-start"
+                    )
+                ],
+                className="align-items-center"
+            )
             sub_components = [
                 dbc.Col(
                     html.Div(
@@ -345,7 +350,7 @@ class TimeSeriesComponent(DashboardComponent):
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
 
-    def register_callbacks(self, app: Dash, component_ids: Dict[str, str],
+    def register_callbacks(self, component_ids: Dict[str, str],
                            dashboard_id: str):
         group_drop_menus = list(self.group_drop_menus.keys())
         group_drop_options = list(self.group_drop_options.keys())
@@ -353,7 +358,7 @@ class TimeSeriesComponent(DashboardComponent):
         var_drop_menus = list(self.var_drop_menus.keys())
         var_drop_options = list(self.var_drop_options.keys())
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-{GENERAL_STORE_ID}",
                    "data", allow_duplicate=True),
             Input(f"{dashboard_id}-variable_selector", 'data'),
@@ -375,7 +380,7 @@ class TimeSeriesComponent(DashboardComponent):
             general_data["variables"][collection] = selected_data["selected_var"]
             return general_data
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-variable_selector", 'data'),
             [Input(var_drop_id, 'n_clicks_timestamp')
              for var_drop_id in var_drop_options]
@@ -394,7 +399,7 @@ class TimeSeriesComponent(DashboardComponent):
                 'selected_var': selected_var
             }
 
-        @app.callback(
+        @callback(
             [Output(var_drop_menu, 'label')
              for var_drop_menu in var_drop_menus],
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -414,7 +419,7 @@ class TimeSeriesComponent(DashboardComponent):
                 results.append(id_to_var.get(var_drop_menu_id, ""))
             return tuple(results)
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-{GENERAL_STORE_ID}",
                    "data", allow_duplicate=True),
             Input(f"{dashboard_id}-group_selector", 'data'),
@@ -436,7 +441,7 @@ class TimeSeriesComponent(DashboardComponent):
             general_data["groups"][collection] = selected_data["groups"]
             return general_data
 
-        @app.callback(
+        @callback(
             Output(f"{dashboard_id}-group_selector",
                    'data'),
             [Input(group_drop_id, 'n_clicks_timestamp')
@@ -456,7 +461,7 @@ class TimeSeriesComponent(DashboardComponent):
                 'groups': selected_group
             }
 
-        @app.callback(
+        @callback(
             [Output(group_drop_menu, 'label')
              for group_drop_menu in group_drop_menus],
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
@@ -477,7 +482,7 @@ class TimeSeriesComponent(DashboardComponent):
                 results.append(id_to_group.get(group_drop_menu_id, ""))
             return tuple(results)
 
-        @app.callback(
+        @callback(
             Output(TIMEGRAPH_ID, 'children'),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
         )
@@ -504,7 +509,7 @@ class TimeSeriesComponent(DashboardComponent):
             for variable_drop_menu in var_drop_menus]
         variable_outputs = variable_style_outputs + variable_label_outputs
 
-        @app.callback(
+        @callback(
             variable_outputs,
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", 'data'),
             prevent_initial_call=True
@@ -544,7 +549,7 @@ class TimeSeriesComponent(DashboardComponent):
             for group_drop_menu in group_drop_menus]
         group_outputs = group_style_outputs + group_label_outputs
 
-        @app.callback(
+        @callback(
             group_outputs,
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}",
                   'data'),
@@ -587,4 +592,3 @@ class TimeSeriesComponent(DashboardComponent):
                     results.append('')
             return tuple(results)
 
-        return app
