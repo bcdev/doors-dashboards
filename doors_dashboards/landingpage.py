@@ -1,6 +1,7 @@
 import dash
 from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
+from waitress import serve
 
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.mapstyle import popup, SELECT_MAPSTYLE_DRP
@@ -133,4 +134,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == '__main__':
-    app.run_server(host="0.0.0.0", port=8787)
+    serve(app.serve,host="0.0.0.0", port=8787)
