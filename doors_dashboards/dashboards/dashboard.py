@@ -107,11 +107,19 @@ def create_dashboard(config: Dict) -> html.Div:
         # Header
         dbc.Row(
             [
-                dbc.Col(html.H1(dashboard_title, className="text-center mb-4"),
-                        xs=12, md=6, style={'color': FONT_COLOR, 'paddingTop': '5px'}),
-                dbc.Col(top_children["top"], xs=12, md=6, style={'marginTop': '-15px'}),
+                dbc.Col(
+                    top_children["top"],
+                    xs=12, sm=12, md=6, lg=6, xl=6,
+                    style={'marginTop': '-15px'}
+                ),
+                dbc.Col(
+                    html.H1(dashboard_title, className="mb-4"),
+                    xs=12, sm=12, md=6, lg=6, xl=6,
+                    style={'color': FONT_COLOR, 'paddingTop': '5px'}
+                ),
             ]
-        ),
+        )
+        ,
         # Plots
         *main,
     ], className="scalable container-fluid")

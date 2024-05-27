@@ -11,7 +11,9 @@ external_stylesheets = [
 ]
 
 app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True,
-           external_stylesheets=external_stylesheets)
+           external_stylesheets=external_stylesheets,
+           meta_tags=[
+               {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'}])
 
 footer = html.Div(html.P(
     "© 2024 Brockmann Consult GmbH. All rights reserved.",
@@ -19,31 +21,39 @@ footer = html.Div(html.P(
     style={'color': FONT_COLOR})
 )
 
-header = dbc.Row(
-    [
-        dbc.Col(
-            html.I(className="fas fa-bars", id="open-offcanvas", n_clicks=0,
-                   style={"fontSize": "24px", "cursor": "pointer", "margin-left":
-                       "19px", "padding-top": "10px", }),
-            width="auto",
+header = html.Nav(
+    className="navbar",
+    children=[
+        html.A(
+            className="navbar-brand",
+            href="#",
+            children=[
+                html.I(
+                    className="fas fa-bars",
+                    id="open-offcanvas",
+                    n_clicks=0,
+                    style={"fontSize": "24px", "cursor": "pointer", "marginLeft":
+                        "19px", "color": "white"}
+                ),
+                html.Img(
+                    src="../../assets/logo.png",
+                    alt="Logo",
+                    style={"width": "100px", "paddingTop": "0px", "marginLeft": "10px"}
+                )
+            ]
         ),
-        dbc.Col(html.Img(src="../../assets/logo.png", style={'width': '100px',
-                                                             'paddingTop': '16px'}),
-                width="auto"),
-        dbc.Col(
-            dbc.Button(html.I(className="fas fa-cogs"), id="open-popup",
-                       n_clicks=0, color="primary", outline=True, style={
-                }),
-            width="auto"
-        ),
-        dbc.Col(
-            dash.page_container,
-            width={"size": 12},
-            # style={"margin": "-60px 0 75px 18px"}
-        ),
-
+        html.Button(
+            className="btn btn-outline-primary",
+            type="button",
+            id="open-popup",
+            n_clicks=0,
+            children=[
+                html.I(className="fas fa-cogs")
+            ],
+            style={"color": "white", "border": "none"}
+        )
     ],
-    style={"alignItems": "center", "backgroundColor": "#2D4356"}
+    style={"backgroundColor": "rgb(67, 91, 102)"}
 )
 
 offcanvas = html.Div(
@@ -63,7 +73,7 @@ offcanvas = html.Div(
             id="offcanvas",
             title=html.Img(src="../../assets/logo.png", style={"height": "80px",
                                                                "width": "300px",
-                                                               "marginLeft":"-17px"}),
+                                                               "marginLeft": "-17px"}),
             is_open=False,
             style={"zIndex": 1050, "backgroundColor": "#435B66", "color": "white",
                    "width": "330px"}
@@ -100,23 +110,27 @@ def open_popup(n_clicks):
 )
 def update_dropdown_value(value):
     if value:
-        return print(f"You selected: {value}")
+        return f"You selected: {value}"
     else:
         return ""
 
 
 app.layout = dbc.Container(
     [
-        dbc.Row([header], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
+        header,
+        dbc.Row(dbc.Col(
+            dash.page_container,
+            width={"size": 12},
+            style={"backgroundColor": "#2D4356"}
+        )),
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup
     ],
     fluid=True,
-    style={"height": "100vh", "padding": "0", "display": "flex", "flexDirection":
-        "column"}
-
+    style={"height": "100vh", "padding": "0", "display": "flex",
+           "flexDirection": "column"}
 )
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0", port=8787)
