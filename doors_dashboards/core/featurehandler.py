@@ -136,8 +136,10 @@ class FeatureHandler:
     def _read_features(self, features: Dict) -> gpd.GeoDataFrame:
         if features.get("type") == "local":
             filepath = features.get("params").get("file")
+            file_dir = os.path.dirname(os.path.abspath(__file__))
+            os_file_path = os.path.join(file_dir, filepath)
             crs = features.get("params").get("crs", REFERENCE_CRS)
-            with open(filepath, "r") as points_file:
+            with open(os_file_path, "r") as points_file:
                 df = pd.read_csv(points_file)
                 df["geometry"] = df["geometry"].apply(wkt.loads)
                 gdf = gpd.GeoDataFrame(df, crs=crs)
