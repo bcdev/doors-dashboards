@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import geopandas as gpd
 from shapely import wkt
@@ -32,7 +34,9 @@ class FeatureHandler:
     def _load_eez(eez: str = None):
         if eez:
             extended_eez_path = f"../../data/eez/{eez}/{eez}.shp"
-            eez = gpd.read_file(extended_eez_path, driver='ESRI Shapefile')
+            file_dir = os.path.dirname(os.path.abspath(__file__))
+            eez_path = os.path.join(file_dir, extended_eez_path)
+            eez = gpd.read_file(eez_path, driver='ESRI Shapefile')
             eez = eez.to_crs(REFERENCE_CRS)
             return eez
 

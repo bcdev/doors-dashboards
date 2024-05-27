@@ -3,12 +3,11 @@ import os
 import dash
 from typing import Dict
 
+from doors_dashboards.components.constant import CONFIGS_PATH
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
-dash.register_page(__name__,title='Bulgaria MAF Meteograms',
-    name='Bulgaria MAF Meteograms')
-
-_CONFIGS_PATH = "../../configs"
+dash.register_page(__name__, title='Bulgaria MAF Meteograms',
+                   name='Bulgaria MAF Meteograms')
 
 
 def _read_config(id: str) -> Dict:
@@ -17,7 +16,8 @@ def _read_config(id: str) -> Dict:
 
 def _read_config_file(config_filename: str) -> Dict:
     print(os.getcwd())
-    config_path = os.path.join(_CONFIGS_PATH, config_filename)
+    file_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(file_dir, CONFIGS_PATH, config_filename)
     with open(config_path, "r", encoding="utf-8") as config_stream:
         return yaml.safe_load(config_stream)
 

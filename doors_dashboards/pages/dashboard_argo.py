@@ -4,11 +4,11 @@ import dash
 from typing import Dict
 
 from doors_dashboards.dashboards.dashboard import create_dashboard
+from doors_dashboards.components.constant import CONFIGS_PATH
 
 dash.register_page(__name__,title='Black Sea Argo Floats ',
     name='Black Sea Argo Floats')
 
-_CONFIGS_PATH = "../../configs"
 
 
 def _read_config(id: str) -> Dict:
@@ -17,7 +17,8 @@ def _read_config(id: str) -> Dict:
 
 def _read_config_file(config_filename: str) -> Dict:
     #print(os.getcwd())
-    config_path = os.path.join(_CONFIGS_PATH, config_filename)
+    file_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(file_dir, CONFIGS_PATH, config_filename)
     with open(config_path, "r", encoding="utf-8") as config_stream:
         return yaml.safe_load(config_stream)
 
