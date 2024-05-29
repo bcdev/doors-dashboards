@@ -1,7 +1,6 @@
 import dash
 from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
-from waitress import serve
 
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.mapstyle import popup, SELECT_MAPSTYLE_DRP
@@ -119,19 +118,18 @@ def update_dropdown_value(value):
 app.layout = dbc.Container(
     [
         header,
-        dbc.Row(dbc.Col(
+        dbc.Row(
             dash.page_container,
-            width={"size": 12},
-            style={"backgroundColor": "#2D4356"}
-        )),
+            style={"backgroundColor": "#2D4356"}),
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup
     ],
     fluid=True,
-    style={"height": "100vh", "padding": "0", "display": "flex",
-           "flexDirection": "column"}
+    style={ "padding": "0", "display": "flex",
+           "flexDirection": "column"},
+    className="container scalable"
 )
 
 if __name__ == '__main__':
-    serve(app.server, host="0.0.0.0", port=8789)
+    app.run_server()

@@ -197,7 +197,7 @@ class TimeSeriesComponent(DashboardComponent):
                         ],
                         style={'backgroundColor': PLOT_BGCOLOR,
                                'padding': '10px',
-                               'borderRadius': '15px'}
+                               }
                     ),
                     className='col-lg-12',
                     style={

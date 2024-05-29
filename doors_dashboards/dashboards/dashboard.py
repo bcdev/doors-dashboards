@@ -63,7 +63,9 @@ def create_dashboard(config: Dict) -> html.Div:
             )
             place_children.append(component_div)
         if placement == "top":
-            top_children[placement] = place_children
+            top_children[placement] = dbc.Col(
+                place_children, className="col m-1"
+            )
         if placement == "bottom":
             main_children[placement] = dbc.Row(
                 children=place_children
@@ -77,20 +79,22 @@ def create_dashboard(config: Dict) -> html.Div:
             main_children['middle'] = dbc.Row(
                 [
                     middle_children['left']
-                ]
+                ],
             )
         elif "left" not in middle_children:
             main_children['middle'] = dbc.Row(
                 [
-                    middle_children['right']
-                ]
+                    middle_children['right'],
+                ],
+
             )
         else:
             main_children['middle'] = dbc.Row(
                 [
-                    dbc.Col(middle_children['left'], xs=12, md=6, className='mb-4'),
-                    dbc.Col(middle_children['right'], xs=12, md=6, className='mb-4')
-                ]
+                    dbc.Col(middle_children['left'], className="col-6"),
+                    dbc.Col(middle_children['right'], className="col-6")
+                ],
+                style={"margin": "0"},
             )
 
     main = []
@@ -104,25 +108,20 @@ def create_dashboard(config: Dict) -> html.Div:
         dcc.Store(id=store_ids['collection_selector']),
         dcc.Store(id=store_ids['group_selector']),
         dcc.Store(id=store_ids['variable_selector']),
-        # Header
         dbc.Row(
             [
+                top_children["top"],
                 dbc.Col(
-                    top_children["top"],
-                    xs=12, sm=12, md=6, lg=6, xl=6,
-                    style={'marginTop': '-15px'}
-                ),
-                dbc.Col(
-                    html.H1(dashboard_title, className="mb-4"),
-                    xs=12, sm=12, md=6, lg=6, xl=6,
-                    style={'color': FONT_COLOR, 'paddingTop': '5px'}
+                    html.H1(dashboard_title),
+                    style={'color': FONT_COLOR},
+                    className="col m-1"
                 ),
             ]
         )
         ,
         # Plots
         *main,
-    ], className="scalable container-fluid")
+    ])
 
     for component in components.values():
         component.register_callbacks(list(components.keys()), dashboard_id)

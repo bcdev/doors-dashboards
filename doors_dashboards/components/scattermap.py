@@ -1,19 +1,19 @@
-from dash import callback
+from dash import callback, html
 from dash import Input
 from dash import no_update
 from dash import Output
 from dash import State
 from dash import dcc
 import dash_bootstrap_components as dbc
-from dash.development.base_component import Component
 import math
-import numpy as np
 import os
 import random
 import plotly.graph_objs as go
 from typing import Dict
 from typing import List
 from typing import Tuple
+
+from dash.development.base_component import Component
 from shapely.geometry import Point
 
 from doors_dashboards.components.constant import FONT_FAMILY, PLOT_BGCOLOR, \
@@ -149,24 +149,19 @@ class ScatterMapComponent(DashboardComponent):
         scattermap_graph = dcc.Graph(
             id=sub_component_id,
             figure=figure,
-            style={
-                'width': '100%',
-                'height': '80vh',
-            },
+           style={ 'height': '81.5vh'}
         )
 
-        return dbc.Col(
+        return html.Div(
             scattermap_graph,
             style={
                 'flex': '1',
-                'margin': '2px',
+                'padding': '20px',
                 'alignItems': 'center',
                 'backgroundColor': PLOT_BGCOLOR,
-                'padding': '20px',
-                'borderRadius': '15px',
-                'marginRight': '5px',
-                'height': '100%'
+                'height': '85.5vh'
             },
+
         )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):

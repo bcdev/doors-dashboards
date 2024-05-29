@@ -354,39 +354,31 @@ class ScatterplotComponent(DashboardComponent):
                 id=SCATTER_PLOT_ID, figure=pointplot_fig, style=DISPLAY_STYLE,
             )
         ]
-        sub_components = [
+        sub_components = html.Div([
             dbc.Col(
-                html.Div(upper_components,
-                         style={'backgroundColor': PLOT_BGCOLOR,
-                                'padding': '10px',
-                                'borderRadius': '15px'}
-                         ),
-                className='col-lg-10',
-                style={'margin': '0 0 15px 0'
-                    , 'width': '100%'},
+                upper_components,
+                style={'backgroundColor': PLOT_BGCOLOR, 'padding': '10px',
+                       'width': '100%'},
             ),
             dbc.Collapse(
                 id=COLLAPSE,
                 children=dbc.Col(
-                    html.Div(lower_components,
-                             style={'backgroundColor': PLOT_BGCOLOR,
-                                    'padding': '8px',
-                                    'borderRadius': '15px',
-                                    }
-                             ),
-                    className='col-lg-10',
-                    style={'margin': '-13px 0px 0px 0', 'width': '100%'}
+                    lower_components,
+                    style={'backgroundColor': PLOT_BGCOLOR,
+                           'padding': '10px', 'width': '100%'},
                 ),
-                is_open=len(lower_components) > 0
-            )
-        ]
+                is_open=len(lower_components) > 0,
+                className="mt-4"
+            ),
+        ],
+        )
+
         return html.Div(
             children=[
                 dcc.Store(id=COMPONENT_STORE_ID),
                 dcc.Store(id=TEMP_STORE_ID),
-                dbc.Row(
-                    sub_components
-                )
+                sub_components
+
             ]
         )
 

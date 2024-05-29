@@ -103,23 +103,22 @@ class SelectCollectionComponent(DashboardComponent):
         default_value = collections[0]
         return html.Div(
             [
-                dbc.Label('Collection', className='col-',
-                          style={'fontSize': '25px', 'float': 'left', 'fontFamily':
-                              FONT_FAMILY, 'color': FONT_COLOR, 'padding-right': '15px'
+                dbc.Label('Collection',
+                          style={'fontSize': '25px', 'float': 'left',
+                                 'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
+                                 'padding': '4px 15px 0 10px'
                                  }),
                 dbc.DropdownMenu(
                     id=f"{self._dashboard_id}-{SELECT_COLLECTION_DRP}",
                     label=default_value,
                     children=[
                         dbc.DropdownMenuItem(
-                            collection, id=collection_id, n_clicks=1, style={'fontSize':
-                                                                                 'larger',
-                                                                             'fontfamily': FONT_FAMILY})
+                            collection, id=collection_id, n_clicks=1, style={
+                                'fontSize': 'larger', 'fontFamily': FONT_FAMILY})
                         for collection, collection_id in self.collection_to_id.items()
                     ],
-                    style={'fontFamily': FONT_FAMILY,
-                           'color': FONT_COLOR},
-                    className="m-4",
+                    style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
+                           'paddingTop': '4px'},
                     color="secondary",
                     size="lg"
                 )
