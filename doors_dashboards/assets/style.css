@@ -1,13 +1,15 @@
-body {
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
+
 .container {
     overflow: hidden; /* Ensure no scrollbars are shown initially */
 }
-@media (max-height: 550px !important) {
+@media (max-height: 527px ) {
     .container {
         overflow-y: auto; /* Add vertical scrollbar */
+    }
+}
+@media screen and (max-width: 527px) {
+    :root {
+        --multiplier : .9375;
     }
 }
 

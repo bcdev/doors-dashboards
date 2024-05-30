@@ -159,7 +159,7 @@ class ScatterMapComponent(DashboardComponent):
                 'padding': '20px',
                 'alignItems': 'center',
                 'backgroundColor': PLOT_BGCOLOR,
-                'height': '85.5vh'
+                #'height': '85.5vh'
             },
 
         )
