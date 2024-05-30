@@ -2,10 +2,19 @@ body {
     overflow-x: hidden;
     overflow-y: hidden;
 }
+.container {
+    overflow: hidden; /* Ensure no scrollbars are shown initially */
+}
+@media (max-height: 550px !important) {
+    .container {
+        overflow-y: auto; /* Add vertical scrollbar */
+    }
+}
+
 .container.scalable {
   width: 100%;
   max-width: none;
-  height: calc(100vh - 100px)
+
 }
 
 .dropdown-menu.show{
@@ -49,3 +58,4 @@ body {
     display: inline-block;
     width: 130px;
     vertical-align: middle;
+

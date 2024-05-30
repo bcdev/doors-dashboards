@@ -54,7 +54,6 @@ class TimeSeriesComponent(DashboardComponent):
                 'fontfamily': FONT_FAMILY,
                 'display': 'none'
             },
-            size="lg",
             color="secondary"
         )
 
@@ -152,42 +151,15 @@ class TimeSeriesComponent(DashboardComponent):
             group_drop_down_menus = list(self.group_drop_menus.values())
             group_drop_down_menus[0].style['display'] = 'block'
 
-            row = dbc.Row(
-                [
-                    dbc.Col(
-                        dbc.Label('Variable', style={
-                            'color': FONT_COLOR,
-                            'fontFamily': FONT_FAMILY,
-                            'fontSize': FONT_SIZE_NUMBER,
-                            'paddingTop': '5px'
-                        }),
-                        xs=12, sm=3, md=2, lg=1,
-                        className="d-flex justify-content-center justify-content-sm-start"
-                    ),
-                    dbc.Col(
-                        var_drop_down_menus,
-                        xs=12, sm=9, md=4, lg=3,
-                        className="d-flex justify-content-center justify-content-sm-start"
-                    ),
-                    dbc.Col(
-                        dbc.Label('Station', style={
-                            'color': FONT_COLOR,
-                            'fontFamily': FONT_FAMILY,
-                            'fontSize': FONT_SIZE_NUMBER,
-                            'paddingTop': '5px',
-                            'paddingLeft': '20px'
-                        }),
-                        xs=12, sm=3, md=2, lg=1,
-                        className="d-flex justify-content-center justify-content-sm-start"
-                    ),
-                    dbc.Col(
-                        group_drop_down_menus,
-                        xs=12, sm=9, md=4, lg=3,
-                        className="d-flex justify-content-center justify-content-sm-start"
-                    )
-                ],
-                className="align-items-center"
-            )
+            row = html.Div([
+                html.Div("Variable", className="col-auto px-1 m-2", style={
+                    "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+                html.Div(var_drop_down_menus, className="col-auto px-1"),
+                html.Div("Station", className="col-auto px-1 m-2", style={
+                    "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+                html.Div(group_drop_down_menus, className="col-auto px-1"),
+            ], className="row justify-content-center")
+
             sub_components = [
                 dbc.Col(
                     html.Div(

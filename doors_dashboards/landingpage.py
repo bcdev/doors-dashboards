@@ -1,6 +1,8 @@
 import dash
 from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
+import plotly.graph_objs as go
+import os
 
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.mapstyle import popup, SELECT_MAPSTYLE_DRP
@@ -9,6 +11,8 @@ external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
 ]
+
+MAPSTYLE_STORE = "mapstyle_value_store"
 
 app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True,
            external_stylesheets=external_stylesheets,
@@ -50,10 +54,11 @@ header = html.Nav(
             children=[
                 html.I(className="fas fa-cogs")
             ],
-            style={"color": "white", "border": "none"}
+            title="Change map theme",
+            style={"color": "white", "border": "none"},
         )
     ],
-    style={"backgroundColor": "rgb(67, 91, 102)"}
+    style={"backgroundColor": "rgb(67, 91, 102)", "height": "40px", "padding": "0"}
 )
 
 offcanvas = html.Div(
@@ -105,28 +110,56 @@ def open_popup(n_clicks):
 
 
 @app.callback(
-    Output("dropdown-value", "children"),
-    [Input(SELECT_MAPSTYLE_DRP, "value")]
+    Output(MAPSTYLE_STORE, "data", allow_duplicate=True),
+    [Input(SELECT_MAPSTYLE_DRP, "value")],
+    prevent_initial_call=True
 )
-def update_dropdown_value(value):
+def update_mapstyle_store(value):
     if value:
-        return f"You selected: {value}"
+        mapstyle_value = {
+            "mapstyle": value
+        }
+        return mapstyle_value
     else:
-        return ""
+        return dash.no_update
+
+
+@app.callback(
+    Output("scattermap", 'figure', allow_duplicate=True),
+    [Input(MAPSTYLE_STORE, "data")],
+    State('scattermap', 'figure'),
+    prevent_initial_call=True
+)
+def update_mapstyle_of_scattermap(mapstyle_data, current_figure):
+    if "mapstyle" in mapstyle_data:
+        mapstyle_val = mapstyle_data["mapstyle"]
+
+        if mapstyle_val is not None:
+            if isinstance(current_figure, dict) and "data" in current_figure:
+                current_figure = go.Figure(current_figure)
+                if "accesstoken" not in current_figure.layout.mapbox:
+                    current_figure.layout.mapbox[
+                        "accesstoken"] = \
+                        "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
+                current_figure.layout.mapbox["style"] = mapstyle_val
+
+                return current_figure
+    return current_figure
 
 
 app.layout = dbc.Container(
     [
+        dcc.Store(id=MAPSTYLE_STORE),
         header,
         dbc.Row(
             dash.page_container,
             style={"backgroundColor": "#2D4356"}),
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
-        popup
+        popup,
     ],
     fluid=True,
-    style={ "padding": "0", "display": "flex",
+    style={"padding": "0", "display": "flex",
            "flexDirection": "column"},
     className="container scalable"
 )

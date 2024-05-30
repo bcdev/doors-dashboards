@@ -149,7 +149,7 @@ class ScatterMapComponent(DashboardComponent):
         scattermap_graph = dcc.Graph(
             id=sub_component_id,
             figure=figure,
-           style={ 'height': '81.5vh'}
+            style={'height': '81.5vh'}
         )
 
         return html.Div(

@@ -104,9 +104,9 @@ class SelectCollectionComponent(DashboardComponent):
         return html.Div(
             [
                 dbc.Label('Collection',
-                          style={'fontSize': '25px', 'float': 'left',
+                          style={'fontSize': '20px', 'float': 'left',
                                  'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                 'padding': '4px 15px 0 10px'
+                                 'padding': '5px 15px 0 10px'
                                  }),
                 dbc.DropdownMenu(
                     id=f"{self._dashboard_id}-{SELECT_COLLECTION_DRP}",
@@ -118,9 +118,8 @@ class SelectCollectionComponent(DashboardComponent):
                         for collection, collection_id in self.collection_to_id.items()
                     ],
                     style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                           'paddingTop': '4px'},
+                           'paddingTop': '5px'},
                     color="secondary",
-                    size="lg"
                 )
             ]
         )

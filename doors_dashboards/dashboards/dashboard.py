@@ -91,8 +91,8 @@ def create_dashboard(config: Dict) -> html.Div:
         else:
             main_children['middle'] = dbc.Row(
                 [
-                    dbc.Col(middle_children['left'], className="col-6"),
-                    dbc.Col(middle_children['right'], className="col-6")
+                    dbc.Col(middle_children['left'], className="col-6 px-1"),
+                    dbc.Col(middle_children['right'], className="col-6 px-1")
                 ],
                 style={"margin": "0"},
             )
@@ -116,7 +116,8 @@ def create_dashboard(config: Dict) -> html.Div:
                     style={'color': FONT_COLOR},
                     className="col m-1"
                 ),
-            ]
+            ],
+            style={"height": "60px", "margin-top": "-3px"}
         )
         ,
         # Plots

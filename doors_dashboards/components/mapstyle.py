@@ -14,16 +14,14 @@ popup = html.Div(
                         dcc.Dropdown(
                             id=SELECT_MAPSTYLE_DRP,
                             options=[
-                                {"label": "Open Street Map", "value":
-                                    "open-street-map"},
-                                {"label": "Carto Darkmatter", "value":
-                                    "carto-darkmatter"},
-                                {"label": "Basic", "value":
-                                    "basic"},
-                                {"label": "Streets", "value":
-                                    "streets"},
+                                {"label": "Open Street Map",
+                                 "value": "open-street-map"},
+                                {"label": "Carto Darkmatter",
+                                 "value": "carto-darkmatter"},
+                                {"label": "White background", "value": "white-bg"},
+                                {"label": "Carto Positron", "value": "carto-positron"},
                             ],
-                            value=None,
+                            value="carto-positron",
                         ),
                     ]
                 ),

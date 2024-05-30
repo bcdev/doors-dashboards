@@ -74,7 +74,6 @@ class ScatterplotComponent(DashboardComponent):
                 'fontfamily': FONT_FAMILY,
                 'display': 'none'
             },
-            size="lg",
             color="secondary"
         )
 
@@ -272,36 +271,18 @@ class ScatterplotComponent(DashboardComponent):
         line_drop_down_menus = list(self.line_dropdown_menus.values())
         line_drop_down_menus[0].style['display'] = 'block'
 
-        upper_row = dbc.Row([
-            dbc.Label('Cruise', style={'color': FONT_COLOR,
-                                       'fontFamily': FONT_FAMILY,
-                                       'fontSize': 'larger',
-                                       'padding': '10px 0 0 45px',
-                                       },
-                      className="col-sm-1 col-md-1"),
-            dbc.Col(
-                main_group_drop_down_menus,
-                className="col-sm-3 col-md-3",
-                style={'paddingLeft': '38px'}
-            ),
-            dbc.Label('Variable', style={'color': FONT_COLOR,
-                                         'fontFamily': FONT_FAMILY,
-                                         'fontSize': 'larger',
-                                         'paddingTop': '10px',
-                                         'paddingLeft': '53px'
-                                         },
-                      className="col-sm-1 col-md-1"),
-            dbc.Col(
-                line_drop_down_menus,
-                className="col-sm-3 col-md-4",
-                style={'paddingLeft': '60px'}
-            )
-        ]
-        )
+        upper_row = html.Div([
+            html.Div("Cruise", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(main_group_drop_down_menus, className="col-auto px-1"),
+            html.Div("Variable", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(line_drop_down_menus, className="col-auto px-1"),
+        ], className="row justify-content-center")
         upper_components = [
             upper_row,
             dcc.Graph(
-                id=SCATTER_PLOT_LINE_ID, figure=lineplot_fig, style=DISPLAY_STYLE
+                id=SCATTER_PLOT_LINE_ID, figure=lineplot_fig, style={"height":"35.5vh"}
             )
         ]
         group_drop_down_menus = list(self.group_dropdown_menus.values())
@@ -310,48 +291,23 @@ class ScatterplotComponent(DashboardComponent):
         point_x_drop_down_menus[0].style['display'] = 'block'
         point_y_drop_down_menus = list(self.point_y_dropdown_menus.values())
         point_y_drop_down_menus[0].style['display'] = 'block'
-        lower_row = dbc.Row([
 
-            dbc.Label('Station', style={'color': FONT_COLOR,
-                                        'fontFamily': FONT_FAMILY,
-                                        'fontSize': 'larger',
-                                        'paddingTop': '10px',
-                                        },
-                      className="col-sm-1"),
-            dbc.Col(
-                group_drop_down_menus,
-                className="col-sm-2",
-                style={'paddingLeft': '3px'}
-            ),
-            dbc.Label('X Variable', style={'color': FONT_COLOR,
-                                           'fontFamily': FONT_FAMILY,
-                                           'fontSize': 'larger',
-                                           'paddingTop': '10px',
-                                           'textWrap': 'nowrap',
-                                           'paddingLeft': '59px'},
-                      className="col-sm-2"),
-            dbc.Col(
-                point_x_drop_down_menus,
-                className="col-sm-2",
-                style={'padding-left': '1px'}
-            ),
-            dbc.Label('Y Variable', style={'color': FONT_COLOR,
-                                           'fontFamily': FONT_FAMILY,
-                                           'fontSize': 'larger',
-                                           'paddingTop': '10px',
-                                           'textWrap': 'nowrap',
-                                           'paddingLeft': '68px'},
-                      className="col-sm-2"),
-            dbc.Col(
-                point_y_drop_down_menus,
-                className="col-sm-3"
-            )
-        ]
-        )
+        lower_row = html.Div([
+            html.Div("Station", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(group_drop_down_menus, className="col-auto px-1"),
+            html.Div("X-Var", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(point_x_drop_down_menus, className="col-auto px-1"),
+            html.Div("Y-var", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(point_y_drop_down_menus, className="col-auto px-1")
+        ], className="row justify-content-center")
+
         lower_components = [
             lower_row,
             dcc.Graph(
-                id=SCATTER_PLOT_ID, figure=pointplot_fig, style=DISPLAY_STYLE,
+                id=SCATTER_PLOT_ID, figure=pointplot_fig, style={"height":"37vh"},
             )
         ]
         sub_components = html.Div([
@@ -368,7 +324,7 @@ class ScatterplotComponent(DashboardComponent):
                            'padding': '10px', 'width': '100%'},
                 ),
                 is_open=len(lower_components) > 0,
-                className="mt-4"
+                className="mt-2"
             ),
         ],
         )
