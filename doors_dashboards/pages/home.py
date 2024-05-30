@@ -2,17 +2,61 @@ from dash import Dash, dcc, html
 import dash
 import dash_bootstrap_components as dbc
 
+from doors_dashboards.components.constant import FONT_COLOR
 
 dash.register_page(__name__, path='/')
+hero_content = {
+    "image": "/assets/dashboard_img.png",
+    "title": "Unleash the Power of Your Data",
+    "desc": (
+        "The DOORS Dashboard Application provides users with an intuitive and visually "
+        "engaging interface for exploring and analyzing diverse datasets through "
+        "interactive visuals. It enables users to easily interpret data without "
+        "needing prior knowledge of the platform. The application features a range of "
+        "functionalities, from weather forecasts and time series to scatter plots like"
+        " point and line graphs, along with trajectory presentations, all accessible "
+        "from its dashboard. ""Its lightweight design ensures"
+        " quick load times and seamless user interactions, "
+        "enhancing the overall user experience."),
 
-layout = html.Div([
-    dbc.Card(
-        dbc.CardBody([
-            dcc.Interval(id="image-interval", interval=3000, n_intervals=0),
-            html.Img(id="image-slider", src="/assets/image_1.png", style={"width":
-                                                                           "800px"}),
-        ])
-    ),
-])
+}
 
-
+layout = dbc.Container(
+    [
+        html.Div(
+            style={"display": "flex", "align-items": "center"},
+            children=[
+                html.Img(
+                    src="/assets/dashboard_img.png",
+                    style={"width": "800px"}
+                ),
+                html.Div(
+                    # className="hero__entry-text",
+                    style={"width": "50%", "padding": "20px"},
+                    children=[
+                        html.Div(
+                            #className="hero__entry-text-inner",
+                            children=[
+                                html.Img(src="/assets/logo.png", style={
+                                    "height": "300px", "width": "600px"}),
+                                html.H2(
+                                    #className="hero__entry-title",
+                                    children=html.Span(hero_content["title"],
+                                                       style={"color": FONT_COLOR})
+                                ),
+                                html.P(
+                                    #className="hero__entry-desc",
+                                    children=hero_content["desc"],
+                                    style={"color": FONT_COLOR}
+                                )
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
+    ],
+    fluid=True,
+    #className="hero",
+    style={"height": "100%"}
+)
