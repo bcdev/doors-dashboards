@@ -26,7 +26,6 @@
 }
 
 .dbc .SingleDatePickerInput__withBorder {
-    border: var(--bs-border-width) solid var(--bs-border-color) !important;
     background-color: white  !important;
     width: 150px;
     height: 50px;
@@ -35,13 +34,13 @@
 
 .SingleDatePickerInput__withBorder {
     border-radius: 10px;
+    border: none !important;
 
 .DateInput_input {
-    font-weight: 200;
-    font-size: 19px;
-    line-height: 24px;
+    font-size: 18px;
+    line-height: 19px;
     color: white;
-    background-color: #565e64;
+    background-color: #6c757d;
     width: 100%;
     padding: 11px 11px 9px;
     border: 0;
@@ -60,4 +59,7 @@
     display: inline-block;
     width: 130px;
     vertical-align: middle;
+    height: 30px;
+}
+
 

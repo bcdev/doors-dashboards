@@ -101,7 +101,6 @@ class MeteogramComponent(DashboardComponent):
                         'fontSize': FONT_SIZE,
                         'fontFamily': FONT_FAMILY,
                         'backgroundColor': PLOT_BGCOLOR,
-                        'borderRadius': '15px',
                         'flex': '1',
                         'display': 'flex',
                         'flexDirection': 'column',
@@ -164,58 +163,35 @@ class MeteogramComponent(DashboardComponent):
         min_date_allowed = current_date - timedelta(days=10)
         max_date_allowed = current_date
         default_value = METEOGRAM_TYPES[0]['label']
-
-        return dbc.Row([
-            dbc.Col(
-                [
-                    dbc.Label("Date", className='col-2',
-                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                     'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
-                                     'marginTop': '59px', 'paddingLeft': '28px'}),
-                    dcc.DatePickerSingle(
-                        id=METEOGRAM_DATE_PICKER_ID,
-                        min_date_allowed=min_date_allowed,
-                        max_date_allowed=max_date_allowed,
-                        initial_visible_month=current_date,
-                        date=current_date,
-                        day_size=50,
-                        style={'width': '100%', 'margin': '-48px 0px 0px 101px',
-                               'float': 'left', 'fontFamily': FONT_FAMILY},
-                        className="mb-3"
-                    )
+        return html.Div([
+            html.Div("Date", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(dcc.DatePickerSingle(
+                id=METEOGRAM_DATE_PICKER_ID,
+                min_date_allowed=min_date_allowed,
+                max_date_allowed=max_date_allowed,
+                initial_visible_month=current_date,
+                date=current_date,
+                day_size=50,
+                style={'fontFamily': FONT_FAMILY},
+            ), className="col-auto px-1"),
+            html.Div("Forecast Type", className="col-auto px-1 m-2", style={
+                "color": FONT_COLOR, "fontFamily": FONT_FAMILY}),
+            html.Div(dbc.DropdownMenu(
+                id=METEOGRAM_CHOOSER_ID,
+                label=default_value,
+                children=[
+                    dbc.DropdownMenuItem(
+                        meteogram_type, id=meteogram_type_id, n_clicks=1,
+                        style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY})
+                    for meteogram_type, meteogram_type_id in
+                    METEOGRAM_TYPE_TO_ID.items()
                 ],
-                className='col-xs-6 col-sm-2 mb-3',
-                style={'marginTop': '-32px', 'marginRight': '-180px',
-                       'minWidth': '450px'},
-            ),
-            dbc.Col([
-                dbc.Label('Forecast Type', className='mb-2',
-                          style={'fontSize': FONT_SIZE_NUMBER, 'float': 'left',
-                                 'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
-                                 'padding': '29px 20px 0px 40px'}),
-                dbc.DropdownMenu(
-                    id=METEOGRAM_CHOOSER_ID,
-                    label=default_value,
-                    children=[
-                        dbc.DropdownMenuItem(
-                            meteogram_type, id=meteogram_type_id, n_clicks=1,
-                            style={'fontSize': 'larger', 'fontfamily': FONT_FAMILY})
-                        for meteogram_type, meteogram_type_id in
-                        METEOGRAM_TYPE_TO_ID.items()
-                    ],
-                    style={'fontFamily': FONT_FAMILY,
-                           'color': FONT_COLOR, 'fontSize': FONT_SIZE},
-                    className="m-4",
-                    color="secondary",
-                    size="lg"
-                )
-            ],
-                width=4,
-                className='col-xs-6 col-sm-3 mb-3',
-                style={'minWidth': '600px'}
-
-            ),
-            dbc.Col(className='col-sm-7')])
+                style={'fontFamily': FONT_FAMILY,
+                       'color': FONT_COLOR, 'fontSize': FONT_SIZE},
+                color="secondary",
+            ), className="col-auto px-1"),
+        ], className="row justify-content-start m-1")
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self._feature_handler = feature_handler
