@@ -28,24 +28,20 @@ layout = dbc.Container(
             children=[
                 html.Img(
                     src="/assets/dashboard_img.png",
-                    style={"width": "800px"}
+                    style={"width": "600px"}
                 ),
                 html.Div(
-                    # className="hero__entry-text",
-                    style={"width": "50%", "padding": "20px"},
+                    style={"width": "50%", "padding": "15px"},
                     children=[
                         html.Div(
-                            #className="hero__entry-text-inner",
                             children=[
                                 html.Img(src="/assets/logo.png", style={
-                                    "height": "300px", "width": "600px"}),
+                                     "width": "600px"}),
                                 html.H2(
-                                    #className="hero__entry-title",
                                     children=html.Span(hero_content["title"],
                                                        style={"color": FONT_COLOR})
                                 ),
                                 html.P(
-                                    #className="hero__entry-desc",
                                     children=hero_content["desc"],
                                     style={"color": FONT_COLOR}
                                 )
@@ -57,6 +53,5 @@ layout = dbc.Container(
         )
     ],
     fluid=True,
-    #className="hero",
-    style={"height": "100%"}
+    #style={"height": "100%", "width": "100%"}
 )

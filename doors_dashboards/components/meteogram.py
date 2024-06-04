@@ -95,7 +95,11 @@ class MeteogramComponent(DashboardComponent):
                 dcc.Store(id=COMPONENT_STORE_ID, storage_type='session'),
                 dcc.Store(id=TEMP_STORE_ID, storage_type='session'),
                 dbc.Col(
-                    meteogram_image,
+                    dcc.Loading(
+                        id="loading-meteogram",
+                        children=[meteogram_image],
+                        type="circle",
+                    ),
                     style={
                         'color': FONT_COLOR,
                         'fontSize': FONT_SIZE,
@@ -134,7 +138,7 @@ class MeteogramComponent(DashboardComponent):
         image_url = response_data.get('data', {}).get('link', {}).get('href')
         if not image_url:
             return dbc.Label('Meteogram could not be loaded: '
-                             'No image url in reponse from ECMWF',
+                             'No image url in response from ECMWF',
                              style={'fontFamily': FONT_FAMILY, 'color': FONT_COLOR,
                                     'fontSize': FONT_SIZE_NUMBER})
         image = html.Img(src=image_url, style={'padding': '20px', 'maxWidth': '100%',
@@ -230,8 +234,12 @@ class MeteogramComponent(DashboardComponent):
                 date_string = None
                 forecast_value = METEOGRAM_TYPES[0]["value"]
 
-            return meteo_label, self._get_meteogram_image(
-                meteo_lon, meteo_lat, date_string, forecast_value
+            return dcc.Loading(
+                id="loading-meteogram",
+                children=[meteo_label, self._get_meteogram_image(meteo_lon, meteo_lat,
+                                                                 date_string,
+                                                                 forecast_value)],
+                type="default"
             )
 
         @callback(

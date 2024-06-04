@@ -55,7 +55,14 @@ header = html.Nav(
                 html.I(className="fas fa-cogs")
             ],
             title="Change map theme",
-            style={"color": "white", "border": "none"},
+            style={"color": "white", "border": "none", "marginLeft": "1025px"},
+        ),
+        html.I(
+            className="fa fa-question-circle",
+            id="open-imprint",
+            n_clicks=0,
+            title="Imprint",
+            style={"cursor": "pointer", "color": "white"}
         )
     ],
     style={"backgroundColor": "rgb(67, 91, 102)", "height": "40px", "padding": "0"}
@@ -74,6 +81,16 @@ offcanvas = html.Div(
                                    className="mb-2")
                     ) for page in dash.page_registry.values()
                 ]),
+                html.Div(
+                    dbc.Button(
+                        "Kassandra link",
+                        href="http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea",
+                        color="#77ABB7",
+                        style={"width": "80%"},
+                        className="mb-2",
+                        target="_blank"  # Open in a new tab
+                    )
+                )
             ],
             id="offcanvas",
             title=html.Img(src="../../assets/logo.png", style={"height": "80px",
@@ -157,6 +174,7 @@ app.layout = dbc.Container(
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
+        # imprint_modal,
     ],
     fluid=True,
     style={"padding": "0", "display": "flex",
