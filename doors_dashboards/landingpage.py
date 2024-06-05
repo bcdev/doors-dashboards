@@ -4,6 +4,8 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import os
 
+from waitress import serve
+
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.mapstyle import popup, SELECT_MAPSTYLE_DRP
 
@@ -83,7 +85,7 @@ offcanvas = html.Div(
                 ]),
                 html.Div(
                     dbc.Button(
-                        "Kassandra link",
+                        "Kassandra",
                         href="http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea",
                         color="#77ABB7",
                         style={"width": "80%"},
@@ -103,6 +105,22 @@ offcanvas = html.Div(
     ],
 )
 
+imprint_path = os.path.join("assets", "imprint.md")
+with open(imprint_path, "r") as file:
+    imprint_content = file.read()
+
+# Modal to display the imprint content
+imprint_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Imprint")),
+        dbc.ModalBody(dcc.Markdown(imprint_content)),
+        dbc.ModalFooter(
+            dbc.Button("Close", id="close-imprint", className="ml-auto")
+        ),
+    ],
+    id="modal-imprint",
+    is_open=False,
+)
 
 @app.callback(
     Output("offcanvas", "is_open"),
@@ -174,7 +192,7 @@ app.layout = dbc.Container(
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
-        # imprint_modal,
+        imprint_modal,
     ],
     fluid=True,
     style={"padding": "0", "display": "flex",
@@ -183,4 +201,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == '__main__':
-    app.run_server()
+    serve(app.server, host="0.0.0.0", port=8789)
