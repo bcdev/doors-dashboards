@@ -17,3 +17,4 @@ GROUP = "group"
 MAIN_GROUP = "main_group"
 SCATTER_FONT_SIZE = '18'
 CONFIGS_PATH = "../../configs"
+ASSETS_PATH ="../assets"

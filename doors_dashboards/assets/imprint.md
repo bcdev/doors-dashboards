@@ -6,29 +6,22 @@ Information in accordance with § 5 TMG
 Brockmann Consult GmbH  
 Chrysanderstraße 1  
 21029 Hamburg  
-Germany  
-
+Germany
 Phone: +49 40 696 389 300  
 Fax: +49 40 696 389 399
-
 E-Mail: info@brockmann-consult.de  
 Internet: www.brockmann-consult.de
 
 Representative: Dr. Carsten Brockmann, Managing Director
-
 Commercial Register / Reg. No.: Amtsgericht Hamburg HRB 157689
-
 VAT Identification No.: DE 223260395
-
 Editorial responsibility: Dr Carsten Brockmann
-
 Consumer dispute resolution/universal arbitration board:
 We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.
 
-The web pages contain image material from Brockmann Consult GmbH, which was created using satellite data from ESA, 
-Eumetsat, NASA, NOAA and USGS.
+The web pages contain image material from Brockmann Consult GmbH, which was created 
+using data from DOORS. 
 
- 
 
 ### Disclaimer
 
@@ -84,7 +77,6 @@ non-expressly requested advertising and information materials are hereby objecte
 of the pages reserve the right to take legal action in the event of unsolicited sending of advertising 
 information, e. g. by spam mails.
 
-
 # Impressum
 Angaben gemäß § 5 TMG
 
@@ -113,10 +105,9 @@ Verbraucherstreitbeilegung/Universalschlichtungsstelle:
 Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
 Verbraucherschlichtungsstelle teilzunehmen.
 
-Die Webseiten enthalten Bildmaterial von Brockmann Consult GmbH, das unter Verwendung von Satellitendaten von ESA, 
-Eumetsat, NASA, NOAA und USGS erstellt wurde.
+Die Webseiten enthalten Bildmaterial von Brockmann Consult GmbH, das unter 
+Verwendung von daten von DOORS.
 
- 
 
 ### Haftungsausschluss
 

@@ -3,7 +3,7 @@ from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import os
-
+import doors_dashboards.components.imprintmodal as imprint_modal
 from waitress import serve
 
 from doors_dashboards.components.constant import FONT_COLOR
@@ -38,8 +38,8 @@ header = html.Nav(
                     className="fas fa-bars",
                     id="open-offcanvas",
                     n_clicks=0,
-                    style={"fontSize": "24px", "cursor": "pointer", "marginLeft":
-                        "19px", "color": "white"}
+                    style={"fontSize": "24px", "cursor": "pointer",
+                           "marginLeft": "19px", "color": "white"}
                 ),
                 html.Img(
                     src="../../assets/logo.png",
@@ -48,26 +48,36 @@ header = html.Nav(
                 )
             ]
         ),
-        html.Button(
-            className="btn btn-outline-primary",
-            type="button",
-            id="open-popup",
-            n_clicks=0,
+        # Spacer div to push the buttons to the right
+        html.Div(style={"flex": "1"}),
+        # Grouping settings button and imprint icon
+        html.Div(
             children=[
-                html.I(className="fas fa-cogs")
+                html.Button(
+                    className="btn btn-outline-primary",
+                    type="button",
+                    id="open-popup",
+                    n_clicks=0,
+                    children=[
+                        html.I(className="fas fa-cogs")
+                    ],
+                    title="Change map theme",
+                    style={"color": "white", "border": "none", "marginRight": "10px"},
+                ),
+                html.I(
+                    className="fa fa-shield-alt",
+                    id="open-imprint",
+                    n_clicks=0,
+                    title="Imprint",
+                    style={"cursor": "pointer", "color": "white", "marginRight": "10px"}
+                )
             ],
-            title="Change map theme",
-            style={"color": "white", "border": "none", "marginLeft": "1025px"},
-        ),
-        html.I(
-            className="fa fa-question-circle",
-            id="open-imprint",
-            n_clicks=0,
-            title="Imprint",
-            style={"cursor": "pointer", "color": "white"}
+            style={"display": "flex", "alignItems": "center"},
+            id="settings-group"
         )
     ],
-    style={"backgroundColor": "rgb(67, 91, 102)", "height": "40px", "padding": "0"}
+    style={"display": "flex", "backgroundColor": "rgb(67, 91, 102)", "height": "40px",
+           "padding": "0"}
 )
 
 offcanvas = html.Div(
@@ -91,7 +101,7 @@ offcanvas = html.Div(
                         style={"width": "80%"},
                         className="mb-2",
                         target="_blank"  # Open in a new tab
-                    )
+                    ),
                 )
             ],
             id="offcanvas",
@@ -105,22 +115,6 @@ offcanvas = html.Div(
     ],
 )
 
-imprint_path = os.path.join("assets", "imprint.md")
-with open(imprint_path, "r") as file:
-    imprint_content = file.read()
-
-# Modal to display the imprint content
-imprint_modal = dbc.Modal(
-    [
-        dbc.ModalHeader(dbc.ModalTitle("Imprint")),
-        dbc.ModalBody(dcc.Markdown(imprint_content)),
-        dbc.ModalFooter(
-            dbc.Button("Close", id="close-imprint", className="ml-auto")
-        ),
-    ],
-    id="modal-imprint",
-    is_open=False,
-)
 
 @app.callback(
     Output("offcanvas", "is_open"),
@@ -160,7 +154,8 @@ def update_mapstyle_store(value):
 
 
 @app.callback(
-    Output("scattermap", 'figure', allow_duplicate=True),
+    Output("scattermap", 'figure',
+           allow_duplicate=True),
     [Input(MAPSTYLE_STORE, "data")],
     State('scattermap', 'figure'),
     prevent_initial_call=True
@@ -182,8 +177,32 @@ def update_mapstyle_of_scattermap(mapstyle_data, current_figure):
     return current_figure
 
 
+@app.callback(
+    Output("modal-imprint", "is_open"),
+    [Input("open-imprint", "n_clicks"),
+     Input("close-imprint", "n_clicks")],
+    [State("modal-imprint", "is_open")]
+)
+def toggle_imprint_modal(open_click, close_click, is_open):
+    print('imprint_modal')
+    if open_click or close_click:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("open-popup", "style"),
+    Input("url", "pathname")
+)
+def hide_settings_on_home(pathname):
+    if pathname == "/":
+        return {"display": "none"}
+    return {"display": "flex", "alignItems": "center"}
+
+
 app.layout = dbc.Container(
     [
+        dcc.Location(id="url"),
         dcc.Store(id=MAPSTYLE_STORE),
         header,
         dbc.Row(
@@ -192,7 +211,7 @@ app.layout = dbc.Container(
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
-        imprint_modal,
+        imprint_modal.ImprintModal()
     ],
     fluid=True,
     style={"padding": "0", "display": "flex",
@@ -201,4 +220,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == '__main__':
-    serve(app.server, host="0.0.0.0", port=8789)
+    app.run_server()
