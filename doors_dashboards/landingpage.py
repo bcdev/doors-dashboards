@@ -184,7 +184,6 @@ def update_mapstyle_of_scattermap(mapstyle_data, current_figure):
     [State("modal-imprint", "is_open")]
 )
 def toggle_imprint_modal(open_click, close_click, is_open):
-    print('imprint_modal')
     if open_click or close_click:
         return not is_open
     return is_open
@@ -220,4 +219,4 @@ app.layout = dbc.Container(
 )
 
 if __name__ == '__main__':
-    app.run_server()
+    serve(app.server, host="0.0.0.0", port=8789)
