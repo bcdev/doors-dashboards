@@ -1,3 +1,5 @@
+import sys
+
 import dash
 from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
@@ -219,4 +221,9 @@ app.layout = dbc.Container(
 )
 
 if __name__ == '__main__':
-    serve(app.server, host="0.0.0.0", port=8789)
+    if len(sys.argv) != 2:
+        raise ValueError('Must specify port')
+    port = sys.argv[1]
+    serve(app.server, host="0.0.0.0", port=port)
+
+
