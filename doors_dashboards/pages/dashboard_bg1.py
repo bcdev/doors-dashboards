@@ -6,8 +6,9 @@ from typing import Dict
 from doors_dashboards.components.constant import CONFIGS_PATH
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
-dash.register_page(__name__, title='Bulgaria MAF Meteograms',
-                   name='Bulgaria MAF Meteograms')
+dash.register_page(
+    __name__, title='Burgas Bay Meteograms', name='Burgas Bay Meteograms'
+)
 
 
 def _read_config(id: str) -> Dict:
