@@ -1,12 +1,20 @@
+from dash import callback
+from dash import dash
+from dash import dcc
+from dash import html
+from dash import Input
+from dash import no_update
+from dash import Output
+from dash import State
+from dash.development.base_component import Component
+import dash_bootstrap_components as dbc
+import plotly.express as px
 from typing import Dict
 from typing import List
 from typing import Tuple
-from dash import dcc, html, Dash, Input, Output, dash, no_update, State, callback
-import plotly.express as px
-from dash.development.base_component import Component
-import dash_bootstrap_components as dbc
 
 from doors_dashboards.components.constant import (
+    COLLECTION,
     FONT_FAMILY,
     FONT_COLOR,
     SCATTER_PLOT_LINE_ID,
@@ -24,7 +32,7 @@ DISPLAY_STYLE = {"height": "35vh"}
 GROUP_DROP_OPTION_TEMPLATE = "group_drp_option_{0}_{1}_{2}"
 MAIN_GROUP_DROP_OPTION_TEMPLATE = "main_group_drp_option_{0}_{1}"
 GROUP_DROPDOWN_TEMPLATE = "group_drp_option_{0}_{1}"
-MAINGROUP_DROPDOWN_TEMPLATE = "maingroup_drp_option_{0}"
+MAIN_GROUP_DROPDOWN_TEMPLATE = "main_group_drp_option_{0}"
 
 LINE_VAR_DROPDOWN_ID_TEMPLATE = "line_var_drop_down_id_{0}"  # collection
 POINT_X_VAR_DROPDOWN_ID_TEMPLATE = "point_x_var_drop_down_id_{0}"  # collection
@@ -76,7 +84,7 @@ class ScatterplotComponent(DashboardComponent):
             id=dropdown_id,
             label=default,
             children=items,
-            style={"fontfamily": FONT_FAMILY, "display": "none"},
+            style={"fontFamily": FONT_FAMILY, "display": "none"},
             color="secondary",
         )
 
@@ -151,7 +159,7 @@ class ScatterplotComponent(DashboardComponent):
                         main_group,
                         id=main_group_drop_option_id,
                         n_clicks=1,
-                        style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                        style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                     )
                     self.main_group_drop_options[main_group_drop_option_id] = (
                         main_group_drop_option
@@ -170,7 +178,7 @@ class ScatterplotComponent(DashboardComponent):
                             member,
                             id=group_drop_option_id,
                             n_clicks=1,
-                            style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                            style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                         )
                         self.group_drop_options[group_drop_option_id] = (
                             group_drop_down_menu_item
@@ -184,7 +192,7 @@ class ScatterplotComponent(DashboardComponent):
                         ALL_GROUP_MEMBERS,
                         id=group_drop_option_id,
                         n_clicks=1,
-                        style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                        style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                     )
                     self.group_drop_options[group_drop_option_id] = (
                         group_drop_down_menu_item
@@ -217,7 +225,7 @@ class ScatterplotComponent(DashboardComponent):
                         member,
                         id=group_drop_option_id,
                         n_clicks=1,
-                        style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                        style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                     )
                     dropdown_menu_items.append(group_drop_option)
                     self.group_drop_options[group_drop_option_id] = group_drop_option
@@ -229,7 +237,7 @@ class ScatterplotComponent(DashboardComponent):
                     ALL_GROUP_MEMBERS,
                     id=group_drop_option_id,
                     n_clicks=1,
-                    style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                    style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                 )
                 self.group_drop_options[group_drop_option_id] = (
                     group_drop_down_menu_item
@@ -425,7 +433,7 @@ class ScatterplotComponent(DashboardComponent):
         fig.update_traces(marker=dict(size=10, color="yellow", symbol="circle"))
         fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
         fig.update_layout(paper_bgcolor="rgba(0,0,0,0)")
-        fig.update_layout(legend_font_family="Roboto, Helvetica, Arial, sans-serif")
+        fig.update_layout(legend_font_family=FONT_FAMILY)
         return fig
 
     def _get_group_and_main_group_values(self, collection: str):
@@ -478,7 +486,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def encode_main_group_dropdown(collection: str) -> str:
-        return MAINGROUP_DROPDOWN_TEMPLATE.format(collection)
+        return MAIN_GROUP_DROPDOWN_TEMPLATE.format(collection)
 
     @staticmethod
     def decode_main_group_dropdown(dropdown_id) -> str:
@@ -548,7 +556,7 @@ class ScatterplotComponent(DashboardComponent):
                 ],
                 prevent_initial_call=True,
             )
-            def selector_to_temp_maingroup(*timestamps):
+            def selector_to_temp_main_group(*timestamps):
                 if not any(timestamps):
                     return dash.no_update
                 latest_timestamp_index = timestamps.index(
@@ -663,14 +671,12 @@ class ScatterplotComponent(DashboardComponent):
         )
         def temp_to_general(temp_data, general_data):
             general_data = general_data or {}
-            if "collection" not in general_data:
-                general_data["collection"] = (
-                    self.feature_handler.get_default_collection()
-                )
+            if COLLECTION not in general_data:
+                general_data[COLLECTION] = self.feature_handler.get_default_collection()
             if GROUPS_SECTION not in general_data:
                 general_data[GROUPS_SECTION] = {}
             group_fields = [MAIN_GROUP, GROUP]
-            collection = general_data["collection"]
+            collection = general_data[COLLECTION]
             if temp_data is not None:
                 for field in group_fields:
                     if field in temp_data:
@@ -694,7 +700,7 @@ class ScatterplotComponent(DashboardComponent):
             general_data = general_data or {}
             component_data = component_data or {}
             collection = general_data.get(
-                "collection", self.feature_handler.get_default_collection()
+                COLLECTION, self.feature_handler.get_default_collection()
             )
             if VARIABLES_SECTION not in component_data:
                 component_data[VARIABLES_SECTION] = {}
@@ -721,10 +727,10 @@ class ScatterplotComponent(DashboardComponent):
                 ],
                 prevent_initial_call=True,
             )
-            def general_to_styles_maingroup(data):
-                if data is None or "collection" not in data:
+            def general_to_styles_main_group(data):
+                if data is None or COLLECTION not in data:
                     return dash.no_update
-                selected_collection = data.get("collection")
+                selected_collection = data.get(COLLECTION)
                 selected_main_group_dropdown_id = self.encode_main_group_dropdown(
                     selected_collection
                 )
@@ -750,9 +756,9 @@ class ScatterplotComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def general_to_styles_group(general_data):
-            if not general_data or "collection" not in general_data:
+            if not general_data or COLLECTION not in general_data:
                 return dash.no_update
-            collection = general_data["collection"]
+            collection = general_data[COLLECTION]
             group_values, main_group_values = self._get_group_and_main_group_values(
                 collection
             )
@@ -786,9 +792,9 @@ class ScatterplotComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def general_to_styles_xvar(selected_data):
-            if selected_data is None or "collection" not in selected_data:
+            if selected_data is None or COLLECTION not in selected_data:
                 return dash.no_update
-            collection = selected_data["collection"]
+            collection = selected_data[COLLECTION]
             selected_point_x_dropdown_id = self.encode_xvar_dropdown(collection)
             results = []
             for (
@@ -812,9 +818,9 @@ class ScatterplotComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def general_to_styles_yvar(selected_data):
-            if selected_data is None or "collection" not in selected_data:
+            if selected_data is None or COLLECTION not in selected_data:
                 return dash.no_update
-            collection = selected_data["collection"]
+            collection = selected_data[COLLECTION]
             selected_point_y_dropdown_id = self.encode_yvar_dropdown(collection)
             results = []
             for (
@@ -838,9 +844,9 @@ class ScatterplotComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def general_to_styles_linevar(selected_data):
-            if selected_data is None or "collection" not in selected_data:
+            if selected_data is None or COLLECTION not in selected_data:
                 return no_update
-            collection = selected_data["collection"]
+            collection = selected_data[COLLECTION]
             selected_line_dropdown_id = self.encode_linevar_dropdown(collection)
             results = []
             for (
@@ -863,10 +869,10 @@ class ScatterplotComponent(DashboardComponent):
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
                 prevent_initial_call=True,
             )
-            def stores_to_labels_maingroup(general_data):
+            def stores_to_labels_main_group(general_data):
                 general_data = general_data or {}
                 collection = general_data.get(
-                    "collection", self.feature_handler.get_default_collection()
+                    COLLECTION, self.feature_handler.get_default_collection()
                 )
                 main_group = (
                     general_data.get(GROUPS_SECTION, {})
@@ -932,7 +938,7 @@ class ScatterplotComponent(DashboardComponent):
             component_data = component_data or {}
             general_data = general_data or {}
             collection = general_data.get(
-                "collection", self.feature_handler.get_default_collection()
+                COLLECTION, self.feature_handler.get_default_collection()
             )
             x_variable = (
                 component_data.get(VARIABLES_SECTION, {})
@@ -974,7 +980,7 @@ class ScatterplotComponent(DashboardComponent):
             component_data = component_data or {}
             general_data = general_data or {}
             collection = general_data.get(
-                "collection", self.feature_handler.get_default_collection()
+                COLLECTION, self.feature_handler.get_default_collection()
             )
             y_variable = (
                 component_data.get(VARIABLES_SECTION, {})
@@ -1016,7 +1022,7 @@ class ScatterplotComponent(DashboardComponent):
             component_data = component_data or {}
             general_data = general_data or {}
             collection = general_data.get(
-                "collection", self.feature_handler.get_default_collection()
+                COLLECTION, self.feature_handler.get_default_collection()
             )
             line_variable = (
                 component_data.get(VARIABLES_SECTION, {})
@@ -1056,9 +1062,9 @@ class ScatterplotComponent(DashboardComponent):
         )
         def stores_to_plots(general_data, component_data):
             component_data = component_data or {}
-            if general_data is None or "collection" not in general_data:
+            if general_data is None or COLLECTION not in general_data:
                 return no_update
-            collection = general_data["collection"]
+            collection = general_data[COLLECTION]
             _, main_group_values = self._get_group_and_main_group_values(collection)
             if main_group_values is None:
                 main_group = None
@@ -1098,21 +1104,21 @@ class ScatterplotComponent(DashboardComponent):
 
             print(collection, main_group, group, x_variable, y_variable, line_variable)
 
-            pointplot_fig = self.get_point_scatter_plot(
+            point_plot_fig = self.get_point_scatter_plot(
                 collection, group, main_group, x_variable, y_variable
             )
-            lineplot_fig = self.get_line_scatter_plot(
+            line_plot_fig = self.get_line_scatter_plot(
                 collection, main_group, line_variable
             )
-            return pointplot_fig, lineplot_fig
+            return point_plot_fig, line_plot_fig
 
         @callback(
             Output(COLLAPSE, "is_open"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
         )
         def general_to_collapse(selected_data):
-            if not selected_data or "collection" not in selected_data:
+            if not selected_data or COLLECTION not in selected_data:
                 return dash.no_update
-            collection = selected_data["collection"]
+            collection = selected_data[COLLECTION]
             variables = self.feature_handler.get_variables(collection)
             return len(variables) > 1

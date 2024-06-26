@@ -1,4 +1,3 @@
-from dash import Dash
 from dash import dcc
 from dash import html
 from dash import Input
@@ -16,10 +15,11 @@ from typing import List
 from typing import Optional
 
 from doors_dashboards.components.constant import (
+    COLLECTION,
     FONT_FAMILY,
     FONT_SIZE,
     FONT_COLOR,
-    FONT_SIZE_NUMBER,
+    GROUPS_SECTION,
     PLOT_BGCOLOR,
     GENERAL_STORE_ID,
 )
@@ -54,7 +54,7 @@ class TimeSeriesComponent(DashboardComponent):
             id=dropdown_id,
             label=default,
             children=items,
-            style={"fontfamily": FONT_FAMILY, "display": "none"},
+            style={"fontFamily": FONT_FAMILY, "display": "none"},
             color="secondary",
         )
 
@@ -71,7 +71,7 @@ class TimeSeriesComponent(DashboardComponent):
                     variable,
                     id=var_drop_option_id,
                     n_clicks=1,
-                    style={"fontSize": FONT_SIZE, "fontfamily": FONT_FAMILY},
+                    style={"fontSize": FONT_SIZE, "fontFamily": FONT_FAMILY},
                 )
                 self.var_drop_options[var_drop_option_id] = line_drop_option
                 drop_menu_items.append(line_drop_option)
@@ -323,13 +323,11 @@ class TimeSeriesComponent(DashboardComponent):
             if selected_data is None:
                 return no_update
             general_data = general_data or {}
-            if "collection" not in general_data:
-                general_data["collection"] = (
-                    self.feature_handler.get_default_collection()
-                )
+            if COLLECTION not in general_data:
+                general_data[COLLECTION] = self.feature_handler.get_default_collection()
             if "variables" not in general_data:
                 general_data["variables"] = {}
-            collection = general_data["collection"]
+            collection = general_data[COLLECTION]
             general_data["variables"][collection] = selected_data["selected_var"]
             return general_data
 
@@ -343,7 +341,6 @@ class TimeSeriesComponent(DashboardComponent):
         def update_variable_selector_store(*timestamps):
             if not any(timestamps):
                 return no_update
-            # collection = self.feature_handler.get_selected_collection()
             latest_timestamp_index = timestamps.index(
                 max(t for t in timestamps if t is not None)
             )
@@ -381,14 +378,12 @@ class TimeSeriesComponent(DashboardComponent):
             if selected_data is None:
                 return no_update
             general_data = general_data or {}
-            if "collection" not in general_data:
-                general_data["collection"] = (
-                    self.feature_handler.get_default_collection()
-                )
-            if "groups" not in general_data:
-                general_data["groups"] = {}
-            collection = general_data["collection"]
-            general_data["groups"][collection] = selected_data["groups"]
+            if COLLECTION not in general_data:
+                general_data[COLLECTION] = self.feature_handler.get_default_collection()
+            if GROUPS_SECTION not in general_data:
+                general_data[GROUPS_SECTION] = {}
+            collection = general_data[COLLECTION]
+            general_data[GROUPS_SECTION][collection] = selected_data[GROUPS_SECTION]
             return general_data
 
         @callback(
@@ -409,7 +404,7 @@ class TimeSeriesComponent(DashboardComponent):
                 latest_timestamp_index
             ]
             selected_group = self.group_drop_options[group_drop_option_id].children
-            return {"groups": selected_group}
+            return {GROUPS_SECTION: selected_group}
 
         @callback(
             [Output(group_drop_menu, "label") for group_drop_menu in group_drop_menus],
@@ -420,7 +415,7 @@ class TimeSeriesComponent(DashboardComponent):
                 return no_update
             general_data = general_data or {}
             id_to_group = {}
-            for collection, group in general_data.get("groups", {}).items():
+            for collection, group in general_data.get(GROUPS_SECTION, {}).items():
                 group_drop_menu = GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
                 id_to_group[group_drop_menu] = group
             results = []
@@ -435,9 +430,9 @@ class TimeSeriesComponent(DashboardComponent):
         def update_time_plots_after_general_data_change(general_data):
             if general_data is None:
                 return no_update
-            collection = general_data["collection"]
+            collection = general_data[COLLECTION]
             variable = general_data.get("variables", {}).get(collection)
-            group = general_data.get("groups", {}).get(collection)
+            group = general_data.get(GROUPS_SECTION, {}).get(collection)
             line_plots = self._get_timeplots(
                 TIMEPLOTS_ID, collection=collection, variable=variable, group=group
             )
@@ -459,9 +454,9 @@ class TimeSeriesComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def update_variable_outputs(general_data):
-            if general_data is None or "collection" not in general_data:
+            if general_data is None or COLLECTION not in general_data:
                 return no_update
-            collection = general_data.get("collection")
+            collection = general_data.get(COLLECTION)
             selected_variable_dropdown_id = VAR_DROPDOWN_ID_TEMPLATE.format(collection)
             results = []
             for var_drop_menu_id, var_drop_menu in self.var_drop_menus.items():
@@ -496,9 +491,9 @@ class TimeSeriesComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def update_group_outputs(general_data):
-            if general_data is None or "collection" not in general_data:
+            if general_data is None or COLLECTION not in general_data:
                 return no_update
-            collection = general_data.get("collection")
+            collection = general_data.get(COLLECTION)
             selected_group_dropdown_id = GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
             results = []
             for group_drop_menu_id, group_drop_menu in self.group_drop_menus.items():
@@ -509,7 +504,7 @@ class TimeSeriesComponent(DashboardComponent):
             for group_drop_menu_id, group_drop_menu in self.group_drop_menus.items():
                 if group_drop_menu_id == selected_group_dropdown_id:
                     group_values, _ = self._get_group_and_main_group_values(collection)
-                    group = general_data.get("groups", {}).get(
+                    group = general_data.get(GROUPS_SECTION, {}).get(
                         collection, group_values[0]
                     )
                     num_items = len(group_values)

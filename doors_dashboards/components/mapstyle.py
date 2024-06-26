@@ -1,7 +1,8 @@
-from dash import dcc, html, callback, Input, Output, State
+from dash import dcc
+from dash import html
 import dash_bootstrap_components as dbc
 
-SELECT_MAPSTYLE_DRP = "mapstyle-drp"
+SELECT_MAP_STYLE_DRP = "mapstyle-drp"
 
 popup = html.Div(
     [
@@ -12,7 +13,7 @@ popup = html.Div(
                     [
                         dbc.Label("Choose an option:"),
                         dcc.Dropdown(
-                            id=SELECT_MAPSTYLE_DRP,
+                            id=SELECT_MAP_STYLE_DRP,
                             options=[
                                 {
                                     "label": "Open Street Map",

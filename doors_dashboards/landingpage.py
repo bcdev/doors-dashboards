@@ -9,7 +9,7 @@ import doors_dashboards.components.imprintmodal as imprint_modal
 from waitress import serve
 
 from doors_dashboards.components.constant import FONT_COLOR
-from doors_dashboards.components.mapstyle import popup, SELECT_MAPSTYLE_DRP
+from doors_dashboards.components.mapstyle import popup, SELECT_MAP_STYLE_DRP
 
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
@@ -168,7 +168,7 @@ def open_popup(n_clicks):
 
 @app.callback(
     Output(MAPSTYLE_STORE, "data", allow_duplicate=True),
-    [Input(SELECT_MAPSTYLE_DRP, "value")],
+    [Input(SELECT_MAP_STYLE_DRP, "value")],
     prevent_initial_call=True,
 )
 def update_mapstyle_store(value):
@@ -229,7 +229,7 @@ app.layout = dbc.Container(
         dbc.Row([offcanvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
-        imprint_modal.ImprintModal(),
+        imprint_modal.create_imprint_modal(),
     ],
     fluid=True,
     style={"padding": "0", "display": "flex", "flexDirection": "column"},

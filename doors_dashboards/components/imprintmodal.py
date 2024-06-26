@@ -1,7 +1,4 @@
-# components/imprint_modal.py
-
-import dash
-from dash import html, dcc, Input, Output, State
+from dash import dcc
 import dash_bootstrap_components as dbc
 import os
 
@@ -22,7 +19,7 @@ imprint_content = read_imprint_content(IMPRINT_MD_PATH)
 
 
 # Define the imprint modal component
-def ImprintModal():
+def create_imprint_modal():
     return dbc.Modal(
         [
             dbc.ModalHeader(dbc.ModalTitle("Imprint")),

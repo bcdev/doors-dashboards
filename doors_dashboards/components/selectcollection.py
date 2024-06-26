@@ -1,14 +1,17 @@
-from typing import Dict, List
-from dash import Dash, dash, callback
+from dash import callback
+from dash import dash
 from dash import html
 from dash import Input
 from dash import no_update
 from dash import Output
 from dash import State
-import dash_bootstrap_components as dbc
 from dash.development.base_component import Component
+import dash_bootstrap_components as dbc
+from typing import Dict
+from typing import List
 
 from doors_dashboards.components.constant import (
+    COLLECTION,
     GENERAL_STORE_ID,
     COLLECTION_TEMPLATE,
     FONT_FAMILY,
@@ -66,8 +69,8 @@ class SelectCollectionComponent(DashboardComponent):
         def update_general_store(selected_data, general_data):
             if selected_data is not None:
                 general_data = general_data or {}
-                general_data["collection"] = selected_data["collection"]
-            return general_data, selected_data["collection"]
+                general_data[COLLECTION] = selected_data[COLLECTION]
+            return general_data, selected_data[COLLECTION]
 
         @callback(
             Output(f"{dashboard_id}-collection_selector", "data"),
@@ -77,8 +80,8 @@ class SelectCollectionComponent(DashboardComponent):
             if general_data is None:
                 return no_update
 
-            collection = general_data["collection"]
-            coll = {"collection": collection}
+            collection = general_data[COLLECTION]
+            coll = {COLLECTION: collection}
             return coll
 
         @callback(
@@ -95,7 +98,7 @@ class SelectCollectionComponent(DashboardComponent):
                 latest_timestamp_index = timestamps.index(
                     max(t for t in timestamps if t is not None)
                 )
-                coll = {"collection": collections[latest_timestamp_index]}
+                coll = {COLLECTION: collections[latest_timestamp_index]}
                 return coll
             else:
                 return dash.no_update

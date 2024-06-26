@@ -1,10 +1,12 @@
-from dash import dcc, no_update, callback
+from dash import callback
+from dash import dcc
 from dash import html
-from dash import dash
 from dash import Input
+from dash import no_update
 from dash import State
 from dash import Output
 from dash.development.base_component import Component
+import dash_bootstrap_components as dbc
 from copy import deepcopy
 from datetime import date
 from datetime import datetime
@@ -13,7 +15,6 @@ import requests
 from typing import Dict
 from typing import List
 from typing import Tuple
-import dash_bootstrap_components as dbc
 
 from doors_dashboards.components.constant import (
     METEOGRAM_TYPE_TEMPLATE,
@@ -43,6 +44,7 @@ METEOGRAM_TYPES = [
     {"label": "Classical plume", "value": "classical_plume"},
     {"label": "Classical wave", "value": "classical_wave"},
 ]
+DEFAULT_METEOGRAM_TYPE = "classical_wave"
 METEOGRAM_TYPE_TO_ID = {
     meteogram["label"]: METEOGRAM_TYPE_TEMPLATE.format(meteogram["value"])
     for meteogram in METEOGRAM_TYPES
@@ -68,7 +70,7 @@ class MeteogramComponent(DashboardComponent):
                 sub_config.get("lon", default_lon),
                 sub_config.get("lat", default_lat),
                 sub_config.get("time"),
-                sub_config.get("meteogram_type", "classical_wave"),
+                sub_config.get("meteogram_type", DEFAULT_METEOGRAM_TYPE),
             )
             return self._meteogram_image
         if sub_component == "meteogram_selection":
@@ -95,7 +97,7 @@ class MeteogramComponent(DashboardComponent):
         lon: float,
         lat: float,
         time: str = None,
-        meteogram_type: str = "classical_wave",
+        meteogram_type: str = DEFAULT_METEOGRAM_TYPE,
     ) -> Component:
         meteogram_image = self._get_meteogram_image(lon, lat, time, meteogram_type)
         return html.Div(
@@ -130,7 +132,7 @@ class MeteogramComponent(DashboardComponent):
         lon: float,
         lat: float,
         time: str = None,
-        meteogram_type: str = "classical_wave",
+        meteogram_type: str = DEFAULT_METEOGRAM_TYPE,
     ) -> html.Img:
         params = self._get_params(lon, lat, meteogram_type, time)
         key = ",".join(str(e) for e in list(params.values()))
@@ -150,7 +152,7 @@ class MeteogramComponent(DashboardComponent):
         image_url = response_data.get("data", {}).get("link", {}).get("href")
         if not image_url:
             return dbc.Label(
-                "Meteogram could not be loaded: " "No image url in response from ECMWF",
+                "Meteogram could not be loaded: No image url in response from ECMWF",
                 style={
                     "fontFamily": FONT_FAMILY,
                     "color": FONT_COLOR,
@@ -172,7 +174,10 @@ class MeteogramComponent(DashboardComponent):
 
     @staticmethod
     def _get_params(
-        lon: float, lat: float, meteogram_type: str = "classical_wave", time: str = None
+        lon: float,
+        lat: float,
+        meteogram_type: str = DEFAULT_METEOGRAM_TYPE,
+        time: str = None,
     ) -> Dict[str, str]:
         params = deepcopy(BASE_PARAMS)
         params["lon"] = lon
@@ -222,7 +227,7 @@ class MeteogramComponent(DashboardComponent):
                                 meteogram_type,
                                 id=meteogram_type_id,
                                 n_clicks=1,
-                                style={"fontSize": "larger", "fontfamily": FONT_FAMILY},
+                                style={"fontSize": "larger", "fontFamily": FONT_FAMILY},
                             )
                             for meteogram_type, meteogram_type_id in METEOGRAM_TYPE_TO_ID.items()
                         ],

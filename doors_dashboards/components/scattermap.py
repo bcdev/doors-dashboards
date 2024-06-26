@@ -4,19 +4,19 @@ from dash import no_update
 from dash import Output
 from dash import State
 from dash import dcc
-import dash_bootstrap_components as dbc
+from dash.development.base_component import Component
 import math
 import os
-import random
 import plotly.graph_objs as go
+import random
+from shapely.geometry import Point
 from typing import Dict
 from typing import List
 from typing import Tuple
 
-from dash.development.base_component import Component
-from shapely.geometry import Point
 
 from doors_dashboards.components.constant import (
+    COLLECTION,
     FONT_FAMILY,
     PLOT_BGCOLOR,
     GENERAL_STORE_ID,
@@ -26,6 +26,8 @@ from doors_dashboards.components.constant import (
 )
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
+
+DEFAULT_COLOR_RANGE = "viridis"
 
 
 def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
@@ -84,7 +86,7 @@ class ScatterMapComponent(DashboardComponent):
             lons, lats, labels, variable_values = (
                 self.feature_handler.get_points_as_tuples(collection)
             )
-            customdata = [collection] * len(lons)
+            custom_data = [collection] * len(lons)
             all_lons.extend(lons)
             all_lats.extend(lats)
 
@@ -100,7 +102,9 @@ class ScatterMapComponent(DashboardComponent):
                 marker = go.scattermapbox.Marker(
                     size=marker_size,
                     color=variable_values,
-                    colorscale=color_code_config.get("color_range", "Viridis"),
+                    colorscale=color_code_config.get(
+                        "color_range", DEFAULT_COLOR_RANGE
+                    ),
                     colorbar=dict(title=color_code_config.get("name")),
                     cmin=color_code_config.get("color_min_value"),
                     cmax=color_code_config.get("color_max_value"),
@@ -123,7 +127,7 @@ class ScatterMapComponent(DashboardComponent):
                     marker=marker,
                     text=labels,
                     name=collection,
-                    customdata=customdata,
+                    customdata=custom_data,
                     selected=go.scattermapbox.Selected(
                         marker={"color": "#5C050B", "size": 15}
                     ),
@@ -169,7 +173,6 @@ class ScatterMapComponent(DashboardComponent):
                 "padding": "20px",
                 "alignItems": "center",
                 "backgroundColor": PLOT_BGCOLOR,
-                #'height': '85.5vh'
             },
         )
 
@@ -188,7 +191,7 @@ class ScatterMapComponent(DashboardComponent):
                 return no_update
             general_data = general_data or {}
             collection_name = click_data["points"][0]["customdata"]
-            general_data["collection"] = collection_name
+            general_data[COLLECTION] = collection_name
             if GROUPS_SECTION not in general_data:
                 general_data[GROUPS_SECTION] = {}
             lon = click_data["points"][0]["lon"]
@@ -220,8 +223,8 @@ class ScatterMapComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def update_selected_dropdown_point_on_scattermap(general_data, current_figure):
-            if "collection" in general_data:
-                collection_name = general_data["collection"]
+            if COLLECTION in general_data:
+                collection_name = general_data[COLLECTION]
                 levels = self.feature_handler.get_levels(collection_name)
                 if len(levels) == 1 and levels[0] != "station":
                     if isinstance(current_figure, dict) and "data" in current_figure:
@@ -238,7 +241,7 @@ class ScatterMapComponent(DashboardComponent):
                 lon = selected_data.get("lon")
                 lat = selected_data.get("lat")
             elif "groups" in general_data:
-                collection_name = general_data.get("collection")
+                collection_name = general_data.get(COLLECTION)
                 group_value = general_data.get("groups", {}).get(collection_name, {})
                 df = self.feature_handler.get_df(collection_name)
                 if "station" in df.columns:
@@ -247,7 +250,7 @@ class ScatterMapComponent(DashboardComponent):
                 else:
                     lon, lat = None, None
             else:
-                collection_name = general_data.get("collection", {})
+                collection_name = general_data.get(COLLECTION, {})
                 df = self.feature_handler.get_df(collection_name)
                 if "station" in df.columns:
                     group_values = self.feature_handler.get_nested_level_values(
