@@ -1,7 +1,7 @@
 from dash import dcc, html, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 
-SELECT_MAPSTYLE_DRP = 'mapstyle-drp'
+SELECT_MAPSTYLE_DRP = "mapstyle-drp"
 
 popup = html.Div(
     [
@@ -14,10 +14,14 @@ popup = html.Div(
                         dcc.Dropdown(
                             id=SELECT_MAPSTYLE_DRP,
                             options=[
-                                {"label": "Open Street Map",
-                                 "value": "open-street-map"},
-                                {"label": "Carto Darkmatter",
-                                 "value": "carto-darkmatter"},
+                                {
+                                    "label": "Open Street Map",
+                                    "value": "open-street-map",
+                                },
+                                {
+                                    "label": "Carto Darkmatter",
+                                    "value": "carto-darkmatter",
+                                },
                                 {"label": "White background", "value": "white-bg"},
                                 {"label": "Carto Positron", "value": "carto-positron"},
                             ],

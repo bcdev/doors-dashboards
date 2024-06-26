@@ -15,7 +15,7 @@ def _get_client() -> GeoDBClient:
     global _GEODB_CLIENT
     if _GEODB_CLIENT is None:
         _GEODB_CLIENT = GeoDBClient(
-            auth_aud='https://xcube-users.brockmann-consult.de/api/v2'
+            auth_aud="https://xcube-users.brockmann-consult.de/api/v2"
         )
     return _GEODB_CLIENT
 
@@ -28,23 +28,25 @@ def get_collection_names_from_geodb():
 
 
 def get_dataframe_from_geodb(
-        collection: str, database: str, variables: List[str],
-        name_of_time_column: str = 'timestamp',
-        convert_from_parameters: Dict[str, Any] = None,
-        label: str = None,
-        levels: List[str] = None,
-        mask: gpd.GeoDataFrame = None
+    collection: str,
+    database: str,
+    variables: List[str],
+    name_of_time_column: str = "timestamp",
+    convert_from_parameters: Dict[str, Any] = None,
+    label: str = None,
+    levels: List[str] = None,
+    mask: gpd.GeoDataFrame = None,
 ) -> gpd.GeoDataFrame:
     geodb = _get_client()
     num_rows = geodb.count_collection_rows(collection, database=database)
     if num_rows > 1000000:
         gdf = geodb.get_collection_pg(
-            collection, where='id % 100 = 0', database=database
+            collection, where="id % 100 = 0", database=database
         )
     else:
         gdf = geodb.get_collection(collection, database=database)
 
-    gdf = gdf.sort_values('id')
+    gdf = gdf.sort_values("id")
     if gdf.crs != REFERENCE_CRS:
         gdf = gdf.to_crs(REFERENCE_CRS)
     if mask is not None:
@@ -58,9 +60,9 @@ def get_dataframe_from_geodb(
         for variable in variables:
             sgdf = gdf[gdf[parameter] == variable][full]
             for row, line in sgdf.iterrows():
-                loc_row = (gdf[keys[0]] == line[keys[0]])
+                loc_row = gdf[keys[0]] == line[keys[0]]
                 for key in keys[1:]:
-                    loc_row &= (gdf[key] == line[key])
+                    loc_row &= gdf[key] == line[key]
                 gdf.loc[loc_row, variable] = line[value]
 
     sub_gdf_list = ["geometry", name_of_time_column] + variables
