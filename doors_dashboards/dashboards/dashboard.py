@@ -1,12 +1,9 @@
-from dash import Dash, dcc, html
-from typing import Dict
+from dash import dcc
+from dash import html
 import dash_bootstrap_components as dbc
+from typing import Dict
 
-from doors_dashboards.components.constant import (
-    FONT_COLOR,
-    HEADER_BGCOLOR,
-    CONTAINER_BGCOLOR,
-)
+from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.meteogram import MeteogramComponent
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.scatterplot import ScatterplotComponent
@@ -37,7 +34,7 @@ def create_dashboard(config: Dict) -> html.Div:
 
     feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
-    for component, component_dict in config.get("components", []).items():
+    for component, component_dict in config.get("components", dict()).items():
         components[component] = _COMPONENTS[component](dashboard_id)
         components[component].set_feature_handler(feature_handler)
         for sub_component, sub_component_config in component_dict.items():

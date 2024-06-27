@@ -3,7 +3,6 @@ from abc import abstractmethod
 from typing import Dict
 from typing import List
 
-from dash import Dash
 from dash.development.base_component import Component
 
 from doors_dashboards.core.featurehandler import FeatureHandler

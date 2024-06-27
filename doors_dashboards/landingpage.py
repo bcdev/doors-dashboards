@@ -1,21 +1,28 @@
-import sys
-
 import dash
-from dash import Dash, html, dcc, Input, Output, State
+
+from dash import Dash
+from dash import dcc
+from dash import html
+from dash import Input
+from dash import Output
+from dash import State
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
-import os
-import doors_dashboards.components.imprintmodal as imprint_modal
+import sys
 from waitress import serve
 
+import doors_dashboards.components.imprintmodal as imprint_modal
 from doors_dashboards.components.constant import FONT_COLOR
-from doors_dashboards.components.mapstyle import popup, SELECT_MAP_STYLE_DRP
+from doors_dashboards.components.mapstyle import popup
+from doors_dashboards.components.mapstyle import SELECT_MAP_STYLE_DRP
 
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css",
 ]
 
+ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
+KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
 MAPSTYLE_STORE = "mapstyle_value_store"
 
 app = Dash(
@@ -97,7 +104,7 @@ header = html.Nav(
     },
 )
 
-offcanvas = html.Div(
+off_canvas = html.Div(
     [
         dbc.Offcanvas(
             [
@@ -119,7 +126,7 @@ offcanvas = html.Div(
                 html.Div(
                     dbc.Button(
                         "Kassandra",
-                        href="http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea",
+                        href=KASSANDRA_URL,
                         color="#77ABB7",
                         style={"width": "80%"},
                         className="mb-2",
@@ -173,8 +180,8 @@ def open_popup(n_clicks):
 )
 def update_mapstyle_store(value):
     if value:
-        mapstyle_value = {"mapstyle": value}
-        return mapstyle_value
+        map_style_value = {"mapstyle": value}
+        return map_style_value
     else:
         return dash.no_update
 
@@ -193,9 +200,7 @@ def update_mapstyle_of_scattermap(mapstyle_data, current_figure):
             if isinstance(current_figure, dict) and "data" in current_figure:
                 current_figure = go.Figure(current_figure)
                 if "accesstoken" not in current_figure.layout.mapbox:
-                    current_figure.layout.mapbox["accesstoken"] = (
-                        "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
-                    )
+                    current_figure.layout.mapbox["accesstoken"] = ACCESS_TOKEN
                 current_figure.layout.mapbox["style"] = mapstyle_val
 
                 return current_figure
@@ -226,7 +231,7 @@ app.layout = dbc.Container(
         dcc.Store(id=MAPSTYLE_STORE),
         header,
         dbc.Row(dash.page_container, style={"backgroundColor": "#2D4356"}),
-        dbc.Row([offcanvas]),
+        dbc.Row([off_canvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
         imprint_modal.create_imprint_modal(),

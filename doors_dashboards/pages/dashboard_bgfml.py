@@ -1,7 +1,7 @@
-import yaml
-import os
 import dash
+import os
 from typing import Dict
+import yaml
 
 from doors_dashboards.components.constant import CONFIGS_PATH
 from doors_dashboards.dashboards.dashboard import create_dashboard

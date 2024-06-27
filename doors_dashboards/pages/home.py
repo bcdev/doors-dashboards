@@ -1,5 +1,5 @@
-from dash import Dash, dcc, html
 import dash
+from dash import html
 import dash_bootstrap_components as dbc
 
 from doors_dashboards.components.constant import FONT_COLOR
@@ -53,6 +53,5 @@ layout = dbc.Container(
             ],
         )
     ],
-    fluid=True,
-    # style={"height": "100%", "width": "100%"}
+    fluid=True
 )

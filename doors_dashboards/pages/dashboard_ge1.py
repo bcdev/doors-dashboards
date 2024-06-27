@@ -1,12 +1,12 @@
-import yaml
-import os
 import dash
+import os
 from typing import Dict
+import yaml
 
 from doors_dashboards.components.constant import CONFIGS_PATH
 from doors_dashboards.dashboards.dashboard import create_dashboard
 
-dash.register_page(__name__, title="Georgia Emblas", name="Georgia Emblas")
+dash.register_page(__name__, title="Georgia EMBLAS", name="Georgia EMBLAS")
 
 
 def _read_config(id: str) -> Dict:
