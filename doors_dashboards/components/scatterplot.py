@@ -375,6 +375,7 @@ class ScatterplotComponent(DashboardComponent):
             collection, selected_group_item, selected_main_group_item
         )
         levels = self.feature_handler.get_levels(collection)
+        color_variable = levels[-1]
         variables = self.feature_handler.get_variables(collection)
         if len(variables) > 1:
             if x_variable is None:
@@ -385,50 +386,60 @@ class ScatterplotComponent(DashboardComponent):
                 df,
                 x=x_variable,
                 y=y_variable,
-                color=levels[-1],
+                color=color_variable,
                 color_discrete_sequence=px.colors.qualitative.Set1,
+                labels={
+                    x_variable: self.title(x_variable),
+                    y_variable: self.title(y_variable),
+                    color_variable: self.title(color_variable),
+                },
             )
             fig.update_layout(
                 font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR),
                 plot_bgcolor="rgb(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
-                legend=dict(
-                    title=dict(
-                        text=levels[-1].title(),
-                        font=dict(
-                            family="Roboto, Helvetica, Arial, sans-serif",
-                            size=18,
-                            color=FONT_COLOR,
-                        ),
-                    ),
-                ),
             )
             fig.update_traces(marker_size=10)
-            fig.update_xaxes(title_text=x_variable.title())
-            fig.update_yaxes(title_text=y_variable.title())
             return fig
+
+    @staticmethod
+    def title(title: str) -> str:
+        words = title.split(" ")
+        for i, word in enumerate(words):
+            if len(word) > 0 and word[0].isalpha():
+                if len(word) > 1:
+                    words[i] = word[0].upper() + word[1:]
+                else:
+                    words[i] = word[0].upper()
+        return " ".join(words)
 
     def get_line_scatter_plot(
         self, collection: str, selected_main_group_item: str = "", variable: str = None
     ):
         df = self.get_dataframe(collection, ALL_GROUP_MEMBERS, selected_main_group_item)
-        order_variable = self.feature_handler.get_levels(collection)[-1]
-        df = df.sort_values(by=order_variable)
         levels = self.feature_handler.get_levels(collection)
+        order_variable = levels[-1]
+        color_variable = levels[-2]
+        df = df.sort_values(by=order_variable)
         if variable is None:
             variable = self.feature_handler.get_variables(collection)[0]
         fig = px.line(
             df,
             x=variable,
-            y=levels[-1],
-            color=levels[-2],
+            y=order_variable,
+            color=color_variable,
             line_shape="spline",
             render_mode="svg",
             markers=True,
+            labels={
+                variable: self.title(variable),
+                order_variable: self.title(order_variable),
+                color_variable: self.title(color_variable),
+            },
         )
         fig.update_yaxes(autorange="reversed")
-        fig.update_xaxes(title_text=variable.title())
-        fig.update_yaxes(title_text="Sampling Depth [m]")
+        fig.update_xaxes(title_text=self.title(variable))
+        fig.update_yaxes(title_text=self.title(order_variable))
         fig.update_layout(font=dict(family=FONT_FAMILY, size=18, color=FONT_COLOR))
         fig.update_traces(marker=dict(size=10, color="yellow", symbol="circle"))
         fig.layout.plot_bgcolor = "rgb(0,0,0,0)"
