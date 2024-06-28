@@ -90,7 +90,6 @@ class ScatterMapComponent(DashboardComponent):
             all_lons.extend(lons)
             all_lats.extend(lats)
 
-            # color = list(np.random.choice(range(256), size=3))
             color_index = random.randint(0, len(colors) - 1)
             color = colors[color_index]
             del colors[color_index]
@@ -223,36 +222,38 @@ class ScatterMapComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def update_selected_dropdown_point_on_scattermap(general_data, current_figure):
-            if COLLECTION in general_data:
-                collection_name = general_data[COLLECTION]
-                levels = self.feature_handler.get_levels(collection_name)
-                if len(levels) == 1 and levels[0] != "station":
-                    if isinstance(current_figure, dict) and "data" in current_figure:
-                        current_figure = go.Figure(current_figure)
-                        current_figure["data"] = [
-                            trace
-                            for trace in current_figure["data"]
-                            if trace["name"] != "Selected Station"
-                        ]
-                        return current_figure
+            if COLLECTION not in general_data:
+                return no_update
+
+            collection_name = general_data[COLLECTION]
+            df = self.feature_handler.get_df(collection_name)
+            label = self.feature_handler.get_label(collection_name)
+            levels = self.feature_handler.get_levels(collection_name)
+            if label is None:
+                if isinstance(current_figure, dict) and "data" in current_figure:
+                    current_figure = go.Figure(current_figure)
+                    current_figure["data"] = [
+                        trace
+                        for trace in current_figure["data"]
+                        if not trace["name"].startswith("Selected")
+                    ]
+                    return current_figure
 
             if "selected_data" in general_data:
                 selected_data = general_data.get("selected_data", {})
                 lon = selected_data.get("lon")
                 lat = selected_data.get("lat")
             elif "groups" in general_data:
-                collection_name = general_data.get(COLLECTION)
-                group_value = general_data.get("groups", {}).get(collection_name, {})
-                df = self.feature_handler.get_df(collection_name)
-                if "station" in df.columns:
-                    geometry = df[df["station"] == group_value]["geometry"]
+                group_value = (
+                    general_data.get("groups", {}).get(collection_name, {}).get("group")
+                )
+                if label in df.columns:
+                    geometry = df[df[label] == group_value]["geometry"]
                     lon, lat = geometry.x.values, geometry.y.values
                 else:
                     lon, lat = None, None
             else:
-                collection_name = general_data.get(COLLECTION, {})
-                df = self.feature_handler.get_df(collection_name)
-                if "station" in df.columns:
+                if label in df.columns:
                     group_values = self.feature_handler.get_nested_level_values(
                         collection_name
                     )
@@ -264,7 +265,7 @@ class ScatterMapComponent(DashboardComponent):
                         group_value = (
                             group_values[0] if len(group_values) > 1 else group_values
                         )
-                    geometry = df[df["station"] == group_value]["geometry"]
+                    geometry = df[df[label] == group_value]["geometry"]
                     lon, lat = geometry.x.values, geometry.y.values
                 else:
                     lon, lat = None, None
@@ -273,21 +274,21 @@ class ScatterMapComponent(DashboardComponent):
                 return no_update
 
             highlighted_trace = go.Scattermapbox(
-                lat=[lat],
-                lon=[lon],
+                lat=lat,
+                lon=lon,
                 mode="markers",
                 marker=dict(
                     size=15,
                     color="#5C050B",
                 ),
-                name="Selected Station",
+                name=f"Selected {label.title()}",
             )
 
             if isinstance(current_figure, dict) and "data" in current_figure:
                 current_figure["data"] = [
                     trace
                     for trace in current_figure["data"]
-                    if trace["name"] != "Selected Station"
+                    if not trace["name"].startswith("Selected")
                 ]
                 current_figure = go.Figure(current_figure)
                 current_figure.add_trace(highlighted_trace)

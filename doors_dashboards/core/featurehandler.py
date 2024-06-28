@@ -58,7 +58,7 @@ class FeatureHandler:
         if variables is None:
             variables = list(self.get_df(collection).columns)
             to_be_removed = ["geometry", time_column_name]
-            label = self._get_label_column_name(collection)
+            label = self.get_label(collection)
             if label:
                 to_be_removed.append(label)
             to_be_removed.extend(self.get_levels(collection))
@@ -84,7 +84,7 @@ class FeatureHandler:
         dt_time = pd.to_datetime(df[time_column_name])
         return pd.Timestamp(min(dt_time)), pd.Timestamp(max(dt_time))
 
-    def _get_label_column_name(self, collection: str):
+    def get_label(self, collection: str):
         return self._configs.get(collection, {}).get("params", {}).get("label")
 
     def get_color_code_config(self, collection: str) -> Dict[str, Any]:
@@ -169,7 +169,7 @@ class FeatureHandler:
         gdf = self.get_df(collection)
         lons = list(gdf.geometry.apply(lambda p: p.x))
         lats = list(gdf.geometry.apply(lambda p: p.y))
-        label = self._get_label_column_name(collection)
+        label = self.get_label(collection)
         if label:
             labels = list(gdf[label])
         else:
