@@ -1102,8 +1102,6 @@ class ScatterplotComponent(DashboardComponent):
                 .get(LINE_VARIABLE, variables[0])
             )
 
-            print(collection, main_group, group, x_variable, y_variable, line_variable)
-
             point_plot_fig = self.get_point_scatter_plot(
                 collection, group, main_group, x_variable, y_variable
             )
