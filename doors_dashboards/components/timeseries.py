@@ -17,7 +17,8 @@ from typing import Optional
 from doors_dashboards.components.constant import (
     COLLECTION,
     FONT_FAMILY,
-    FONT_SIZE,
+    # FONT_SIZE,
+    SCATTER_FONT_SIZE,
     FONT_COLOR,
     GROUPS_SECTION,
     PLOT_BGCOLOR,
@@ -71,7 +72,7 @@ class TimeSeriesComponent(DashboardComponent):
                     variable,
                     id=var_drop_option_id,
                     n_clicks=1,
-                    style={"fontSize": FONT_SIZE, "fontFamily": FONT_FAMILY},
+                    style={"fontSize": SCATTER_FONT_SIZE, "fontFamily": FONT_FAMILY},
                 )
                 self.var_drop_options[var_drop_option_id] = line_drop_option
                 drop_menu_items.append(line_drop_option)
@@ -115,7 +116,7 @@ class TimeSeriesComponent(DashboardComponent):
                     member,
                     id=group_drop_option_id,
                     n_clicks=1,
-                    style={"fontSize": FONT_SIZE, "fontFamily": FONT_FAMILY},
+                    style={"fontSize": SCATTER_FONT_SIZE, "fontFamily": FONT_FAMILY},
                 )
                 group_drop_menu_items.append(group_drop_option)
                 self.group_drop_options[group_drop_option_id] = group_drop_option
@@ -139,16 +140,18 @@ class TimeSeriesComponent(DashboardComponent):
             group_drop_down_menus = list(self.group_drop_menus.values())
             group_drop_down_menus[0].style["display"] = "block"
 
+            title = self.feature_handler.get_levels()[-1].title()
+
             row = html.Div(
                 [
                     html.Div(
-                        "Variable",
+                        "Variable:",
                         className="col-auto px-1 m-2",
                         style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
                     ),
                     html.Div(var_drop_down_menus, className="col-auto px-1"),
                     html.Div(
-                        "Station",
+                        f"{title}:",
                         className="col-auto px-1 m-2",
                         style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
                     ),
