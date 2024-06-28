@@ -2,7 +2,7 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 import os
 
-from doors_dashboards.components.constant import ASSETS_PATH
+ASSETS_PATH = "../assets"
 
 
 # Function to read the imprint.md file content

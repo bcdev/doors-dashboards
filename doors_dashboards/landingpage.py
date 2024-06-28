@@ -1,5 +1,4 @@
 import dash
-
 from dash import Dash
 from dash import dcc
 from dash import html
@@ -7,14 +6,20 @@ from dash import Input
 from dash import Output
 from dash import State
 import dash_bootstrap_components as dbc
+import os
 import plotly.graph_objs as go
 import sys
 from waitress import serve
 
 import doors_dashboards.components.imprintmodal as imprint_modal
+from doors_dashboards.core.constants import DEFAULT_LOG_LEVEL
 from doors_dashboards.components.constant import FONT_COLOR
+from doors_dashboards.core.constants import LOG
 from doors_dashboards.components.mapstyle import popup
 from doors_dashboards.components.mapstyle import SELECT_MAP_STYLE_DRP
+
+from doors_dashboards.home import register_homepage
+from doors_dashboards.pages import register_pages
 
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
@@ -25,13 +30,19 @@ ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2b
 KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
 MAPSTYLE_STORE = "mapstyle_value_store"
 
+LOG.setLevel(os.getenv("DOORS_LOG_LEVEL", DEFAULT_LOG_LEVEL).upper())
+
 app = Dash(
     __name__,
     use_pages=True,
+    pages_folder="",
     suppress_callback_exceptions=True,
     external_stylesheets=external_stylesheets,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
+
+register_homepage()
+register_pages()
 
 footer = html.Div(
     html.P(
@@ -245,4 +256,5 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         raise ValueError("Must specify port")
     port = sys.argv[1]
+    LOG.info(f"Starting server under port {port}")
     serve(app.server, host="0.0.0.0", port=port)
