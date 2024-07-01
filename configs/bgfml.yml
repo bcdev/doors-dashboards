@@ -1,5 +1,5 @@
-id: bgmmap
-title: Bulgaria MAF Map
+id: bgfml
+title: Bulgaria Floating Marine Litter
 eez: BG_eez
 features:
   - id: BG_FML_2016-2018
@@ -11,6 +11,11 @@ features:
       color: green
       variables:
         - "floating marine litter density (c) item/km2"
+      colorcodevariable:
+        name: "floating marine litter density (c) item/km2"
+        color_min_value: 0
+        color_max_value: 400
+        color_range: Oranges
 components:
   scattermap:
     scattermap:

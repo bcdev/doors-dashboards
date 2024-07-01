@@ -1,0 +1,64 @@
+
+.container {
+    overflow: hidden; /* Ensure no scrollbars are shown initially */
+}
+@media (max-height: 527px ) {
+    .container {
+        overflow-y: auto; /* Add vertical scrollbar */
+    }
+}
+@media screen and (max-width: 527px) {
+    :root {
+        --multiplier : .9375;
+    }
+}
+
+.container.scalable {
+  width: 100%;
+  max-width: none;
+
+}
+
+.dropdown-menu.show{
+    max-height: 250px !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+}
+
+.dbc .SingleDatePickerInput__withBorder {
+    background-color: white  !important;
+    width: 150px;
+    height: 50px;
+    align-content: center;
+}
+
+.SingleDatePickerInput__withBorder {
+    border-radius: 10px;
+    border: none !important;
+
+.DateInput_input {
+    font-size: 18px;
+    line-height: 19px;
+    color: white;
+    background-color: #6c757d;
+    width: 100%;
+    padding: 11px 11px 9px;
+    border: 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 2px solid transparent;
+    border-left: 0;
+    border-radius: 10px;
+}
+
+.DateInput {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    position: relative;
+    display: inline-block;
+    width: 130px;
+    vertical-align: middle;
+    height: 30px;
+}
+

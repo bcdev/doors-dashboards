@@ -18,5 +18,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
+import logging
+import sys
 
 REFERENCE_CRS = "EPSG:4326"
+
+DEFAULT_LOG_LEVEL = logging.WARNING
+GENERAL_LOG_FORMAT = "[%(levelname).1s %(asctime)s %(name)s] %(message)s"
+formatter = logging.Formatter(GENERAL_LOG_FORMAT)
+
+LOG = logging.getLogger("doors-dashboards")
+handler = logging.StreamHandler(stream=sys.stdout)
+handler.setFormatter(formatter)
+LOG.addHandler(handler)
+LOG.setLevel(DEFAULT_LOG_LEVEL)
