@@ -228,7 +228,6 @@ class ScatterMapComponent(DashboardComponent):
             collection_name = general_data[COLLECTION]
             df = self.feature_handler.get_df(collection_name)
             label = self.feature_handler.get_label(collection_name)
-            levels = self.feature_handler.get_levels(collection_name)
             if label is None:
                 if isinstance(current_figure, dict) and "data" in current_figure:
                     current_figure = go.Figure(current_figure)
