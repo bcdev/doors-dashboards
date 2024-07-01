@@ -1,9 +1,9 @@
-from dash import Dash, dcc, html
-from typing import Dict
+from dash import dcc
+from dash import html
 import dash_bootstrap_components as dbc
+from typing import Dict
 
-from doors_dashboards.components.constant import FONT_COLOR, HEADER_BGCOLOR, \
-    CONTAINER_BGCOLOR
+from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.meteogram import MeteogramComponent
 from doors_dashboards.components.scattermap import ScatterMapComponent
 from doors_dashboards.components.scatterplot import ScatterplotComponent
@@ -12,11 +12,11 @@ from doors_dashboards.components.timeseries import TimeSeriesComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 _COMPONENTS = {
-    'scattermap': ScatterMapComponent,
-    'meteogram': MeteogramComponent,
-    'timeplots': TimeSeriesComponent,
-    'scatterplot': ScatterplotComponent,
-    'selectcollection': SelectCollectionComponent
+    "scattermap": ScatterMapComponent,
+    "meteogram": MeteogramComponent,
+    "timeplots": TimeSeriesComponent,
+    "scatterplot": ScatterplotComponent,
+    "selectcollection": SelectCollectionComponent,
 }
 
 
@@ -27,24 +27,20 @@ def create_dashboard(config: Dict) -> html.Div:
         "general": f"{dashboard_id}-general",
         "collection_selector": f"{dashboard_id}-collection_selector",
         "group_selector": f"{dashboard_id}-group_selector",
-        "variable_selector": f"{dashboard_id}-variable_selector"
+        "variable_selector": f"{dashboard_id}-variable_selector",
     }
     components = {}
-    component_placements = dict(
-        top=[],
-        left=[],
-        right=[],
-        bottom=[]
-    )
+    component_placements = dict(top=[], left=[], right=[], bottom=[])
 
     feature_handler = FeatureHandler(config.get("features"), config.get("eez"))
 
-    for component, component_dict in config.get("components", []).items():
+    for component, component_dict in config.get("components", dict()).items():
         components[component] = _COMPONENTS[component](dashboard_id)
         components[component].set_feature_handler(feature_handler)
         for sub_component, sub_component_config in component_dict.items():
-            component_placements[sub_component_config['placement']]. \
-                append((component, sub_component))
+            component_placements[sub_component_config["placement"]].append(
+                (component, sub_component)
+            )
 
     main_children = {}
     top_children = {}
@@ -56,43 +52,35 @@ def create_dashboard(config: Dict) -> html.Div:
         for component_at_placement in components_at_placement:
             main_component = component_at_placement[0]
             sub_component = component_at_placement[1]
-            sub_component_params = config.get("components", {}). \
-                get(main_component, {}).get(sub_component)
+            sub_component_params = (
+                config.get("components", {}).get(main_component, {}).get(sub_component)
+            )
             component_div = components[main_component].get(
                 sub_component, sub_component, sub_component_params
             )
             place_children.append(component_div)
         if placement == "top":
-            top_children[placement] = dbc.Col(
-                place_children, className="col m-1"
-            )
+            top_children[placement] = dbc.Col(place_children, className="col m-1")
         if placement == "bottom":
-            main_children[placement] = dbc.Row(
-                children=place_children
-            )
+            main_children[placement] = dbc.Row(children=place_children)
         else:
-            middle_children[placement] = dbc.Col(
-                children=place_children
-            )
+            middle_children[placement] = dbc.Col(children=place_children)
     if len(middle_children) > 0:
         if "right" not in middle_children:
-            main_children['middle'] = dbc.Row(
-                [
-                    middle_children['left']
-                ],
+            main_children["middle"] = dbc.Row(
+                [middle_children["left"]],
             )
         elif "left" not in middle_children:
-            main_children['middle'] = dbc.Row(
+            main_children["middle"] = dbc.Row(
                 [
-                    middle_children['right'],
+                    middle_children["right"],
                 ],
-
             )
         else:
-            main_children['middle'] = dbc.Row(
+            main_children["middle"] = dbc.Row(
                 [
-                    dbc.Col(middle_children['left'], className="col-6 px-1"),
-                    dbc.Col(middle_children['right'], className="col-6 px-1")
+                    dbc.Col(middle_children["left"], className="col-6 px-1"),
+                    dbc.Col(middle_children["right"], className="col-6 px-1"),
                 ],
                 style={"margin": "0"},
             )
@@ -103,26 +91,27 @@ def create_dashboard(config: Dict) -> html.Div:
     if "bottom" in main_children:
         main.append(main_children["bottom"])
 
-    layout = html.Div([
-        dcc.Store(id=store_ids['general']),
-        dcc.Store(id=store_ids['collection_selector']),
-        dcc.Store(id=store_ids['group_selector']),
-        dcc.Store(id=store_ids['variable_selector']),
-        dbc.Row(
-            [
-                top_children["top"],
-                dbc.Col(
-                    html.H1(dashboard_title),
-                    style={'color': FONT_COLOR},
-                    className="col m-1"
-                ),
-            ],
-            style={"height": "60px", "margin-top": "-3px"}
-        )
-        ,
-        # Plots
-        *main,
-    ])
+    layout = html.Div(
+        [
+            dcc.Store(id=store_ids["general"]),
+            dcc.Store(id=store_ids["collection_selector"]),
+            dcc.Store(id=store_ids["group_selector"]),
+            dcc.Store(id=store_ids["variable_selector"]),
+            dbc.Row(
+                [
+                    top_children["top"],
+                    dbc.Col(
+                        html.H1(dashboard_title),
+                        style={"color": FONT_COLOR},
+                        className="col m-1",
+                    ),
+                ],
+                style={"height": "60px", "margin-top": "-3px"},
+            ),
+            # Plots
+            *main,
+        ]
+    )
 
     for component in components.values():
         component.register_callbacks(list(components.keys()), dashboard_id)
