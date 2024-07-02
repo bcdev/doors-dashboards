@@ -33,10 +33,14 @@ GROUP_DROP_OPTION_TEMPLATE = "group_drp_option_{0}_{1}_{2}"
 MAIN_GROUP_DROP_OPTION_TEMPLATE = "main_group_drp_option_{0}_{1}"
 GROUP_DROPDOWN_TEMPLATE = "group_drp_option_{0}_{1}"
 MAIN_GROUP_DROPDOWN_TEMPLATE = "main_group_drp_option_{0}"
+MAIN_GROUP_DROPDOWN_OFFSET = MAIN_GROUP_DROPDOWN_TEMPLATE.index("{")
 
 LINE_VAR_DROPDOWN_ID_TEMPLATE = "line_var_drop_down_id_{0}"  # collection
+LINE_VAR_DROPDOWN_OFFSET = LINE_VAR_DROPDOWN_ID_TEMPLATE.index("{")
 POINT_X_VAR_DROPDOWN_ID_TEMPLATE = "point_x_var_drop_down_id_{0}"  # collection
+POINT_X_VAR_DROPDOWN_OFFSET = POINT_X_VAR_DROPDOWN_ID_TEMPLATE.index("{")
 POINT_Y_VAR_DROPDOWN_ID_TEMPLATE = "point_y_var_drop_down_id_{0}"  # collection
+POINT_Y_VAR_DROPDOWN_OFFSET = POINT_Y_VAR_DROPDOWN_ID_TEMPLATE.index("{")
 LINE_VAR_DROP_OPTION_TEMPLATE = "line_var_drop_option_id_{0}_{1}"  # collection variable
 POINT_X_VAR_DROP_OPTION_TEMPLATE = (
     "point_x_var_drop_option_id_{0}_{1}"  # collection variable
@@ -501,7 +505,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def decode_main_group_dropdown(dropdown_id) -> str:
-        return dropdown_id[21:]
+        return dropdown_id[MAIN_GROUP_DROPDOWN_OFFSET:]
 
     def encode_group_dropdown(self, collection: str, main_group: str) -> str:
         new_collection = collection.replace("_", "-")
@@ -522,7 +526,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def decode_xvar_dropdown(dropdown_id: str) -> str:
-        return dropdown_id[25:]
+        return dropdown_id[POINT_X_VAR_DROPDOWN_OFFSET:]
 
     @staticmethod
     def encode_yvar_dropdown(collection: str) -> str:
@@ -530,7 +534,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def decode_yvar_dropdown(dropdown_id: str) -> str:
-        return dropdown_id[25:]
+        return dropdown_id[POINT_Y_VAR_DROPDOWN_OFFSET:]
 
     @staticmethod
     def encode_linevar_dropdown(collection: str) -> str:
@@ -538,7 +542,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def decode_linevar_dropdown(dropdown_id: str) -> str:
-        return dropdown_id[22:]
+        return dropdown_id[LINE_VAR_DROPDOWN_OFFSET:]
 
     def register_callbacks(self, component_ids: List[str], dashboard_id: str = None):
 
