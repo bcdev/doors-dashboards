@@ -690,16 +690,18 @@ class ScatterplotComponent(DashboardComponent):
                 general_data[COLLECTION] = self.feature_handler.get_default_collection()
             if GROUPS_SECTION not in general_data:
                 general_data[GROUPS_SECTION] = {}
-            group_fields = [MAIN_GROUP, GROUP]
             collection = general_data[COLLECTION]
             if temp_data is not None:
-                for field in group_fields:
-                    if field in temp_data:
-                        if collection not in general_data[GROUPS_SECTION]:
-                            general_data[GROUPS_SECTION][collection] = {}
-                        general_data[GROUPS_SECTION][collection][field] = temp_data[
-                            field
-                        ]
+                if collection not in general_data[GROUPS_SECTION]:
+                    general_data[GROUPS_SECTION][collection] = {}
+                if MAIN_GROUP in temp_data:
+                    general_data[GROUPS_SECTION][collection][MAIN_GROUP] = temp_data[
+                        MAIN_GROUP
+                    ]
+                    if GROUP in general_data[GROUPS_SECTION][collection]:
+                        general_data[GROUPS_SECTION][collection].pop(GROUP)
+                if GROUP in temp_data:
+                    general_data[GROUPS_SECTION][collection][GROUP] = temp_data[GROUP]
             return general_data
 
         @callback(
