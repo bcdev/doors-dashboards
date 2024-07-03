@@ -316,7 +316,7 @@ class ScatterplotComponent(DashboardComponent):
                 ),
                 html.Div(point_x_drop_down_menus, className="col-auto px-1"),
                 html.Div(
-                    "Y-var",
+                    "Y-Var",
                     className="col-auto px-1 m-2",
                     style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
                 ),
