@@ -6,6 +6,7 @@ from dash import State
 from dash import dcc
 from dash.development.base_component import Component
 import math
+import numpy as np
 import os
 import plotly.graph_objs as go
 import random
@@ -71,7 +72,6 @@ class ScatterMapComponent(DashboardComponent):
             "blue",
             "red",
             "green",
-            "yellow",
             "orange",
             "purple",
             "cyan",
@@ -128,7 +128,7 @@ class ScatterMapComponent(DashboardComponent):
                     name=collection,
                     customdata=custom_data,
                     selected=go.scattermapbox.Selected(
-                        marker={"color": "#5C050B", "size": 15}
+                        marker={"color": "#FFFF00", "size": 15}
                     ),
                 )
             )
@@ -200,7 +200,11 @@ class ScatterMapComponent(DashboardComponent):
             gdf = gdf[gdf["geometry"].geom_equals(p)]
             levels = self.feature_handler.get_levels(collection_name)
             text = click_data["points"][0]["text"]
-            general_data["selected_data"] = {"lon": lon, "lat": lat, "label": text}
+            general_data["selected_data"] = {
+                "lon": [lon],
+                "lat": [lat],
+                "label": [text],
+            }
             if len(levels) > 0:
                 if len(levels) == 3:
                     series = gdf.iloc[0][[levels[0], levels[1]]]
@@ -242,17 +246,17 @@ class ScatterMapComponent(DashboardComponent):
                 selected_data = general_data.get("selected_data", {})
                 lon = selected_data.get("lon")
                 lat = selected_data.get("lat")
-            elif "groups" in general_data:
-                group_value = (
-                    general_data.get("groups", {}).get(collection_name, {}).get("group")
-                )
-                if label in df.columns:
-                    geometry = df[df[label] == group_value]["geometry"]
-                    lon, lat = geometry.x.values, geometry.y.values
-                else:
-                    lon, lat = None, None
+                text = selected_data.get("label")
+            elif label not in df.columns:
+                lon, lat, text = None, None, None
             else:
-                if label in df.columns:
+                if "groups" in general_data:
+                    group_value = (
+                        general_data.get("groups", {})
+                        .get(collection_name, {})
+                        .get("group")
+                    )
+                else:
                     group_values = self.feature_handler.get_nested_level_values(
                         collection_name
                     )
@@ -264,10 +268,13 @@ class ScatterMapComponent(DashboardComponent):
                         group_value = (
                             group_values[0] if len(group_values) > 1 else group_values
                         )
-                    geometry = df[df[label] == group_value]["geometry"]
-                    lon, lat = geometry.x.values, geometry.y.values
-                else:
-                    lon, lat = None, None
+                geometry = df[df[label] == group_value]["geometry"]
+                geometries = np.array([geometry.x.values, geometry.y.values])
+                geometries = np.unique(geometries, axis=1)
+                lon = list(geometries[0])
+                lat = list(geometries[1])
+                text = [group_value] * len(lon)
+                general_data["selected_data"] = {"lon": lon, "lat": lat, "label": text}
 
             if lon is None or lat is None:
                 return no_update
@@ -275,20 +282,22 @@ class ScatterMapComponent(DashboardComponent):
             highlighted_trace = go.Scattermapbox(
                 lat=lat,
                 lon=lon,
+                text=text,
                 mode="markers",
                 marker=dict(
                     size=15,
-                    color="#5C050B",
+                    color="#FFFF00",
                 ),
                 name=f"Selected {label.title()}",
             )
 
             if isinstance(current_figure, dict) and "data" in current_figure:
-                current_figure["data"] = [
-                    trace
-                    for trace in current_figure["data"]
-                    if not trace["name"].startswith("Selected")
-                ]
+                new_traces = []
+                for trace in current_figure["data"]:
+                    if not trace["name"].startswith("Selected"):
+                        trace["selectedpoints"] = []
+                        new_traces.append(trace)
+                current_figure["data"] = new_traces
                 current_figure = go.Figure(current_figure)
                 current_figure.add_trace(highlighted_trace)
                 return current_figure

@@ -70,6 +70,8 @@ class SelectCollectionComponent(DashboardComponent):
             if selected_data is not None:
                 general_data = general_data or {}
                 general_data[COLLECTION] = selected_data[COLLECTION]
+                if "selected_data" in general_data:
+                    general_data.pop("selected_data")
             return general_data, selected_data[COLLECTION]
 
         @callback(

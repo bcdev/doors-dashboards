@@ -702,6 +702,8 @@ class ScatterplotComponent(DashboardComponent):
                         general_data[GROUPS_SECTION][collection].pop(GROUP)
                 if GROUP in temp_data:
                     general_data[GROUPS_SECTION][collection][GROUP] = temp_data[GROUP]
+                if "selected_data" in general_data:
+                    general_data.pop("selected_data")
             return general_data
 
         @callback(
