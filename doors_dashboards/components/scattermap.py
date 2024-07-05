@@ -29,6 +29,10 @@ from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
 DEFAULT_COLOR_RANGE = "viridis"
+DEFAULT_SELECTION_COLOR = "#CC0000"
+SELECTION_COLOR = DEFAULT_SELECTION_COLOR
+DEFAULT_SELECTION_SIZE = "#CC0000"
+SELECTION_SIZE = DEFAULT_SELECTION_SIZE
 
 
 def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
@@ -70,7 +74,7 @@ class ScatterMapComponent(DashboardComponent):
         # List of colors to choose from
         colors = [
             "blue",
-            "red",
+            "yellow",
             "green",
             "orange",
             "purple",
@@ -128,7 +132,7 @@ class ScatterMapComponent(DashboardComponent):
                     name=collection,
                     customdata=custom_data,
                     selected=go.scattermapbox.Selected(
-                        marker={"color": "#FFFF00", "size": 15}
+                        marker={"color": SELECTION_COLOR, "size": SELECTION_SIZE}
                     ),
                 )
             )
@@ -285,8 +289,8 @@ class ScatterMapComponent(DashboardComponent):
                 text=text,
                 mode="markers",
                 marker=dict(
-                    size=15,
-                    color="#FFFF00",
+                    size=SELECTION_SIZE,
+                    color=SELECTION_COLOR,
                 ),
                 name=f"Selected {label.title()}",
             )
