@@ -23,7 +23,7 @@ import sys
 
 REFERENCE_CRS = "EPSG:4326"
 
-DEFAULT_LOG_LEVEL = logging.WARNING
+DEFAULT_LOG_LEVEL = "WARNING"
 GENERAL_LOG_FORMAT = "[%(levelname).1s %(asctime)s %(name)s] %(message)s"
 formatter = logging.Formatter(GENERAL_LOG_FORMAT)
 
