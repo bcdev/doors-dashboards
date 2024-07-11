@@ -435,7 +435,9 @@ class TimeSeriesComponent(DashboardComponent):
                 return no_update
             collection = general_data[COLLECTION]
             variable = general_data.get("variables", {}).get(collection)
-            group = general_data.get(GROUPS_SECTION, {}).get(collection)
+            group = (
+                general_data.get(GROUPS_SECTION, {}).get(collection, {}).get("group")
+            )
             line_plots = self._get_timeplots(
                 TIMEPLOTS_ID, collection=collection, variable=variable, group=group
             )
