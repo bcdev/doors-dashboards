@@ -2,27 +2,6 @@ id: bgmts
 title: Bulgaria Moorings
 eez: BG_eez
 features:
-  - id: moorings_Varna_Bay_wavebuoy
-    type: geodb
-    params:
-      title: "Moorings Varna Bay Wavebuoy"
-      collection: moorings_Varna_Bay_wavebuoy
-      database: doors-io-bas
-      color: red
-      levels:
-        - "spotter id"
-      variables:
-        - 'sea surface temperature [°c]'
-        - 'barometric pressure [hpa]'
-        - 'wind speed [m/s]'
-        - 'wind direction [deg]'
-        - 'significant wave height [m]'
-        - 'peak period [sec]'
-        - 'mean period [sec]'
-        - 'peak direction [deg]'
-        - 'peak directional spread [deg]'
-        - 'mean direction [deg]'
-        - 'mean directional spread [deg]'
   - id: moorings_Burgas_Bay_wavebuoy
     type: geodb
     params:
@@ -36,14 +15,26 @@ features:
         - 'sea surface temperature [°c]'
         - 'barometric pressure [hpa]'
         - 'wind speed [m/s]'
-        - 'wind direction [deg]'
         - 'significant wave height [m]'
         - 'peak period [sec]'
         - 'mean period [sec]'
-        - 'peak direction [deg]'
-        - 'peak directional spread [deg]'
-        - 'mean direction [deg]'
-        - 'mean directional spread [deg]'
+  - id: moorings_Varna_Bay_wavebuoy
+    type: geodb
+    params:
+      title: "Moorings Varna Bay Wavebuoy"
+      collection: moorings_Varna_Bay_wavebuoy
+      database: doors-io-bas
+      color: red
+      levels:
+        - "spotter id"
+      variables:
+        # disabled while not working
+#        - 'sea surface temperature [°c]'
+#        - 'barometric pressure [hpa]'
+        - 'wind speed [m/s]'
+        - 'significant wave height [m]'
+        - 'peak period [sec]'
+        - 'mean period [sec]'
 #  - id: IO-BAS_National_Monitoring_CHL
 #    type: geodb
 #    params:
