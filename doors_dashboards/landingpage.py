@@ -28,6 +28,7 @@ external_stylesheets = [
 
 ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
 KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
+DOORS_VIEWER_URL = "https://doors.viewer.brockmann-consult.de"
 MAPSTYLE_STORE = "mapstyle_value_store"
 
 LOG.setLevel(os.getenv("DOORS_LOG_LEVEL", DEFAULT_LOG_LEVEL).upper())
@@ -138,6 +139,16 @@ off_canvas = html.Div(
                     dbc.Button(
                         "Kassandra",
                         href=KASSANDRA_URL,
+                        color="#77ABB7",
+                        style={"width": "80%"},
+                        className="mb-2",
+                        target="_blank",  # Open in a new tab
+                    ),
+                ),
+                html.Div(
+                    dbc.Button(
+                        "DOORS Viewer",
+                        href=DOORS_VIEWER_URL,
                         color="#77ABB7",
                         style={"width": "80%"},
                         className="mb-2",
