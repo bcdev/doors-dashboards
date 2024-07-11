@@ -6,6 +6,7 @@ from dash import State
 from dash import dcc
 from dash.development.base_component import Component
 import math
+import matplotlib
 import numpy as np
 import os
 import plotly.graph_objs as go
@@ -72,19 +73,7 @@ class ScatterMapComponent(DashboardComponent):
         all_lats = []
 
         # List of colors to choose from
-        colors = [
-            "blue",
-            "yellow",
-            "green",
-            "orange",
-            "purple",
-            "cyan",
-            "magenta",
-            "lime",
-            "teal",
-            "brown",
-            "navy",
-        ]
+        colors = list(matplotlib.colors.CSS4_COLORS.keys())
 
         for i, collection in enumerate(self.feature_handler.get_collections()):
             lons, lats, labels, variable_values = (
