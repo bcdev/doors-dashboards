@@ -78,6 +78,83 @@ features:
         - "timestamp"
       mapmode:
         mode: 'lines+markers'
+  - id: WMO4903711
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO4903711
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO5906866
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO5906866
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO6900803
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO6900803
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO6900803
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO6900803
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO6900804
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO6900804
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO6900805
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO6900805
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
+  - id: WMO6901828
+    type: geodb
+    params:
+      title: "Black Sea Argo"
+      collection: WMO6901828
+      database: black_sea_ARGO
+      color: blue
+      variables:
+        - "timestamp"
+      mapmode:
+        mode: 'lines+markers'
 components:
   scattermap:
     scattermap:
