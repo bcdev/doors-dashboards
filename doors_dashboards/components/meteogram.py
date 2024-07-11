@@ -337,8 +337,7 @@ class MeteogramComponent(DashboardComponent):
             prevent_initial_call=True,
         )
         def datepicker_to_component_store(date_value, component_data):
-            if component_data is not None:
-                component_data = component_data or {}
+            component_data = component_data or {}
             date_string = (
                 date.fromisoformat(date_value).strftime("%Y-%m-%dT00:00:00Z")
                 if date_value
