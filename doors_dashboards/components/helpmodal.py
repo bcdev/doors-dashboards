@@ -20,7 +20,7 @@ help_content = read_help_content(HELP_MD_PATH)
 def create_help_modal():
     return dbc.Modal(
         [
-            dbc.ModalHeader(dbc.ModalTitle("Help Document")),
+            dbc.ModalHeader(dbc.ModalTitle("Help")),
             dbc.ModalBody(
                 dcc.Markdown(help_content,dangerously_allow_html=True),
                 style={

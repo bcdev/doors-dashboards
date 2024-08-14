@@ -16,7 +16,7 @@ The overview button in the top left brings up the available dashboards.
 
 <p align="center">
   <img src="../assets/_static/screenshot_dashboard_selection_pnl.png" 
-alt="Dashboard" style="width:60em;"/>
+alt="Dashboard" style="width:50em;"/>
 </p>
 
  
@@ -39,7 +39,7 @@ hovering) or your mouse wheel.
 
 <p align="center">
   <img src="../assets/_static/screenshot_map_window_features.png" 
-alt="Bulgaria Dashboard" style="width:60em;"/>
+alt="Bulgaria Dashboard" style="width:50em;"/>
 </p>
 
 A dashboard visualizes data from the datasets on top of a basemap.
@@ -53,7 +53,7 @@ double-click brings up the other collections again.
 
 <p align="center">
   <img src="../assets/_static/screenshot_map_legend.png" 
-alt="Legend Dashboard" style="width:60em;"/>
+alt="Legend Dashboard" style="width:50em;"/>
 </p>
 
 To change the map theme click on the `Settings` button on the top right of the app. 
@@ -61,7 +61,7 @@ To change the map theme click on the `Settings` button on the top right of the a
 
 <p align="center">
   <img src="../assets/_static/screenshot_map_setting.png" 
-alt="Settings Dashboard" style="width:60em;"/>
+alt="Settings Dashboard" style="width:50em;"/>
 </p>
 
 Plots
@@ -74,7 +74,7 @@ that selection.
 
 <p align="center">
   <img src="../assets/_static/screenshot_collection_drp.png" 
-alt="Collection exp Dashboard" style="width:60em;"/>
+alt="Collection exp Dashboard" style="width:50em;"/>
 </p>
 
 If more than one variable is available within a selected collection, 
@@ -83,7 +83,7 @@ of dashboard in visualization area.
 
 <p align="center">
   <img src="../assets/_static/screenshot_variable_drp.png" 
-alt="Variable exp Dashboard" style="width:60em;"/>
+alt="Variable exp Dashboard" style="width:50em;"/>
 </p>
 
 In the time range plot, to view data for certain time periods, use the `Time range` 
@@ -94,7 +94,7 @@ by moving it left or right.
 
 <p align="center">
   <img src="../assets/_static/screenshot_time_range.png" 
-alt="Time range Dashboard" style="width:60em;"/>
+alt="Time range Dashboard" style="width:50em;"/>
 </p>
 
 
@@ -103,7 +103,7 @@ scatter plot, to better allow to explore the data.
 
 <p align="center">
   <img src="../assets/_static/screenshot_georgia_dashboard.png" 
-alt="Georgia Dashboard" style="width:60em;"/>
+alt="Georgia Dashboard" style="width:50em;"/>
 </p>
 
 
@@ -112,7 +112,7 @@ you may change the cruise by using the drop-down menu `Cruise`.
 
 <p align="center">
   <img src="../assets/_static/screenshot_cruise_drp.png" 
-alt="Cruise Dashboard" style="width:60em;"/>
+alt="Cruise Dashboard" style="width:50em;"/>
 </p>
 
 If more than one station is available for a selected cruise, 
@@ -120,7 +120,7 @@ you may change the station by using the drop-down menu `Station`.
 
 <p align="center">
   <img src="../assets/_static/screenshot_station_drp.png" 
-alt="Station Dashboard" style="width:60em;"/>
+alt="Station Dashboard" style="width:50em;"/>
 </p>
 
 
@@ -129,7 +129,7 @@ Likewise, if you select a location on the map, the plots will be updated accordi
 
 <p align="center">
   <img src="../assets/_static/screenshot_selected_station.png" 
-alt="Selected Station Dashboard" style="width:60em;"/>
+alt="Selected Station Dashboard" style="width:50em;"/>
 </p>
 
 
@@ -141,7 +141,7 @@ Once you make a selection, the scatter plot will update.
 
 <p align="center">
   <img src="../assets/_static/screenshot_xvar_drp.png" 
-alt="Xvar Dashboard" style="width:60em;"/>
+alt="Xvar Dashboard" style="width:50em;"/>
 </p>
 
 
@@ -151,6 +151,6 @@ There is also functionality to zoom in and out, reset axes, and to pan.
 
 <p align="center">
   <img src="../assets/_static/screenshot_graph_menu_highlight.png" 
-alt="Graph Menu Dashboard" style="width:60em;"/>
+alt="Graph Menu Dashboard" style="width:50em;"/>
 </p>
 
