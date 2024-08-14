@@ -1,0 +1,59 @@
+id: bgmts
+title: Bulgaria Moorings
+eez: BG_eez
+features:
+  - id: moorings_Burgas_Bay_wavebuoy
+    type: geodb
+    params:
+      title: "Moorings Burgas Bay Wavebuoy"
+      collection: moorings_Burgas_Bay_wavebuoy
+      database: doors-io-bas
+      color: blue
+      levels:
+        - "spotter id"
+      variables:
+        - 'sea surface temperature [°c]'
+        - 'barometric pressure [hpa]'
+        - 'wind speed [m/s]'
+        - 'significant wave height [m]'
+        - 'peak period [sec]'
+        - 'mean period [sec]'
+  - id: moorings_Varna_Bay_wavebuoy
+    type: geodb
+    params:
+      title: "Moorings Varna Bay Wavebuoy"
+      collection: moorings_Varna_Bay_wavebuoy
+      database: doors-io-bas
+      color: red
+      levels:
+        - "spotter id"
+      variables:
+        # disabled while not working
+#        - 'sea surface temperature [°c]'
+#        - 'barometric pressure [hpa]'
+        - 'wind speed [m/s]'
+        - 'significant wave height [m]'
+        - 'peak period [sec]'
+        - 'mean period [sec]'
+#  - id: IO-BAS_National_Monitoring_CHL
+#    type: geodb
+#    params:
+#      title: "IO-BAS National Monitoring Chl"
+#      collection: IO-BAS_National_Monitoring_CHL
+#      database: io-bas
+#      color: green
+#      levels:
+#        - "station"
+#      label: station
+#      variables:
+#        - "chl [mg/m^3]"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top
+  timeplots:
+    timeplots:
+      placement: right
