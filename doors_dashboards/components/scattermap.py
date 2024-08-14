@@ -16,6 +16,11 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+# import numpy as np
+import base64
+import matplotlib.pyplot as plt
+import io
+
 
 from doors_dashboards.components.constant import (
     COLLECTION,
@@ -153,25 +158,148 @@ class ScatterMapComponent(DashboardComponent):
                 font=dict(family="sans-serif", size=12, color="black"),
             ),
         )
-        # img = "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P4_p/5/8/38.png"
-        img = "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P1_Chl/5/8/39.png"
-        # lon0, lat0, lon1, lat1 = 33.75, 39.375, 39.375, 45.0
-        # lon0, lat0, lon1, lat1 = 33.75, 45.0, 39.375, 39.375
-        lon0, lat0, lon1, lat1 = 39.375, 45.0, 45.0, 39.375
-        coordinates = [[lon0, lat0], [lon1, lat0], [lon1, lat1], [lon0, lat1]]
+
+        tilevaluesets = {
+            1: {
+                "lat_start_index": 0,
+                "lat_end_index": 0,
+                "lon_start_index": 2,
+                "lon_end_index": 2,
+                "resolution": 90,
+            },
+            2: {
+                "lat_start_index": 0,
+                "lat_end_index": 1,
+                "lon_start_index": 4,
+                "lon_end_index": 4,
+                "resolution": 45,
+            },
+            3: {
+                "lat_start_index": 1,
+                "lat_end_index": 2,
+                "lon_start_index": 9,
+                "lon_end_index": 9,
+                "resolution": 22.5,
+            },
+            4: {
+                "lat_start_index": 3,
+                "lat_end_index": 4,
+                "lon_start_index": 18,
+                "lon_end_index": 19,
+                "resolution": 11.25,
+            },
+            5: {
+                "lat_start_index": 7,
+                "lat_end_index": 8,
+                "lon_start_index": 36,
+                "lon_end_index": 39,
+                "resolution": 5.625,
+            },
+            6: {
+                "lat_start_index": 15,
+                "lat_end_index": 17,
+                "lon_start_index": 73,
+                "lon_end_index": 78,
+                "resolution": 2.8125,
+            },
+            7: {
+                "lat_start_index": 30,
+                "lat_end_index": 34,
+                "lon_start_index": 147,
+                "lon_end_index": 157,
+                "resolution": 1.40625,
+            },
+        }
+        image_layers = []
+        z = 6
+        tvs = tilevaluesets.get(z)
+        for lat_index in range(tvs["lat_start_index"], tvs["lat_end_index"] + 1):
+            lat_0 = 90 - (lat_index * tvs["resolution"])
+            lat_1 = lat_0 - tvs["resolution"]
+            for lon_index in range(tvs["lon_start_index"], tvs["lon_end_index"] + 1):
+                lon_0 = -180 + (lon_index * tvs["resolution"])
+                lon_1 = lon_0 + tvs["resolution"]
+                img = f"https://doors.api.brockmann-consult.de/api/tiles/cmems-chl-bs/CHL/{z}/{lat_index}/{lon_index}?vmin=0&vmax=40&cbar=chl_DeM2&time=2024-06-29T00%3A00%3A00Z"
+
+                coordinates = [
+                    [lon_0, lat_0],
+                    [lon_1, lat_0],
+                    [lon_1, lat_1],
+                    [lon_0, lat_1],
+                ]
+                image_layers.append(
+                    {
+                        "below": "traces",
+                        "sourcetype": "image",
+                        "source": img,
+                        "coordinates": coordinates,
+                    }
+                )
+        figure.update_layout(mapbox_layers=image_layers)
+
+        # Create a color gradient as an image
+        gradient = np.linspace(0, 1, 256).reshape(256, 1)
+        # gradient = np.linspace(0, 1, 256)
+        # gradient = np.hstack([gradient] * 10)  # Stack to create a color bar
+        gradient = np.hstack([gradient] * 1)  # Stack to create a color bar
+
+        # Use Matplotlib to create the image
+        fig_colorbar, ax = plt.subplots(figsize=(1, 20))
+        ax.imshow(gradient, aspect="auto")
+        ax.axis("off")
+
+        # Save to a BytesIO object
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", bbox_inches="tight", pad_inches=0)
+        buf.seek(0)
+
+        # Convert the image to a base64 string
+        image_base64 = base64.b64encode(buf.read()).decode("ascii")
+        image_base64 = f"data:image/png;base64,{image_base64}"
+
+        # Insert the image into the Plotly figure
+        figure.add_layout_image(
+            dict(
+                source=image_base64,
+                xref="paper",
+                yref="paper",
+                x=1.15,
+                # y=0.85,  # Positioning of the image
+                y=0.9,  # Positioning of the image
+                sizex=0.05,
+                sizey=0.9,  # Size of the image
+                # sizey=1.0,  # Size of the image
+                xanchor="left",
+                yanchor="top",
+            )
+        )
+
+        # Annotations for the color bar labels
+        annotations = [
+            dict(
+                x=1.12,
+                y=0.85,
+                xref="paper",
+                yref="paper",
+                text="High",
+                showarrow=False,
+                font=dict(size=12),
+            ),
+            dict(
+                x=1.12,
+                y=0.15,
+                xref="paper",
+                yref="paper",
+                text="Low",
+                showarrow=False,
+                font=dict(size=12),
+            ),
+        ]
+
+        # Adjust the layout
         figure.update_layout(
-            mapbox_layers=[
-                {
-                    "below": 'traces',
-                    "sourcetype": "image",
-                    # "sourceattribution": "Brockmann Consult GmbH",
-                    "source": img,
-                    "coordinates": coordinates
-                        # [
-                        # "http://localhost:8080/wmts/1.0.0/tile/doors-metu-levels~BlackSea_1d_20160101_20160331_bgc_phyto.levels/P4_p/{z}/{y}/{x}"
-                    # ]
-                }
-            ]
+            annotations=annotations,
+            margin=dict(l=0, r=120, t=0, b=0),  # Space for the color bar
         )
         figure.update_layout(mapbox=mapbox)
 
