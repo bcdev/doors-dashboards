@@ -1,5 +1,7 @@
 ## Changes in 0.1.1 (in development)
 
+* Scattermap can show background layers
+
 ## Changes in 0.1
 
 Initial version. 
