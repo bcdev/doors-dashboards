@@ -12,6 +12,7 @@ import sys
 from waitress import serve
 
 import doors_dashboards.components.imprintmodal as imprint_modal
+import doors_dashboards.components.helpmodal as help_modal
 from doors_dashboards.core.constants import DEFAULT_LOG_LEVEL
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.core.constants import LOG
@@ -30,7 +31,6 @@ ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2b
 KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
 DOORS_VIEWER_URL = "https://doors.viewer.brockmann-consult.de"
 MAPSTYLE_STORE = "mapstyle_value_store"
-
 LOG.setLevel(os.getenv("DOORS_LOG_LEVEL", DEFAULT_LOG_LEVEL).upper())
 
 app = Dash(
@@ -80,7 +80,7 @@ header = html.Nav(
         ),
         # Spacer div to push the buttons to the right
         html.Div(style={"flex": "1"}),
-        # Grouping settings button and imprint icon
+        # Grouping settings button,help and imprint icon
         html.Div(
             children=[
                 html.Button(
@@ -90,7 +90,18 @@ header = html.Nav(
                     n_clicks=0,
                     children=[html.I(className="fas fa-cogs")],
                     title="Change map theme",
-                    style={"color": "white", "border": "none", "marginRight": "10px"},
+                    style={"marginRight": "10px"},
+                ),
+                html.I(
+                    className="fa fa-question-circle",
+                    id="open-help",
+                    n_clicks=0,
+                    title="Help",
+                    style={
+                        "cursor": "pointer",
+                        "color": "white",
+                        "marginRight": "10px",
+                    },
                 ),
                 html.I(
                     className="fa fa-shield-alt",
@@ -104,7 +115,8 @@ header = html.Nav(
                     },
                 ),
             ],
-            style={"display": "flex", "alignItems": "center"},
+            style={"display": "flex", "alignItems": "center",
+                   },
             id="settings-group",
         ),
     ],
@@ -240,11 +252,23 @@ def toggle_imprint_modal(open_click, close_click, is_open):
     return is_open
 
 
+@app.callback(
+    Output("modal-help", "is_open"),
+    [Input("open-help", "n_clicks"), Input("close-help", "n_clicks")],
+    [State("modal-help", "is_open")],
+)
+def toggle_imprint_modal(open_click, close_click, is_open):
+    if open_click or close_click:
+        return not is_open
+    return is_open
+
+
 @app.callback(Output("open-popup", "style"), Input("url", "pathname"))
 def hide_settings_on_home(pathname):
     if pathname == "/":
         return {"display": "none"}
-    return {"display": "flex", "alignItems": "center"}
+    return {"display": "flex", "alignItems": "center", "background": "transparent",
+            "color": "white", "border": "none"}
 
 
 app.layout = dbc.Container(
@@ -257,6 +281,7 @@ app.layout = dbc.Container(
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
         popup,
         imprint_modal.create_imprint_modal(),
+        help_modal.create_help_modal(),
     ],
     fluid=True,
     style={"padding": "0", "display": "flex", "flexDirection": "column"},
