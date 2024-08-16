@@ -788,11 +788,13 @@ class ScatterplotComponent(DashboardComponent):
             group_values, main_group_values = self._get_group_and_main_group_values(
                 collection
             )
-            main_group = (
-                general_data.get(GROUPS_SECTION, {})
-                .get(collection, {})
-                .get(MAIN_GROUP, main_group_values[0])
-            )
+            main_group = ALL_GROUP_MEMBERS
+            if main_group_values is not None:
+                main_group = (
+                    general_data.get(GROUPS_SECTION, {})
+                    .get(collection, {})
+                    .get(MAIN_GROUP, main_group_values[0])
+                )
             selected_group_dropdown_id = self.encode_group_dropdown(
                 collection, main_group
             )
