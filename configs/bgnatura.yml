@@ -1,0 +1,15 @@
+id: bgNatura1
+title: Bulgaria Natura Dashboard
+features:
+  - id: bulgaria_natura_points
+    type: local
+    params:
+      file: "../../data/collections/Natura2000_Areas_Bulgaria/Natura2000_Areas_Bulgaria.shp"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+      placement: top
+

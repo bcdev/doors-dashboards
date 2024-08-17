@@ -16,7 +16,6 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
-
 from doors_dashboards.components.constant import (
     COLLECTION,
     FONT_FAMILY,
@@ -36,21 +35,41 @@ DEFAULT_SELECTION_SIZE = 17
 SELECTION_SIZE = DEFAULT_SELECTION_SIZE
 
 
-def get_center(lons: List[float], lats: List[float]) -> Tuple[float, float]:
-    center_lon = min(lons) + (max(lons) - min(lons)) / 2
-    center_lat = min(lats) + (max(lats) - min(lats)) / 2
-    return center_lon, center_lat
+def get_center(lons: List[float], lats: List[float], geometry_type: str = "Point") -> (
+        Tuple)[float, float]:
+    if geometry_type == "Polygon":
+        valid_lats = [lat for lat in lats if lat is not None]
+        valid_lons = [lon for lon in lons if lon is not None]
+        avg_lat = sum(valid_lats) / len(valid_lats) if valid_lats else 0
+        avg_lon = sum(valid_lons) / len(valid_lons) if valid_lons else 0
+        return avg_lat, avg_lon
+    else:
+        center_lon = min(lons) + (max(lons) - min(lons)) / 2
+        center_lat = min(lats) + (max(lats) - min(lats)) / 2
+        return center_lon, center_lat
 
 
 def get_zoom_level(
-    lons: List[float], lats: List[float], center_lon: float, center_lat: float
+        lons: List[float], lats: List[float], center_lon: float, center_lat: float,
+        geometry_type: str = "Point"
 ) -> float:
-    max_distance = max(
-        abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in zip(lats, lons)
-    )
-    log = math.log(max_distance, 2)
-    zoom_level = math.floor(8 - log)
-    return zoom_level
+    if geometry_type == "Polygon":
+        valid_coords = [(lat, lon) for lat, lon in zip(lats, lons) if
+                        lat is not None and lon is not None]
+        max_distance = max(
+            abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in valid_coords
+        )
+        log = math.log(max_distance, 2) if max_distance > 0 else 0
+        zoom_level = math.floor(8 - log)
+        return zoom_level
+    else:
+        max_distance = max(
+            abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in
+            zip(lats, lons)
+        )
+        log = math.log(max_distance, 2)
+        zoom_level = math.floor(8 - log)
+        return zoom_level
 
 
 class ScatterMapComponent(DashboardComponent):
@@ -60,7 +79,7 @@ class ScatterMapComponent(DashboardComponent):
         self._dashboard_id = dashboard_id
 
     def get(
-        self, sub_component: str, sub_component_id: str, sub_config: Dict
+            self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
         points = sub_config.get("points")
         marker_size = sub_config.get("marker_size", 10)
@@ -76,97 +95,113 @@ class ScatterMapComponent(DashboardComponent):
         colors = list(matplotlib.colors.CSS4_COLORS.keys())
 
         for i, collection in enumerate(self.feature_handler.get_collections()):
-            lons, lats, labels, variable_values = (
-                self.feature_handler.get_points_as_tuples(collection)
-            )
-            custom_data = [collection] * len(lons)
-            all_lons.extend(lons)
-            all_lats.extend(lats)
-
-            color_index = random.randint(0, len(colors) - 1)
-            color = colors[color_index]
-            del colors[color_index]
-
-            if variable_values:
-                color_code_config = self.feature_handler.get_color_code_config(
-                    collection
+            geometry_type = self.feature_handler.get_geometry_type(collection)
+            if geometry_type == "Point":
+                lons, lats, labels, variable_values = (
+                    self.feature_handler.get_points_as_tuples(collection)
                 )
-                marker = go.scattermapbox.Marker(
-                    size=marker_size,
-                    color=variable_values,
-                    colorscale=color_code_config.get(
-                        "color_range", DEFAULT_COLOR_RANGE
-                    ),
-                    colorbar=dict(title=color_code_config.get("name")),
-                    cmin=color_code_config.get("color_min_value"),
-                    cmax=color_code_config.get("color_max_value"),
-                )
-            else:
-                marker = go.scattermapbox.Marker(size=marker_size, color=color)
+                custom_data = [collection] * len(lons)
+                all_lons.extend(lons)
+                all_lats.extend(lats)
 
-            map_mode_config = self.feature_handler.get_map_mode_config(collection)
-            if map_mode_config != "":
-                config_dict = eval(map_mode_config.replace("'", '"'))
-                mode = config_dict.get("mode", "")
+                color_index = random.randint(0, len(colors) - 1)
+                color = colors[color_index]
+                del colors[color_index]
+                if variable_values:
+                    color_code_config = self.feature_handler.get_color_code_config(
+                        collection
+                    )
+                    marker = go.scattermapbox.Marker(
+                        size=marker_size,
+                        color=variable_values,
+                        colorscale=color_code_config.get(
+                            "color_range", DEFAULT_COLOR_RANGE
+                        ),
+                        colorbar=dict(title=color_code_config.get("name")),
+                        cmin=color_code_config.get("color_min_value"),
+                        cmax=color_code_config.get("color_max_value"),
+                    )
+                else:
+                    marker = go.scattermapbox.Marker(size=marker_size, color=color)
+                    map_mode_config = self.feature_handler.get_map_mode_config(
+                        collection)
+                    if map_mode_config != "":
+                        config_dict = eval(map_mode_config.replace("'", '"'))
+                        mode = config_dict.get("mode", "")
+                    else:
+                        mode = "markers"
+                        figure.add_trace(
+                            go.Scattermapbox(
+                                lat=lats,
+                                lon=lons,
+                                mode=mode,
+                                marker=marker,
+                                text=labels,
+                                name=collection,
+                                customdata=custom_data,
+                                selected=go.scattermapbox.Selected(
+                                    marker={"color": SELECTION_COLOR,
+                                            "size": SELECTION_SIZE}
+                                ),
+                            )
+                        )
             else:
-                mode = "markers"
-
-            figure.add_trace(
-                go.Scattermapbox(
+                gdf = self.feature_handler.get_df(collection)
+                lons, lats, text = self.feature_handler.get_polygon_data(gdf)
+                all_lons.extend(lons)
+                all_lats.extend(lats)
+                figure.add_trace(go.Scattermapbox(
                     lat=lats,
                     lon=lons,
-                    mode=mode,
-                    marker=marker,
-                    text=labels,
-                    name=collection,
-                    customdata=custom_data,
-                    selected=go.scattermapbox.Selected(
-                        marker={"color": SELECTION_COLOR, "size": SELECTION_SIZE}
-                    ),
-                )
+                    mode='lines',
+                    fill='toself',
+                    fillcolor='rgba(0, 150, 255, 0.3)',
+                    line=dict(width=2, color='blue'),
+                    text=text,
+                    hoverinfo='text'
+                ))
+
+            center_lon, center_lat = get_center(all_lons, all_lats, geometry_type)
+            zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat,geometry_type)
+            mapbox_token = os.environ.get("MAPBOX_TOKEN")
+
+            mapbox = dict(
+                zoom=zoom,
+                accesstoken=mapbox_token,
+                center=dict(lat=center_lat, lon=center_lon),
             )
 
-        center_lon, center_lat = get_center(all_lons, all_lats)
-        zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat)
-        mapbox_token = os.environ.get("MAPBOX_TOKEN")
+            figure.update_layout(
+                clickmode="event+select",
+                margin=dict(l=0, r=0, t=0, b=0),
+                autosize=True,
+                mapbox_style=mapbox_style,
+                hoverlabel=dict(
+                    bgcolor="#7D8FA9", font_color="white", font_family=FONT_FAMILY
+                ),
+                legend=dict(
+                    x=0,
+                    y=1,
+                    traceorder="normal",
+                    font=dict(family="sans-serif", size=12, color="black"),
+                ),
+            )
 
-        mapbox = dict(
-            zoom=zoom,
-            accesstoken=mapbox_token,
-            center=dict(lat=center_lat, lon=center_lon),
-        )
+            figure.update_layout(mapbox=mapbox)
 
-        figure.update_layout(
-            clickmode="event+select",
-            margin=dict(l=0, r=0, t=0, b=0),
-            autosize=True,
-            mapbox_style=mapbox_style,
-            hoverlabel=dict(
-                bgcolor="#7D8FA9", font_color="white", font_family=FONT_FAMILY
-            ),
-            legend=dict(
-                x=0,
-                y=1,
-                traceorder="normal",
-                font=dict(family="sans-serif", size=12, color="black"),
-            ),
-        )
+            scattermap_graph = dcc.Graph(
+                id=sub_component_id, figure=figure, style={"height": "81.5vh"}
+            )
 
-        figure.update_layout(mapbox=mapbox)
-
-        scattermap_graph = dcc.Graph(
-            id=sub_component_id, figure=figure, style={"height": "81.5vh"}
-        )
-
-        return html.Div(
-            scattermap_graph,
-            style={
-                "flex": "1",
-                "padding": "20px",
-                "alignItems": "center",
-                "backgroundColor": PLOT_BGCOLOR,
-            },
-        )
+            return html.Div(
+                scattermap_graph,
+                style={
+                    "flex": "1",
+                    "padding": "20px",
+                    "alignItems": "center",
+                    "backgroundColor": PLOT_BGCOLOR,
+                },
+            )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler

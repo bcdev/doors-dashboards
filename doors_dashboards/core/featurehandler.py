@@ -77,7 +77,7 @@ class FeatureHandler:
         )
 
     def get_time_range(
-        self, collection: str = None
+            self, collection: str = None
     ) -> Tuple[pd.Timestamp, pd.Timestamp]:
         df = self.get_df(collection)
         time_column_name = self.get_time_column_name(collection)
@@ -112,7 +112,7 @@ class FeatureHandler:
         return list(self.get_df(collection)[column].unique())
 
     def _get_nested_level_values(
-        self, gdf: pd.DataFrame, levels: List[str]
+            self, gdf: pd.DataFrame, levels: List[str]
     ) -> Union[List[str], Dict[str, Any]]:
         level = levels[0]
         level_keys = list(gdf[level].unique())
@@ -125,7 +125,7 @@ class FeatureHandler:
         return level_dict
 
     def get_nested_level_values(
-        self, collection: str = None
+            self, collection: str = None
     ) -> Optional[Union[List[str], Dict[str, Any]]]:
         collection = self._default_collection if not collection else collection
         levels = self.get_levels(collection)
@@ -141,9 +141,14 @@ class FeatureHandler:
             os_file_path = os.path.join(file_dir, filepath)
             crs = features.get("params").get("crs", REFERENCE_CRS)
             with open(os_file_path, "r") as points_file:
-                df = pd.read_csv(points_file)
-                df["geometry"] = df["geometry"].apply(wkt.loads)
-                gdf = gpd.GeoDataFrame(df, crs=crs)
+                file_extension = os.path.splitext(os_file_path)
+                if file_extension[1] == ".csv":
+                    df = pd.read_csv(points_file)
+                    df["geometry"] = df["geometry"].apply(wkt.loads)
+                    gdf = gpd.GeoDataFrame(df, crs=crs)
+                else:
+                    gdf = gpd.read_file(os_file_path, driver="ESRI Shapefile")
+
                 if crs != REFERENCE_CRS:
                     gdf = gdf.to_crs(REFERENCE_CRS)
                 if self._eez_frame is not None:
@@ -163,7 +168,7 @@ class FeatureHandler:
             )
 
     def get_points_as_tuples(
-        self, collection: str = None
+            self, collection: str = None
     ) -> Tuple[List[float], List[float], List[str], List[float]]:
         collection = self._default_collection if not collection else collection
         gdf = self.get_df(collection)
@@ -183,3 +188,37 @@ class FeatureHandler:
         ccvar = self.get_color_code_config(collection).get("name")
         values = list(gdf[ccvar]) if ccvar else None
         return lons, lats, labels, values
+
+    def get_geometry_type(self, collection: str) -> str:
+        gdf = self.get_df(collection)
+        for idx, geom in enumerate(gdf.geometry):
+            if geom.geom_type == "Point":
+                return "Point"
+            if geom.geom_type == "Polygon" or geom.geom_type == "MultiPolygon":
+                return "Polygon"
+
+    def get_polygon_data(self, df: gpd.GeoDataFrame) -> [List[float], List[float],
+                                                         List[str]]:
+        latitudes = []
+        longitudes = []
+        hover_texts = []
+
+        for idx, geom in enumerate(df.geometry):
+            if geom.geom_type == 'Polygon':
+                lon = [coord[0] for coord in geom.exterior.coords] + [
+                    None]
+                lat = [coord[1] for coord in geom.exterior.coords] + [None]
+                latitudes += lat
+                longitudes += lon
+                hover_texts += [f"{df.iloc[idx]['sitename']}"] * len(lon)
+
+            elif geom.geom_type == 'MultiPolygon':
+                for polygon in geom.geoms:
+                    lon = [coord[0] for coord in polygon.exterior.coords] + [
+                        None]
+                    lat = [coord[1] for coord in polygon.exterior.coords] + [None]
+                    latitudes += lat
+                    longitudes += lon
+                    hover_texts += [f"{df.iloc[idx]['sitename']}"] * len(lon)
+
+        return longitudes, latitudes, hover_texts
