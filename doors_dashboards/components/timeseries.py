@@ -108,6 +108,8 @@ class TimeSeriesComponent(DashboardComponent):
                 collection
             )
             group_drop_menu_items = []
+            if group_values is None:
+                return
             for member in group_values:
                 group_drop_option_id = GROUP_DROP_OPTION_TEMPLATE.format(
                     collection, member
@@ -202,13 +204,15 @@ class TimeSeriesComponent(DashboardComponent):
     ) -> Component:
         collection = collection or self.feature_handler.get_default_collection()
         variable = variable or self.feature_handler.get_default_variable(collection)
+        df = self.feature_handler.get_df(collection)
+
         if group is None:
             group_values, _ = self._get_group_and_main_group_values(collection)
-            group = group_values[0]
-        level = self.feature_handler.get_levels(collection)[0]
-
-        df = self.feature_handler.get_df(collection)
-        df = df[df[level] == group]
+            if len(group_values) > 0:
+                group = group_values[0]
+        if group is not None:
+            level = self.feature_handler.get_levels(collection)[0]
+            df = df[df[level] == group]
         time_column = self.feature_handler.get_time_column_name(collection)
         df[time_column] = pd.to_datetime(df[time_column])
         df = df.sort_values(by=time_column)
