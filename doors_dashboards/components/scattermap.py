@@ -416,8 +416,10 @@ class ScatterMapComponent(DashboardComponent):
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
                 return no_update
+            collection_name = click_data.get("points", [{}])[0].get("customdata")
+            if collection_name is None:
+                return no_update
             general_data = general_data or {}
-            collection_name = click_data["points"][0]["customdata"]
             general_data[COLLECTION] = collection_name
             if GROUPS_SECTION not in general_data:
                 general_data[GROUPS_SECTION] = {}
