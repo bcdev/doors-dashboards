@@ -351,7 +351,7 @@ class ScatterplotComponent(DashboardComponent):
                     },
                 ),
                 dbc.Collapse(
-                    id=COLLAPSE,
+                    id=f"{self._dashboard_id}-{COLLAPSE}",
                     children=dbc.Col(
                         lower_components,
                         style={
@@ -368,7 +368,7 @@ class ScatterplotComponent(DashboardComponent):
 
         return html.Div(
             children=[
-                dcc.Store(id=COMPONENT_STORE_ID),
+                dcc.Store(id=f"{self._dashboard_id}-{COMPONENT_STORE_ID}"),
                 dcc.Store(id=TEMP_STORE_ID),
                 sub_components,
             ]
@@ -714,11 +714,11 @@ class ScatterplotComponent(DashboardComponent):
             return general_data
 
         @callback(
-            Output(COMPONENT_STORE_ID, "data"),
+            Output(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             [Input(TEMP_STORE_ID, "data")],
             [
                 State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
-                State(COMPONENT_STORE_ID, "data"),
+                State(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
         )
@@ -957,7 +957,7 @@ class ScatterplotComponent(DashboardComponent):
                 for x_dropdown_menu in point_x_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -999,7 +999,7 @@ class ScatterplotComponent(DashboardComponent):
                 for y_dropdown_menu in point_y_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -1041,7 +1041,7 @@ class ScatterplotComponent(DashboardComponent):
                 for line_dropdown_menu in line_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -1084,7 +1084,7 @@ class ScatterplotComponent(DashboardComponent):
             ],
             [
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
         )
@@ -1139,7 +1139,7 @@ class ScatterplotComponent(DashboardComponent):
             return point_plot_fig, line_plot_fig
 
         @callback(
-            Output(COLLAPSE, "is_open"),
+            Output(f"{self._dashboard_id}-{COLLAPSE}", "is_open"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
         )
         def general_to_collapse(selected_data):

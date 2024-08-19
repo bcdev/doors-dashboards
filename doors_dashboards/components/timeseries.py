@@ -134,7 +134,7 @@ class TimeSeriesComponent(DashboardComponent):
             self._setup_group_dropdown_menus()
             self._setup_variable_dropdown_menus()
             time_plots = self._get_timeplots(sub_component_id)
-            time_div = html.Div(id=TIMEGRAPH_ID, children=[time_plots])
+            time_div = html.Div(id=f"{self._dashboard_id}-{TIMEGRAPH_ID}", children=[time_plots])
 
             var_drop_down_menus = list(self.var_drop_menus.values())
             var_drop_down_menus[0].style["display"] = "block"
@@ -438,7 +438,7 @@ class TimeSeriesComponent(DashboardComponent):
                 return tuple(results)
 
         @callback(
-            Output(TIMEGRAPH_ID, "children"),
+            Output(f"{self._dashboard_id}-{TIMEGRAPH_ID}", "children"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
         )
         def update_time_plots_after_general_data_change(general_data):
