@@ -9,12 +9,20 @@ import math
 import matplotlib
 import numpy as np
 import os
+from PIL import Image
 import plotly.graph_objs as go
 import random
+import requests
 from shapely.geometry import Point
 from typing import Dict
 from typing import List
 from typing import Tuple
+
+# import numpy as np
+import base64
+import matplotlib.pyplot as plt
+import io
+
 
 from doors_dashboards.components.constant import (
     COLLECTION,
@@ -32,7 +40,208 @@ DEFAULT_COLOR_RANGE = "viridis"
 DEFAULT_SELECTION_COLOR = "#CC0000"
 SELECTION_COLOR = DEFAULT_SELECTION_COLOR
 DEFAULT_SELECTION_SIZE = 17
+HEADERS = {"accept": "application/json"}
+SELECTION_COLOR = DEFAULT_SELECTION_COLOR
 SELECTION_SIZE = DEFAULT_SELECTION_SIZE
+
+TILE_VALUE_SETS = {
+    1: {
+        "lat_start_index": 0,
+        "lat_end_index": 0,
+        "lon_start_index": 2,
+        "lon_end_index": 2,
+        "resolution": 90,
+    },
+    2: {
+        "lat_start_index": 0,
+        "lat_end_index": 1,
+        "lon_start_index": 4,
+        "lon_end_index": 4,
+        "resolution": 45,
+    },
+    3: {
+        "lat_start_index": 1,
+        "lat_end_index": 2,
+        "lon_start_index": 9,
+        "lon_end_index": 9,
+        "resolution": 22.5,
+    },
+    4: {
+        "lat_start_index": 3,
+        "lat_end_index": 4,
+        "lon_start_index": 18,
+        "lon_end_index": 19,
+        "resolution": 11.25,
+    },
+    5: {
+        "lat_start_index": 7,
+        "lat_end_index": 8,
+        "lon_start_index": 36,
+        "lon_end_index": 39,
+        "resolution": 5.625,
+    },
+    6: {
+        "lat_start_index": 15,
+        "lat_end_index": 17,
+        "lon_start_index": 73,
+        "lon_end_index": 78,
+        "resolution": 2.8125,
+    },
+    7: {
+        "lat_start_index": 30,
+        "lat_end_index": 34,
+        "lon_start_index": 147,
+        "lon_end_index": 157,
+        "resolution": 1.40625,
+    },
+}
+TILE_ZOOM_LEVEL = 6
+
+XCUBE_COLOR_BAR_URL = "https://doors.api.brockmann-consult.de/api/colorbars"
+
+
+def get_color_bars():
+    response = requests.get(XCUBE_COLOR_BAR_URL, headers=HEADERS)
+    if response.status_code == 200:
+        return response.json()
+
+
+XCUBE_COLOR_BARS = get_color_bars()
+
+
+def get_color_map_image_stream(var_name: str):
+    bd = BACKGROUND_DEFINITONS.get(var_name)
+    cm_name = bd.get("colormap")
+    for color_bar_group in XCUBE_COLOR_BARS:
+        for color_bar in color_bar_group[2]:
+            if color_bar[0] == cm_name:
+                cbar_png_str = color_bar[1]
+                cbar_png_bytes = base64.b64decode(cbar_png_str)
+                stream = io.BytesIO(cbar_png_bytes)
+                return stream
+
+XCUBE_SERVER_BASE_TILE_URL = "https://doors.api.brockmann-consult.de/api/tiles/{0}/{1}/{2}/{3}/{4}?vmin={5}&vmax={6}&cbar={7}&time={8}"
+XCUBE_SERVER_BASE_TIME_URL = "https://doors.api.brockmann-consult.de/api/datasets/{0}/coords/time"
+
+BACKGROUND_DEFINITONS = {
+    "chlorophyll": {
+        "vmin": 0,
+        "vmax": 40,
+        "colormap": "chl_DeM2",
+        "dataset_name": "cmems-chl-bs",
+        "variable_name": "CHL",
+        "title": "CHL [milligram m^-3]"
+    },
+    "salinity": {
+        "vmin": 10,
+        "vmax": 20,
+        "colormap": "haline",
+        "dataset_name": "cmcc-sal-bs",
+        "variable_name": "so",
+        "title": "Salinity [PSU]"
+    },
+    "sst": {
+        "vmin": 280,
+        "vmax": 302,
+        "colormap": "thermal",
+        "dataset_name": "cmems-sst-bs",
+        "variable_name": "analysed_sst",
+        "title": "Analysed SST [Kelvin]"
+    },
+}
+
+
+def get_time_coords(var_name: str) -> List[str]:
+    bd = BACKGROUND_DEFINITONS.get(var_name)
+    time_url = XCUBE_SERVER_BASE_TIME_URL.format(bd["dataset_name"])
+    response = requests.get(time_url, headers=HEADERS)
+    if response.status_code == 200:
+        return response.json().get("coordinates")
+
+
+def get_last_time_coord(var_name: str) -> List[str]:
+    return get_time_coords(var_name)[-1]
+
+
+def get_background_image_layers(var_name: str) -> List[Dict]:
+    bd = BACKGROUND_DEFINITONS.get(var_name)
+    image_layers = []
+    tvs = TILE_VALUE_SETS.get(TILE_ZOOM_LEVEL)
+    time = get_last_time_coord(var_name)
+    for lat_index in range(tvs["lat_start_index"], tvs["lat_end_index"] + 1):
+        lat_0 = 90 - (lat_index * tvs["resolution"])
+        lat_1 = lat_0 - tvs["resolution"]
+        for lon_index in range(tvs["lon_start_index"], tvs["lon_end_index"] + 1):
+            lon_0 = -180 + (lon_index * tvs["resolution"])
+            lon_1 = lon_0 + tvs["resolution"]
+            # time = "2024-06-29T00%3A00%3A00Z"
+            img = XCUBE_SERVER_BASE_TILE_URL.format(
+                bd["dataset_name"],
+                bd["variable_name"],
+                TILE_ZOOM_LEVEL,
+                lat_index,
+                lon_index,
+                bd["vmin"],
+                bd["vmax"],
+                bd["colormap"],
+                time
+            )
+            coordinates = [
+                [lon_0, lat_0],
+                [lon_1, lat_0],
+                [lon_1, lat_1],
+                [lon_0, lat_1],
+            ]
+            image_layers.append(
+                {
+                    "below": "traces",
+                    "sourcetype": "image",
+                    "source": img,
+                    "coordinates": coordinates,
+                }
+            )
+    return image_layers
+
+
+def get_annotations(var_name: str):
+    bd = BACKGROUND_DEFINITONS.get(var_name)
+    time = get_last_time_coord(var_name)
+    annotations = [
+        dict(
+            x=0.02,
+            y=-0.05,
+            xref="paper",
+            yref="paper",
+            text=bd["title"],
+            showarrow=False,
+            font=dict(size=14),
+        ),
+        dict(
+            x=0.02,
+            y=-0.1,
+            xref="paper",
+            yref="paper",
+            text=time,
+            showarrow=False,
+            font=dict(size=14),
+        )
+    ]
+    vmin = bd["vmin"]
+    vmax = bd["vmax"]
+    vrange = (vmax - vmin) / 5
+    for i in range(6):
+        annotations.append(
+            dict(
+                x=0.2 + (i * 0.15),
+                y=-0.075,
+                xref="paper",
+                yref="paper",
+                text=vmin + (i * vrange),
+                showarrow=True,
+                font=dict(size=12),
+            )
+        )
+    return annotations
 
 
 def get_center(lons: List[float], lats: List[float], geometry_type: str = "Point") -> (
@@ -79,9 +288,16 @@ class ScatterMapComponent(DashboardComponent):
         self._dashboard_id = dashboard_id
 
     def get(
-            self, sub_component: str, sub_component_id: str, sub_config: Dict
+        self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
+        points = sub_config.get("points")
+        marker_size = sub_config.get("marker_size", 10)
+        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
+        selected_variable = sub_config.get("selected_variable", "")
+        background_variable = sub_config.get("background_variable", "")
+
         figure = go.Figure()
+
         all_lons = []
         all_lats = []
 
@@ -223,6 +439,9 @@ class ScatterMapComponent(DashboardComponent):
         )
         def update_general_store_after_point_selection(click_data, general_data):
             if click_data is None:
+                return no_update
+            collection_name = click_data.get("points", [{}])[0].get("customdata")
+            if collection_name is None:
                 return no_update
             general_data = general_data or {}
             collection_name = click_data["points"][0]["customdata"]

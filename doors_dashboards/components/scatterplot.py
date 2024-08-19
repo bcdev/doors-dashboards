@@ -271,25 +271,32 @@ class ScatterplotComponent(DashboardComponent):
         line_drop_down_menus = list(self.line_dropdown_menus.values())
         line_drop_down_menus[0].style["display"] = "block"
 
-        upper_row = html.Div(
-            [
+        levels = self.feature_handler.get_levels()
+        upper_row_children = []
+        if len(levels) == 3:
+            main_group_title = self.title(levels[0])
+            upper_row_children.append(
                 html.Div(
-                    "Cruise",
+                    main_group_title,
                     className="col-auto px-1 m-2",
                     style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
-                ),
-                html.Div(main_group_drop_down_menus, className="col-auto px-1"),
-                html.Div(
-                    "Variable",
-                    className="col-auto px-1 m-2",
-                    style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
-                ),
-                html.Div(line_drop_down_menus, className="col-auto px-1"),
-            ],
-            className="row justify-content-center",
+                )
+            )
+        upper_row_children.append(
+            html.Div(main_group_drop_down_menus, className="col-auto px-1")
+        )
+        upper_row_children.append(
+            html.Div(
+                "Variable",
+                className="col-auto px-1 m-2",
+                style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
+            )
+        )
+        upper_row_children.append(
+            html.Div(line_drop_down_menus, className="col-auto px-1")
         )
         upper_components = [
-            upper_row,
+            html.Div(upper_row_children, className="row justify-content-center"),
             dcc.Graph(
                 id=SCATTER_PLOT_LINE_ID, figure=lineplot_fig, style={"height": "35.5vh"}
             ),
@@ -304,7 +311,7 @@ class ScatterplotComponent(DashboardComponent):
         lower_row = html.Div(
             [
                 html.Div(
-                    "Station",
+                    self.title(levels[-2]),
                     className="col-auto px-1 m-2",
                     style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
                 ),
@@ -344,7 +351,7 @@ class ScatterplotComponent(DashboardComponent):
                     },
                 ),
                 dbc.Collapse(
-                    id=COLLAPSE,
+                    id=f"{self._dashboard_id}-{COLLAPSE}",
                     children=dbc.Col(
                         lower_components,
                         style={
@@ -361,7 +368,7 @@ class ScatterplotComponent(DashboardComponent):
 
         return html.Div(
             children=[
-                dcc.Store(id=COMPONENT_STORE_ID),
+                dcc.Store(id=f"{self._dashboard_id}-{COMPONENT_STORE_ID}"),
                 dcc.Store(id=TEMP_STORE_ID),
                 sub_components,
             ]
@@ -707,11 +714,11 @@ class ScatterplotComponent(DashboardComponent):
             return general_data
 
         @callback(
-            Output(COMPONENT_STORE_ID, "data"),
+            Output(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             [Input(TEMP_STORE_ID, "data")],
             [
                 State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
-                State(COMPONENT_STORE_ID, "data"),
+                State(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
         )
@@ -781,11 +788,13 @@ class ScatterplotComponent(DashboardComponent):
             group_values, main_group_values = self._get_group_and_main_group_values(
                 collection
             )
-            main_group = (
-                general_data.get(GROUPS_SECTION, {})
-                .get(collection, {})
-                .get(MAIN_GROUP, main_group_values[0])
-            )
+            main_group = ALL_GROUP_MEMBERS
+            if main_group_values is not None:
+                main_group = (
+                    general_data.get(GROUPS_SECTION, {})
+                    .get(collection, {})
+                    .get(MAIN_GROUP, main_group_values[0])
+                )
             selected_group_dropdown_id = self.encode_group_dropdown(
                 collection, main_group
             )
@@ -948,7 +957,7 @@ class ScatterplotComponent(DashboardComponent):
                 for x_dropdown_menu in point_x_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -990,7 +999,7 @@ class ScatterplotComponent(DashboardComponent):
                 for y_dropdown_menu in point_y_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -1032,7 +1041,7 @@ class ScatterplotComponent(DashboardComponent):
                 for line_dropdown_menu in line_dropdown_menus
             ],
             [
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
@@ -1075,7 +1084,7 @@ class ScatterplotComponent(DashboardComponent):
             ],
             [
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
-                Input(COMPONENT_STORE_ID, "data"),
+                Input(f"{self._dashboard_id}-{COMPONENT_STORE_ID}", "data"),
             ],
             prevent_initial_call=True,
         )
@@ -1130,7 +1139,7 @@ class ScatterplotComponent(DashboardComponent):
             return point_plot_fig, line_plot_fig
 
         @callback(
-            Output(COLLAPSE, "is_open"),
+            Output(f"{self._dashboard_id}-{COLLAPSE}", "is_open"),
             Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
         )
         def general_to_collapse(selected_data):
