@@ -290,10 +290,7 @@ class ScatterMapComponent(DashboardComponent):
     def get(
         self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
-        points = sub_config.get("points")
-        marker_size = sub_config.get("marker_size", 10)
         mapbox_style = sub_config.get("mapbox_style", "carto-positron")
-        selected_variable = sub_config.get("selected_variable", "")
         background_variable = sub_config.get("background_variable", "")
 
         figure = go.Figure()
@@ -314,9 +311,8 @@ class ScatterMapComponent(DashboardComponent):
         center_lon, center_lat = get_center(all_lons, all_lats, geometry_type)
         zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat, geometry_type)
         mapbox_token = os.environ.get("MAPBOX_TOKEN")
-        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
 
-        # Update layout with mapbox configuration
+
         mapbox = dict(
             zoom=zoom,
             accesstoken=mapbox_token,
@@ -340,7 +336,33 @@ class ScatterMapComponent(DashboardComponent):
             mapbox=mapbox,
         )
 
-        # Create the Graph and wrap it in a Div
+        if background_variable in list(BACKGROUND_DEFINITONS.keys()):
+            image_layers = get_background_image_layers(background_variable)
+            figure.update_layout(mapbox_layers=image_layers)
+
+            color_map_image_stream = get_color_map_image_stream(background_variable)
+            color_map_image = Image.open(color_map_image_stream)
+            figure.add_layout_image(
+                dict(
+                    source=color_map_image,
+                    xref="paper",
+                    yref="paper",
+                    x=0.2,
+                    y=-0.075,  # Positioning of the image
+                    sizex=0.75,
+                    sizey=0.5,  # Size of the image
+                    xanchor="left",
+                    yanchor="top",
+                )
+            )
+            color_map_image_stream.close()
+            annotations = get_annotations(background_variable)
+            figure.update_layout(
+                annotations=annotations,
+                margin=dict(l=0, r=0, t=0, b=100),  # Space for the color bar
+            )
+            figure.update_layout(mapbox=mapbox)
+
         scattermap_graph = dcc.Graph(
             id=sub_component_id, figure=figure, style={"height": "81.5vh"}
         )
