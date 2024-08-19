@@ -1,6 +1,6 @@
 id: ro2
 title: Romania Bathymetry
-#eez: RO_eez
+eez: RO_eez
 features:
   - id: Bathymetry_good
     type: geodb
@@ -9,11 +9,14 @@ features:
       collection: Bathymetry_good
       database: doors-geoecomar
       color: blue
-#      levels:
-#        - "spotter id"
       variables:
         - 'raw depth (hi)'
         - 'corrected depth'
+      colorcodevariable:
+        name: "raw depth (hi)"
+        color_min_value: 0
+        color_max_value: 25
+        color_range: ylgnbu
 components:
   scattermap:
     scattermap:
@@ -21,6 +24,3 @@ components:
   selectcollection:
     selectcollection:
      placement: top
-  timeplots:
-    timeplots:
-      placement: right
