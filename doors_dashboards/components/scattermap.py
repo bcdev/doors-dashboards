@@ -120,8 +120,11 @@ def get_color_map_image_stream(var_name: str):
                 stream = io.BytesIO(cbar_png_bytes)
                 return stream
 
+
 XCUBE_SERVER_BASE_TILE_URL = "https://doors.api.brockmann-consult.de/api/tiles/{0}/{1}/{2}/{3}/{4}?vmin={5}&vmax={6}&cbar={7}&time={8}"
-XCUBE_SERVER_BASE_TIME_URL = "https://doors.api.brockmann-consult.de/api/datasets/{0}/coords/time"
+XCUBE_SERVER_BASE_TIME_URL = (
+    "https://doors.api.brockmann-consult.de/api/datasets/{0}/coords/time"
+)
 
 BACKGROUND_DEFINITONS = {
     "chlorophyll": {
@@ -130,7 +133,7 @@ BACKGROUND_DEFINITONS = {
         "colormap": "chl_DeM2",
         "dataset_name": "cmems-chl-bs",
         "variable_name": "CHL",
-        "title": "CHL [milligram m^-3]"
+        "title": "CHL [milligram m^-3]",
     },
     "salinity": {
         "vmin": 10,
@@ -138,7 +141,7 @@ BACKGROUND_DEFINITONS = {
         "colormap": "haline",
         "dataset_name": "cmcc-sal-bs",
         "variable_name": "so",
-        "title": "Salinity [PSU]"
+        "title": "Salinity [PSU]",
     },
     "sst": {
         "vmin": 280,
@@ -146,7 +149,7 @@ BACKGROUND_DEFINITONS = {
         "colormap": "thermal",
         "dataset_name": "cmems-sst-bs",
         "variable_name": "analysed_sst",
-        "title": "Analysed SST [Kelvin]"
+        "title": "Analysed SST [Kelvin]",
     },
 }
 
@@ -184,7 +187,7 @@ def get_background_image_layers(var_name: str) -> List[Dict]:
                 bd["vmin"],
                 bd["vmax"],
                 bd["colormap"],
-                time
+                time,
             )
             coordinates = [
                 [lon_0, lat_0],
@@ -224,7 +227,7 @@ def get_annotations(var_name: str):
             text=time,
             showarrow=False,
             font=dict(size=14),
-        )
+        ),
     ]
     vmin = bd["vmin"]
     vmax = bd["vmax"]
@@ -244,41 +247,34 @@ def get_annotations(var_name: str):
     return annotations
 
 
-def get_center(lons: List[float], lats: List[float], geometry_type: str = "Point") -> (
-        Tuple)[float, float]:
-    if geometry_type == "Polygon":
-        valid_lats = [lat for lat in lats if lat is not None]
-        valid_lons = [lon for lon in lons if lon is not None]
-        avg_lat = sum(valid_lats) / len(valid_lats) if valid_lats else 0
-        avg_lon = sum(valid_lons) / len(valid_lons) if valid_lons else 0
-        return avg_lat, avg_lon
-    else:
-        center_lon = min(lons) + (max(lons) - min(lons)) / 2
-        center_lat = min(lats) + (max(lats) - min(lats)) / 2
-        return center_lon, center_lat
+def get_center(
+    lons: List[float],
+    lats: List[float],
+) -> (Tuple)[float, float]:
+    valid_lats = [lat for lat in lats if lat is not None]
+    valid_lons = [lon for lon in lons if lon is not None]
+    center_lon = min(valid_lons) + (max(valid_lons) - min(valid_lons)) / 2
+    center_lat = min(valid_lats) + (max(valid_lats) - min(valid_lats)) / 2
+    return center_lon, center_lat
 
 
 def get_zoom_level(
-        lons: List[float], lats: List[float], center_lon: float, center_lat: float,
-        geometry_type: str = "Point"
+    lons: List[float],
+    lats: List[float],
+    center_lon: float,
+    center_lat: float,
 ) -> float:
-    if geometry_type == "Polygon":
-        valid_coords = [(lat, lon) for lat, lon in zip(lats, lons) if
-                        lat is not None and lon is not None]
-        max_distance = max(
-            abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in valid_coords
-        )
-        log = math.log(max_distance, 2) if max_distance > 0 else 0
-        zoom_level = math.floor(8 - log)
-        return zoom_level
-    else:
-        max_distance = max(
-            abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in
-            zip(lats, lons)
-        )
-        log = math.log(max_distance, 2)
-        zoom_level = math.floor(8 - log)
-        return zoom_level
+    valid_coords = [
+        (lat, lon)
+        for lat, lon in zip(lats, lons)
+        if lat is not None and lon is not None
+    ]
+    max_distance = max(
+        abs(lat - center_lat) + abs(lon - center_lon) for lat, lon in valid_coords
+    )
+    log = math.log(max_distance, 2) if max_distance > 0 else 0
+    zoom_level = math.floor(8 - log)
+    return zoom_level
 
 
 class ScatterMapComponent(DashboardComponent):
@@ -304,14 +300,14 @@ class ScatterMapComponent(DashboardComponent):
             if geometry_type == "Point":
                 self._process_points(collection, figure, sub_config, all_lons, all_lats)
             else:
-                self._process_polygons(collection, figure, sub_config, all_lons,
-                                       all_lats)
+                self._process_polygons(
+                    collection, figure, sub_config, all_lons, all_lats
+                )
 
         # Calculate the center and zoom level after processing all geometries
-        center_lon, center_lat = get_center(all_lons, all_lats, geometry_type)
-        zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat, geometry_type)
+        center_lon, center_lat = get_center(all_lons, all_lats)
+        zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat)
         mapbox_token = os.environ.get("MAPBOX_TOKEN")
-
 
         mapbox = dict(
             zoom=zoom,
@@ -377,14 +373,12 @@ class ScatterMapComponent(DashboardComponent):
             },
         )
 
-    def _process_points(
-            self, collection, figure, sub_config, all_lons, all_lats
-    ):
+    def _process_points(self, collection, figure, sub_config, all_lons, all_lats):
         marker_size = sub_config.get("marker_size", 10)
         colors = list(matplotlib.colors.CSS4_COLORS.keys())
 
-        lons, lats, labels, variable_values = (
-            self.feature_handler.get_points_as_tuples(collection)
+        lons, lats, labels, variable_values = self.feature_handler.get_points_as_tuples(
+            collection
         )
         custom_data = [collection] * len(lons)
         all_lons.extend(lons)
@@ -399,55 +393,53 @@ class ScatterMapComponent(DashboardComponent):
             marker = go.scattermapbox.Marker(
                 size=marker_size,
                 color=variable_values,
-                colorscale=color_code_config.get(
-                    "color_range", DEFAULT_COLOR_RANGE
-                ),
+                colorscale=color_code_config.get("color_range", DEFAULT_COLOR_RANGE),
                 colorbar=dict(title=color_code_config.get("name")),
                 cmin=color_code_config.get("color_min_value"),
                 cmax=color_code_config.get("color_max_value"),
             )
         else:
             marker = go.scattermapbox.Marker(size=marker_size, color=color)
-            map_mode_config = self.feature_handler.get_map_mode_config(collection)
-            if map_mode_config != "":
-                config_dict = eval(map_mode_config.replace("'", '"'))
-                mode = config_dict.get("mode", "")
-            else:
-                mode = "markers"
+        map_mode_config = self.feature_handler.get_map_mode_config(collection)
+        if map_mode_config != "":
+            config_dict = eval(map_mode_config.replace("'", '"'))
+            mode = config_dict.get("mode", "")
+        else:
+            mode = "markers"
 
-            figure.add_trace(
-                go.Scattermapbox(
-                    lat=lats,
-                    lon=lons,
-                    mode=mode,
-                    marker=marker,
-                    text=labels,
-                    name=collection,
-                    customdata=custom_data,
-                    selected=go.scattermapbox.Selected(
-                        marker={"color": SELECTION_COLOR, "size": SELECTION_SIZE}
-                    ),
-                )
+        figure.add_trace(
+            go.Scattermapbox(
+                lat=lats,
+                lon=lons,
+                mode=mode,
+                marker=marker,
+                text=labels,
+                name=collection,
+                customdata=custom_data,
+                selected=go.scattermapbox.Selected(
+                    marker={"color": SELECTION_COLOR, "size": SELECTION_SIZE}
+                ),
             )
+        )
 
-    def _process_polygons(
-            self, collection, figure, sub_config, all_lons, all_lats
-    ):
+    def _process_polygons(self, collection, figure, sub_config, all_lons, all_lats):
         gdf = self.feature_handler.get_df(collection)
         lons, lats, text = self.feature_handler.get_polygon_data(gdf)
         all_lons.extend(lons)
         all_lats.extend(lats)
 
-        figure.add_trace(go.Scattermapbox(
-            lat=lats,
-            lon=lons,
-            mode='lines',
-            fill='toself',
-            fillcolor='rgba(0, 150, 255, 0.3)',
-            line=dict(width=2, color='blue'),
-            text=text,
-            hoverinfo='text'
-        ))
+        figure.add_trace(
+            go.Scattermapbox(
+                lat=lats,
+                lon=lons,
+                mode="lines",
+                fill="toself",
+                fillcolor="rgba(0, 150, 255, 0.3)",
+                line=dict(width=2, color="blue"),
+                text=text,
+                hoverinfo="text",
+            )
+        )
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
