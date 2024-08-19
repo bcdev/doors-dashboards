@@ -81,127 +81,135 @@ class ScatterMapComponent(DashboardComponent):
     def get(
             self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
-        points = sub_config.get("points")
-        marker_size = sub_config.get("marker_size", 10)
-        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
-        selected_variable = sub_config.get("selected_variable", "")
-
         figure = go.Figure()
-
         all_lons = []
         all_lats = []
 
-        # List of colors to choose from
-        colors = list(matplotlib.colors.CSS4_COLORS.keys())
-
         for i, collection in enumerate(self.feature_handler.get_collections()):
             geometry_type = self.feature_handler.get_geometry_type(collection)
-            if geometry_type == "Point":
-                lons, lats, labels, variable_values = (
-                    self.feature_handler.get_points_as_tuples(collection)
-                )
-                custom_data = [collection] * len(lons)
-                all_lons.extend(lons)
-                all_lats.extend(lats)
 
-                color_index = random.randint(0, len(colors) - 1)
-                color = colors[color_index]
-                del colors[color_index]
-                if variable_values:
-                    color_code_config = self.feature_handler.get_color_code_config(
-                        collection
-                    )
-                    marker = go.scattermapbox.Marker(
-                        size=marker_size,
-                        color=variable_values,
-                        colorscale=color_code_config.get(
-                            "color_range", DEFAULT_COLOR_RANGE
-                        ),
-                        colorbar=dict(title=color_code_config.get("name")),
-                        cmin=color_code_config.get("color_min_value"),
-                        cmax=color_code_config.get("color_max_value"),
-                    )
-                else:
-                    marker = go.scattermapbox.Marker(size=marker_size, color=color)
-                    map_mode_config = self.feature_handler.get_map_mode_config(
-                        collection)
-                    if map_mode_config != "":
-                        config_dict = eval(map_mode_config.replace("'", '"'))
-                        mode = config_dict.get("mode", "")
-                    else:
-                        mode = "markers"
-                        figure.add_trace(
-                            go.Scattermapbox(
-                                lat=lats,
-                                lon=lons,
-                                mode=mode,
-                                marker=marker,
-                                text=labels,
-                                name=collection,
-                                customdata=custom_data,
-                                selected=go.scattermapbox.Selected(
-                                    marker={"color": SELECTION_COLOR,
-                                            "size": SELECTION_SIZE}
-                                ),
-                            )
-                        )
+            if geometry_type == "Point":
+                self._process_points(collection, figure, sub_config, all_lons, all_lats)
             else:
-                gdf = self.feature_handler.get_df(collection)
-                lons, lats, text = self.feature_handler.get_polygon_data(gdf)
-                all_lons.extend(lons)
-                all_lats.extend(lats)
-                figure.add_trace(go.Scattermapbox(
+                self._process_polygons(collection, figure, sub_config, all_lons,
+                                       all_lats)
+
+        # Calculate the center and zoom level after processing all geometries
+        center_lon, center_lat = get_center(all_lons, all_lats, geometry_type)
+        zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat, geometry_type)
+        mapbox_token = os.environ.get("MAPBOX_TOKEN")
+        mapbox_style = sub_config.get("mapbox_style", "carto-positron")
+
+        # Update layout with mapbox configuration
+        mapbox = dict(
+            zoom=zoom,
+            accesstoken=mapbox_token,
+            center=dict(lat=center_lat, lon=center_lon),
+        )
+
+        figure.update_layout(
+            clickmode="event+select",
+            margin=dict(l=0, r=0, t=0, b=0),
+            autosize=True,
+            mapbox_style=mapbox_style,
+            hoverlabel=dict(
+                bgcolor="#7D8FA9", font_color="white", font_family=FONT_FAMILY
+            ),
+            legend=dict(
+                x=0,
+                y=1,
+                traceorder="normal",
+                font=dict(family="sans-serif", size=12, color="black"),
+            ),
+            mapbox=mapbox,
+        )
+
+        # Create the Graph and wrap it in a Div
+        scattermap_graph = dcc.Graph(
+            id=sub_component_id, figure=figure, style={"height": "81.5vh"}
+        )
+
+        return html.Div(
+            scattermap_graph,
+            style={
+                "flex": "1",
+                "padding": "20px",
+                "alignItems": "center",
+                "backgroundColor": PLOT_BGCOLOR,
+            },
+        )
+
+    def _process_points(
+            self, collection, figure, sub_config, all_lons, all_lats
+    ):
+        marker_size = sub_config.get("marker_size", 10)
+        colors = list(matplotlib.colors.CSS4_COLORS.keys())
+
+        lons, lats, labels, variable_values = (
+            self.feature_handler.get_points_as_tuples(collection)
+        )
+        custom_data = [collection] * len(lons)
+        all_lons.extend(lons)
+        all_lats.extend(lats)
+
+        color_index = random.randint(0, len(colors) - 1)
+        color = colors[color_index]
+        del colors[color_index]
+
+        if variable_values:
+            color_code_config = self.feature_handler.get_color_code_config(collection)
+            marker = go.scattermapbox.Marker(
+                size=marker_size,
+                color=variable_values,
+                colorscale=color_code_config.get(
+                    "color_range", DEFAULT_COLOR_RANGE
+                ),
+                colorbar=dict(title=color_code_config.get("name")),
+                cmin=color_code_config.get("color_min_value"),
+                cmax=color_code_config.get("color_max_value"),
+            )
+        else:
+            marker = go.scattermapbox.Marker(size=marker_size, color=color)
+            map_mode_config = self.feature_handler.get_map_mode_config(collection)
+            if map_mode_config != "":
+                config_dict = eval(map_mode_config.replace("'", '"'))
+                mode = config_dict.get("mode", "")
+            else:
+                mode = "markers"
+
+            figure.add_trace(
+                go.Scattermapbox(
                     lat=lats,
                     lon=lons,
-                    mode='lines',
-                    fill='toself',
-                    fillcolor='rgba(0, 150, 255, 0.3)',
-                    line=dict(width=2, color='blue'),
-                    text=text,
-                    hoverinfo='text'
-                ))
-
-            center_lon, center_lat = get_center(all_lons, all_lats, geometry_type)
-            zoom = get_zoom_level(all_lons, all_lats, center_lon, center_lat,geometry_type)
-            mapbox_token = os.environ.get("MAPBOX_TOKEN")
-
-            mapbox = dict(
-                zoom=zoom,
-                accesstoken=mapbox_token,
-                center=dict(lat=center_lat, lon=center_lon),
+                    mode=mode,
+                    marker=marker,
+                    text=labels,
+                    name=collection,
+                    customdata=custom_data,
+                    selected=go.scattermapbox.Selected(
+                        marker={"color": SELECTION_COLOR, "size": SELECTION_SIZE}
+                    ),
+                )
             )
 
-            figure.update_layout(
-                clickmode="event+select",
-                margin=dict(l=0, r=0, t=0, b=0),
-                autosize=True,
-                mapbox_style=mapbox_style,
-                hoverlabel=dict(
-                    bgcolor="#7D8FA9", font_color="white", font_family=FONT_FAMILY
-                ),
-                legend=dict(
-                    x=0,
-                    y=1,
-                    traceorder="normal",
-                    font=dict(family="sans-serif", size=12, color="black"),
-                ),
-            )
+    def _process_polygons(
+            self, collection, figure, sub_config, all_lons, all_lats
+    ):
+        gdf = self.feature_handler.get_df(collection)
+        lons, lats, text = self.feature_handler.get_polygon_data(gdf)
+        all_lons.extend(lons)
+        all_lats.extend(lats)
 
-            figure.update_layout(mapbox=mapbox)
-
-            scattermap_graph = dcc.Graph(
-                id=sub_component_id, figure=figure, style={"height": "81.5vh"}
-            )
-
-            return html.Div(
-                scattermap_graph,
-                style={
-                    "flex": "1",
-                    "padding": "20px",
-                    "alignItems": "center",
-                    "backgroundColor": PLOT_BGCOLOR,
-                },
-            )
+        figure.add_trace(go.Scattermapbox(
+            lat=lats,
+            lon=lons,
+            mode='lines',
+            fill='toself',
+            fillcolor='rgba(0, 150, 255, 0.3)',
+            line=dict(width=2, color='blue'),
+            text=text,
+            hoverinfo='text'
+        ))
 
     def set_feature_handler(self, feature_handler: FeatureHandler):
         self.feature_handler = feature_handler
