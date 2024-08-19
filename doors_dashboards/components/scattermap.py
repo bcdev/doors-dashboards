@@ -211,7 +211,7 @@ def get_annotations(var_name: str):
             y=-0.05,
             xref="paper",
             yref="paper",
-            text=bd["variable_name"],
+            text=bd["title"],
             showarrow=False,
             font=dict(size=14),
         ),
