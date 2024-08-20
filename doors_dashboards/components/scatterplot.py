@@ -459,7 +459,7 @@ class ScatterplotComponent(DashboardComponent):
         return fig
 
     def _get_group_and_main_group_values(self, collection: str):
-        levels = self.feature_handler.get_levels()
+        levels = self.feature_handler.get_levels(collection)
         nested_level_values = self.feature_handler.get_nested_level_values(collection)
         if len(levels) < 3:
             group_values = list(nested_level_values.keys())
