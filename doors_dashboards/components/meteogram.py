@@ -264,6 +264,8 @@ class MeteogramComponent(DashboardComponent):
                 meteo_lon = meteogram_data.get("lon") if meteogram_data else lon
                 meteo_lat = meteogram_data.get("lat") if meteogram_data else lat
                 meteo_label = meteogram_data.get("label") if meteogram_data else label
+                if isinstance(meteo_label, List):
+                    meteo_label = meteo_label[0]
             else:
                 meteo_lon = lon
                 meteo_lat = lat
