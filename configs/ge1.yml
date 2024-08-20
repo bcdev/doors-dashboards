@@ -62,6 +62,7 @@ components:
   scattermap:
     scattermap:
       placement: left
+      background_variable: chlorophyll
   selectcollection:
     selectcollection:
      placement: top

@@ -1,0 +1,19 @@
+id: roWaterNatura
+title: Romania Bathing Water And Natura
+features:
+  - id: romania_bathing_water_points
+    type: local
+    params:
+      file: "../../data/collections/EMODNET_bathing_waters_romania/EMODNET_bathing_waters_romania.shp"
+  - id: romania_natura_points
+    type: local
+    params:
+      file: "../../data/collections/Natura2000_Areas_Romania/Natura2000_Areas_Romania.shp"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+      placement: top
+

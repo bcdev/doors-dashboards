@@ -23,7 +23,6 @@ import base64
 import matplotlib.pyplot as plt
 import io
 
-
 from doors_dashboards.components.constant import (
     COLLECTION,
     FONT_FAMILY,
@@ -248,8 +247,8 @@ def get_annotations(var_name: str):
 
 
 def get_center(
-    lons: List[float],
-    lats: List[float],
+        lons: List[float],
+        lats: List[float],
 ) -> (Tuple)[float, float]:
     valid_lats = [lat for lat in lats if lat is not None]
     valid_lons = [lon for lon in lons if lon is not None]
@@ -259,10 +258,10 @@ def get_center(
 
 
 def get_zoom_level(
-    lons: List[float],
-    lats: List[float],
-    center_lon: float,
-    center_lat: float,
+        lons: List[float],
+        lats: List[float],
+        center_lon: float,
+        center_lat: float,
 ) -> float:
     valid_coords = [
         (lat, lon)
@@ -277,6 +276,16 @@ def get_zoom_level(
     return zoom_level
 
 
+def _get_dark_colors(threshold=0.5):
+    dark_colors = []
+    for color_name, color_hex in matplotlib.colors.CSS4_COLORS.items():
+        rgb = matplotlib.colors.to_rgb(color_hex)
+        luminance = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+        if luminance < threshold:
+            dark_colors.append(color_name)
+    return dark_colors
+
+
 class ScatterMapComponent(DashboardComponent):
 
     def __init__(self, dashboard_id: str = None):
@@ -284,7 +293,7 @@ class ScatterMapComponent(DashboardComponent):
         self._dashboard_id = dashboard_id
 
     def get(
-        self, sub_component: str, sub_component_id: str, sub_config: Dict
+            self, sub_component: str, sub_component_id: str, sub_config: Dict
     ) -> Component:
         mapbox_style = sub_config.get("mapbox_style", "carto-positron")
         background_variable = sub_config.get("background_variable", "")
@@ -301,7 +310,7 @@ class ScatterMapComponent(DashboardComponent):
                 self._process_points(collection, figure, sub_config, all_lons, all_lats)
             else:
                 self._process_polygons(
-                    collection, figure, sub_config, all_lons, all_lats
+                    collection, figure, all_lons, all_lats
                 )
 
         # Calculate the center and zoom level after processing all geometries
@@ -375,7 +384,8 @@ class ScatterMapComponent(DashboardComponent):
 
     def _process_points(self, collection, figure, sub_config, all_lons, all_lats):
         marker_size = sub_config.get("marker_size", 10)
-        colors = list(matplotlib.colors.CSS4_COLORS.keys())
+        #colors = list(matplotlib.colors.CSS4_COLORS.keys())
+        dark_colors = list(_get_dark_colors())
 
         lons, lats, labels, variable_values = self.feature_handler.get_points_as_tuples(
             collection
@@ -384,9 +394,9 @@ class ScatterMapComponent(DashboardComponent):
         all_lons.extend(lons)
         all_lats.extend(lats)
 
-        color_index = random.randint(0, len(colors) - 1)
-        color = colors[color_index]
-        del colors[color_index]
+        color_index = random.randint(0, len(dark_colors) - 1)
+        color = dark_colors[color_index]
+        del dark_colors[color_index]
 
         if variable_values:
             color_code_config = self.feature_handler.get_color_code_config(collection)
@@ -422,7 +432,7 @@ class ScatterMapComponent(DashboardComponent):
             )
         )
 
-    def _process_polygons(self, collection, figure, sub_config, all_lons, all_lats):
+    def _process_polygons(self, collection, figure, all_lons, all_lats):
         gdf = self.feature_handler.get_df(collection)
         lons, lats, text = self.feature_handler.get_polygon_data(gdf)
         all_lons.extend(lons)
