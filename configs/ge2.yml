@@ -1,0 +1,52 @@
+id: ge2
+title: Georgia Chlorophyll and TSM Cruise
+eez: GE_eez
+features:
+  - id: Chlorophyll-a_and_TSM_Cruise_3
+    type: geodb
+    params:
+      title: Chlorophyll-a and TSM Cruise 3
+      collection: Chlorophyll-a_and_TSM
+      database: DOORS_Cruise_3_IO-BAS
+      color: purple
+      levels:
+        - "station"
+        - "station depth (m)"
+      label: station
+      variables:
+        - "tsm (mg/l)"
+        - "chl (mg/m3)"
+        - "secchi disk (m)"
+        - "salinity (psu)"
+        - "temperature (°c)"
+        - "air temperature (°c)"
+        - "humidity (%)"
+        - "wind speed (m/s)"
+  - id: CTD_Profiles
+    type: geodb
+    params:
+      title: CTD Profiles
+      collection: CTD_Profiles
+      database: DOORS_Cruise_3_IO-BAS
+      color: purple
+      levels:
+        - "station"
+        - "depth [m]"
+      label: station
+      variables:
+        - "salinity [psu]"
+        - "temperature [˚c]"
+        - "fluorescence [mg/m^3]"
+        - "turbidity [ntu]"
+        - "oxygen [mg/l]"
+        - "ph"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top
+  scatterplot:
+    scatterplot:
+      placement: right

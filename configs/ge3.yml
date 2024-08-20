@@ -1,0 +1,27 @@
+id: ge3
+title: Georgia Aerosol Optical Thickness
+eez: GE_eez
+features:
+  - id: Aerosol_Optical_Thickness_Cruise_3
+    type: geodb
+    params:
+      title: Aerosol Optical Thickness Cruise 3
+      collection: Aerosol_Optical_Thickness
+      database: DOORS_Cruise_3_IO-BAS
+      variables:
+        - "ap [hpa]"
+        - "aot440"
+        - "aot500"
+        - "aot675"
+        - "aot870"
+        - "aot936"
+components:
+  scattermap:
+    scattermap:
+      placement: left
+  selectcollection:
+    selectcollection:
+     placement: top
+  timeplots:
+    timeplots:
+      placement: right
