@@ -447,6 +447,7 @@ class ScatterMapComponent(DashboardComponent):
                 fillcolor="rgba(0, 150, 255, 0.3)",
                 line=dict(width=2, color="blue"),
                 text=text,
+                name= collection,
                 hoverinfo="text",
             )
         )
