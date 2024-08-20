@@ -44,6 +44,7 @@ components:
   scattermap:
     scattermap:
       placement: left
+      background_variable: salinity
   selectcollection:
     selectcollection:
      placement: top

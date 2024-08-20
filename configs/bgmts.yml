@@ -51,6 +51,7 @@ components:
   scattermap:
     scattermap:
       placement: left
+      background_variable: sst
   selectcollection:
     selectcollection:
      placement: top

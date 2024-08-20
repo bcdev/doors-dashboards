@@ -15,11 +15,24 @@ features:
         name: "floating marine litter density (c) item/km2"
         color_min_value: 0
         color_max_value: 400
-        color_range: Oranges
+        color_range: dense
+  - id: bulgaria_natura_points
+    type: local
+    params:
+      file: "../../data/collections/Natura2000_Areas_Bulgaria/Natura2000_Areas_Bulgaria.shp"
+  - id: bulgaria_bathing_water_points
+    type: local
+    params:
+      file: "../../data/collections/bathing_waters_bulgaria/bathing_waters_bulgaria.shp"
+  - id: bulgaria_shellfish_points
+    type: local
+    params:
+      file: "../../data/collections/Shellfish_Production_BG/shellfishPoint.shp"
 components:
   scattermap:
     scattermap:
       placement: left
+      background_variable: sst
   selectcollection:
     selectcollection:
      placement: top
