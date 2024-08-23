@@ -11,13 +11,14 @@ import plotly.graph_objs as go
 import sys
 from waitress import serve
 
+import doors_dashboards.components.consentmodal as consent_modal
 import doors_dashboards.components.imprintmodal as imprint_modal
 import doors_dashboards.components.helpmodal as help_modal
 from doors_dashboards.core.constants import DEFAULT_LOG_LEVEL
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.core.constants import LOG
-from doors_dashboards.components.mapstyle import popup
-from doors_dashboards.components.mapstyle import SELECT_MAP_STYLE_DRP
+import doors_dashboards.components.settingsmodal as settings_modal
+from doors_dashboards.components.settingsmodal import SELECT_MAP_STYLE_DRP
 
 from doors_dashboards.home import register_homepage
 from doors_dashboards.pages import register_pages
@@ -30,6 +31,7 @@ external_stylesheets = [
 ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
 KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
 DOORS_VIEWER_URL = "https://doors.viewer.brockmann-consult.de"
+COOKIE_STORE = "cookie-store"
 MAPSTYLE_STORE = "mapstyle_value_store"
 LOG.setLevel(os.getenv("DOORS_LOG_LEVEL", DEFAULT_LOG_LEVEL).upper())
 
@@ -83,14 +85,16 @@ header = html.Nav(
         # Grouping settings button,help and imprint icon
         html.Div(
             children=[
-                html.Button(
-                    className="btn btn-outline-primary",
-                    type="button",
-                    id="open-popup",
+                html.I(
+                    className="fa fa-cog",
+                    id="open-settings",
                     n_clicks=0,
-                    children=[html.I(className="fas fa-cogs")],
-                    title="Change map theme",
-                    style={"marginRight": "10px"},
+                    title="Settings",
+                    style={
+                        "cursor": "pointer",
+                        "color": "white",
+                        "marginRight": "10px",
+                    },
                 ),
                 html.I(
                     className="fa fa-question-circle",
@@ -197,14 +201,14 @@ def toggle_offcanvas(n1, is_open):
 
 
 @app.callback(
-    Output("modal", "is_open"),
-    Input("open-popup", "n_clicks"),
-    prevent_initial_call=True,
+    Output("settings_modal", "is_open"),
+    [Input("open-settings", "n_clicks"), Input("close-settings", "n_clicks")],
+    [State("settings_modal", "is_open")],
 )
-def open_popup(n_clicks):
-    if n_clicks:
-        return True
-    return False
+def toggle_settings_modal(open_click, close_click, is_open):
+    if open_click or close_click:
+        return not is_open
+    return is_open
 
 
 @app.callback(
@@ -263,25 +267,55 @@ def toggle_imprint_modal(open_click, close_click, is_open):
     return is_open
 
 
-@app.callback(Output("open-popup", "style"), Input("url", "pathname"))
-def hide_settings_on_home(pathname):
-    if pathname == "/":
-        return {"display": "none"}
-    return {"display": "flex", "alignItems": "center", "background": "transparent",
-            "color": "white", "border": "none"}
+@app.callback(
+    Output("consent_modal", "is_open"),
+    Output("open-offcanvas", "disable_n_clicks"),
+    Output("open-settings", "disable_n_clicks"),
+    Output("open-help", "disable_n_clicks"),
+    Output("open-imprint", "disable_n_clicks"),
+    Output("url", "pathname"),
+    Output(COOKIE_STORE, "data", allow_duplicate=True),
+    [Input("accept-cookies", "n_clicks"),
+     Input("decline-cookies", "n_clicks"),
+     Input("cookie-store", "data")],
+    [State("consent_modal", "is_open")],
+    prevent_initial_call='initial_duplicate'
+)
+def toggle_consent_modal(accept_clicks, decline_clicks, cookie_data, is_open):
+    if accept_clicks > 0:
+        return False, False, False, False, False, '/', "accepted"
+    if decline_clicks > 0:
+        return False, True, True, True, True, '/*', None
+    if cookie_data == "accepted":
+        return is_open, False, False, False, False, dash.no_update, cookie_data
+    return True, False, False, False, False, dash.no_update, cookie_data
+
+
+@app.callback(
+    Output(COOKIE_STORE, "data", allow_duplicate=True),
+    Input("revoke-consent", "n_clicks"),
+    [State(COOKIE_STORE, "data")],
+    prevent_initial_call=True
+)
+def toggle_consent_modal(revoke_clicks, cookie_data):
+    if revoke_clicks > 0:
+        return None
+    return cookie_data
 
 
 app.layout = dbc.Container(
     [
-        dcc.Location(id="url"),
+        dcc.Location(id="url", refresh=True),
         dcc.Store(id=MAPSTYLE_STORE),
         header,
         dbc.Row(dash.page_container, style={"backgroundColor": "#2D4356"}),
         dbc.Row([off_canvas]),
         dbc.Row([footer], style={"backgroundColor": "#2D4356", "flex": "0 1 auto"}),
-        popup,
+        settings_modal.create_settings_modal(),
         imprint_modal.create_imprint_modal(),
         help_modal.create_help_modal(),
+        dcc.Store(id=COOKIE_STORE, storage_type='local'),
+        consent_modal.create_consent_modal(),
     ],
     fluid=True,
     style={"padding": "0", "display": "flex", "flexDirection": "column"},
