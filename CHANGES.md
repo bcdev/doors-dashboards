@@ -1,6 +1,27 @@
 ## Changes in 0.1.1 (in development)
 
+### Functionalities
+
 * Scattermap can show background layers
+* Link to viewer is included
+* More colors are used for traces in the scattermap
+* Added help
+* Polygons can be drawn on scatter map
+* Added consent message
+
+### Fixes
+
+* Scatter Plot and Line Plot also work when no main group is present in the 
+  collection
+* Time Series can be created for collections without group label
+
+### Dashboard Configurations
+
+* Include more argo datasets
+* Include more Marine Litter datasets
+* Adjusted Moorings
+* Romania Dashboards are enabled
+* Added Dashboards for Georgia Cruises
 
 ## Changes in 0.1
 
