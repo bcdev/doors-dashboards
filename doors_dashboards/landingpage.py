@@ -285,9 +285,9 @@ def toggle_consent_modal(accept_clicks, decline_clicks, cookie_data, is_open):
     if accept_clicks > 0:
         return False, False, False, False, False, '/', "accepted"
     if decline_clicks > 0:
-        return False, True, True, True, True, '/*', None
-    if cookie_data == "accepted":
-        return is_open, False, False, False, False, dash.no_update, cookie_data
+        return False, True, True, True, True, '/*', "declined"
+    if cookie_data in ["accepted", "declined"]:
+        return False, cookie_data == "declined", cookie_data == "declined", cookie_data == "declined", cookie_data == "declined", dash.no_update, cookie_data
     return True, False, False, False, False, dash.no_update, cookie_data
 
 
