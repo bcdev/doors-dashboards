@@ -51,6 +51,12 @@ class FeatureHandler:
             self._dfs[collection] = self._read_features(self._configs[collection])
         return self._dfs[collection]
 
+    def delete_df(self, collection: str) -> None:
+        if collection not in self._configs:
+            raise ValueError(f"No collection with name '{collection}' configured.")
+        if collection in self._dfs:
+            del self._dfs[collection]
+
     def get_variables(self, collection: str = None):
         collection = self._default_collection if not collection else collection
         variables = self._configs.get(collection, {}).get("params", {}).get("variables")
