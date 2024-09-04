@@ -384,12 +384,10 @@ class ScatterMapComponent(DashboardComponent):
 
     def _process_points(self, collection, figure, sub_config, all_lons, all_lats):
         marker_size = sub_config.get("marker_size", 10)
-        #colors = list(matplotlib.colors.CSS4_COLORS.keys())
         dark_colors = list(_get_dark_colors())
 
-        lons, lats, labels, variable_values = self.feature_handler.get_points_as_tuples(
-            collection
-        )
+        lons, lats, labels, variable_values, szvar_values \
+            = self.feature_handler.get_points_as_tuples(collection)
         custom_data = [collection] * len(lons)
         all_lons.extend(lons)
         all_lats.extend(lats)
@@ -397,19 +395,36 @@ class ScatterMapComponent(DashboardComponent):
         color_index = random.randint(0, len(dark_colors) - 1)
         color = dark_colors[color_index]
         del dark_colors[color_index]
+        size_variable_config = self.feature_handler.get_size_variable_config(collection)
 
         if variable_values:
             color_code_config = self.feature_handler.get_color_code_config(collection)
+            if size_variable_config:
+                marker = go.scattermapbox.Marker(
+                    size=szvar_values,
+                    color=variable_values,
+                    colorscale=color_code_config.get("color_range",
+                                                     DEFAULT_COLOR_RANGE),
+                    colorbar=dict(title=color_code_config.get("name")),
+                    cmin=color_code_config.get("color_min_value"),
+                    cmax=color_code_config.get("color_max_value"),
+                )
+            else:
+                marker = go.scattermapbox.Marker(
+                    size=marker_size,
+                    color=variable_values,
+                    colorscale=color_code_config.get("color_range",
+                                                     DEFAULT_COLOR_RANGE),
+                    colorbar=dict(title=color_code_config.get("name")),
+                    cmin=color_code_config.get("color_min_value"),
+                    cmax=color_code_config.get("color_max_value"),
+                )
+        else:
             marker = go.scattermapbox.Marker(
                 size=marker_size,
-                color=variable_values,
-                colorscale=color_code_config.get("color_range", DEFAULT_COLOR_RANGE),
-                colorbar=dict(title=color_code_config.get("name")),
-                cmin=color_code_config.get("color_min_value"),
-                cmax=color_code_config.get("color_max_value"),
+                color=color
             )
-        else:
-            marker = go.scattermapbox.Marker(size=marker_size, color=color)
+
         map_mode_config = self.feature_handler.get_map_mode_config(collection)
         if map_mode_config != "":
             config_dict = eval(map_mode_config.replace("'", '"'))
@@ -447,7 +462,7 @@ class ScatterMapComponent(DashboardComponent):
                 fillcolor="rgba(0, 150, 255, 0.3)",
                 line=dict(width=2, color="blue"),
                 text=text,
-                name= collection,
+                name=collection,
                 hoverinfo="text",
             )
         )

@@ -94,6 +94,13 @@ class FeatureHandler:
             .get("colorcodevariable", {})
         )
 
+    def get_size_variable_config(self, collection: str) -> Dict[str, Any]:
+        return (
+            self._configs.get(collection, {})
+            .get("params", {})
+            .get("sizevariable", {})
+        )
+
     def get_map_mode_config(self, collection: str) -> str:
         return str(
             self._configs.get(collection, {}).get("params", {}).get("mapmode", "")
@@ -169,7 +176,7 @@ class FeatureHandler:
 
     def get_points_as_tuples(
             self, collection: str = None
-    ) -> Tuple[List[float], List[float], List[str], List[float]]:
+    ) -> Tuple[List[float], List[float], List[str], List[float], List[float]]:
         collection = self._default_collection if not collection else collection
         gdf = self.get_df(collection)
         lons = list(gdf.geometry.apply(lambda p: p.x))
@@ -186,8 +193,23 @@ class FeatureHandler:
                     res += f"{k}: {v}<br>"
                 labels.append(res[:-4])
         ccvar = self.get_color_code_config(collection).get("name")
+        szvar = self.get_size_variable_config(collection).get("name")
         values = list(gdf[ccvar]) if ccvar else None
-        return lons, lats, labels, values
+
+        szvar_values = list(gdf[szvar]) if szvar else None
+        max_marker_size = self.get_size_variable_config(collection).get("size_max_value")
+        if szvar_values:
+            min_size = min(szvar_values)
+            max_size = max(szvar_values)
+            if max_size > min_size:
+                szvar_values = [
+                    5 + (value - min_size) / (max_size - min_size) * (
+                                max_marker_size - 5)
+                    for value in szvar_values
+                ]
+            else:
+                szvar_values = [max_marker_size] * len(szvar_values)
+        return lons, lats, labels, values, szvar_values
 
     def get_geometry_type(self, collection: str) -> str:
         gdf = self.get_df(collection)

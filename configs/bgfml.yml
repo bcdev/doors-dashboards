@@ -16,6 +16,9 @@ features:
         color_min_value: 0
         color_max_value: 400
         color_range: dense
+      sizevariable:
+        name: "floating marine litter density (c) item/km2"
+        size_max_value: 20
   - id: bulgaria_natura_points
     type: local
     params:
