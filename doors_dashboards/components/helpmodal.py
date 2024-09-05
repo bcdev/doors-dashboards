@@ -2,6 +2,8 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 import os
 
+from doors_dashboards.components.modal import create_modal
+
 
 def read_help_content(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
@@ -18,25 +20,10 @@ help_content = read_help_content(HELP_MD_PATH)
 
 
 def create_help_modal():
-    return dbc.Modal(
-        [
-            dbc.ModalHeader(dbc.ModalTitle("Help")),
-            dbc.ModalBody(
-                dcc.Markdown(help_content,dangerously_allow_html=True),
-                style={
-                    "font-size": "small",
-                    "fontFamily": "Roboto, Helvetica, Arial, sans-serif;",
-                },
-            ),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-help", className="ml-auto")
-            ),
-        ],
-        id="modal-help",
-        is_open=False,
-        size="lg",
-        #style={
-        #   "font-size": "x-small",
-        #    "fontFamily": "Roboto, Helvetica, Arial, sans-serif;",
-        #},
+    help_modal = create_modal(
+        modal_id="help",
+        title="Help",
+        content=help_content,
+        font_size="small"
     )
+    return help_modal
