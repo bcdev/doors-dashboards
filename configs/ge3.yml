@@ -25,3 +25,4 @@ components:
   timeplots:
     timeplots:
       placement: right
+description: This dashboards shows the presence of aerosol in black sea water.

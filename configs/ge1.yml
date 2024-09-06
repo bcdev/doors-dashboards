@@ -69,3 +69,6 @@ components:
   scatterplot:
     scatterplot:
       placement: right
+description: This dashboard shows Georgia Emblas Cruises from water-quality database.
+  It helps understand the amount different particles present in water and to get know
+  how about water quality and temperature.

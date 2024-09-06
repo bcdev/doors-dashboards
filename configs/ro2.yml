@@ -24,3 +24,6 @@ components:
   selectcollection:
     selectcollection:
      placement: top
+description: This dashboard shows the Romania Bathymetry which helps determine 
+  the information about the depths and shapes of underwater terrain and data is loaded from
+  doors-geoecomar database.

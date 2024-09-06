@@ -21,3 +21,6 @@ components:
   selectcollection:
     selectcollection:
       placement: top
+description: It represents the different opportunities for people who are 
+  interested in Natura points site, fishing industry or shellfish farming and bathing 
+  water. Data is loaded from the shape files.

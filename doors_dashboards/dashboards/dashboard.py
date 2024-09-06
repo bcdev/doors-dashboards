@@ -124,7 +124,8 @@ def create_dashboard(config: Dict) -> html.Div:
             ),
             # Plots
             *main,
-            info_modal.create_info_modal(dashboard_id, dashboard_description)
+            info_modal.create_info_modal(dashboard_id, dashboard_description,
+                                         dashboard_title)
         ]
     )
 
