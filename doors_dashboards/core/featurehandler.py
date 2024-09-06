@@ -77,7 +77,7 @@ class FeatureHandler:
         )
 
     def get_time_range(
-            self, collection: str = None
+        self, collection: str = None
     ) -> Tuple[pd.Timestamp, pd.Timestamp]:
         df = self.get_df(collection)
         time_column_name = self.get_time_column_name(collection)
@@ -112,7 +112,7 @@ class FeatureHandler:
         return list(self.get_df(collection)[column].unique())
 
     def _get_nested_level_values(
-            self, gdf: pd.DataFrame, levels: List[str]
+        self, gdf: pd.DataFrame, levels: List[str]
     ) -> Union[List[str], Dict[str, Any]]:
         level = levels[0]
         level_keys = list(gdf[level].unique())
@@ -125,7 +125,7 @@ class FeatureHandler:
         return level_dict
 
     def get_nested_level_values(
-            self, collection: str = None
+        self, collection: str = None
     ) -> Optional[Union[List[str], Dict[str, Any]]]:
         collection = self._default_collection if not collection else collection
         levels = self.get_levels(collection)
@@ -168,7 +168,7 @@ class FeatureHandler:
             )
 
     def get_points_as_tuples(
-            self, collection: str = None
+        self, collection: str = None
     ) -> Tuple[List[float], List[float], List[str], List[float]]:
         collection = self._default_collection if not collection else collection
         gdf = self.get_df(collection)
@@ -197,25 +197,24 @@ class FeatureHandler:
             if geom.geom_type == "Polygon" or geom.geom_type == "MultiPolygon":
                 return "Polygon"
 
-    def get_polygon_data(self, df: gpd.GeoDataFrame) -> [List[float], List[float],
-                                                         List[str]]:
+    def get_polygon_data(
+        self, df: gpd.GeoDataFrame
+    ) -> [List[float], List[float], List[str]]:
         latitudes = []
         longitudes = []
         hover_texts = []
 
         for idx, geom in enumerate(df.geometry):
-            if geom.geom_type == 'Polygon':
-                lon = [coord[0] for coord in geom.exterior.coords] + [
-                    None]
+            if geom.geom_type == "Polygon":
+                lon = [coord[0] for coord in geom.exterior.coords] + [None]
                 lat = [coord[1] for coord in geom.exterior.coords] + [None]
                 latitudes += lat
                 longitudes += lon
                 hover_texts += [f"{df.iloc[idx]['sitename']}"] * len(lon)
 
-            elif geom.geom_type == 'MultiPolygon':
+            elif geom.geom_type == "MultiPolygon":
                 for polygon in geom.geoms:
-                    lon = [coord[0] for coord in polygon.exterior.coords] + [
-                        None]
+                    lon = [coord[0] for coord in polygon.exterior.coords] + [None]
                     lat = [coord[1] for coord in polygon.exterior.coords] + [None]
                     latitudes += lat
                     longitudes += lon

@@ -119,8 +119,10 @@ header = html.Nav(
                     },
                 ),
             ],
-            style={"display": "flex", "alignItems": "center",
-                   },
+            style={
+                "display": "flex",
+                "alignItems": "center",
+            },
             id="settings-group",
         ),
     ],
@@ -275,17 +277,19 @@ def toggle_imprint_modal(open_click, close_click, is_open):
     Output("open-imprint", "disable_n_clicks"),
     Output("url", "pathname"),
     Output(COOKIE_STORE, "data", allow_duplicate=True),
-    [Input("accept-cookies", "n_clicks"),
-     Input("decline-cookies", "n_clicks"),
-     Input("cookie-store", "data")],
+    [
+        Input("accept-cookies", "n_clicks"),
+        Input("decline-cookies", "n_clicks"),
+        Input("cookie-store", "data"),
+    ],
     [State("consent_modal", "is_open")],
-    prevent_initial_call='initial_duplicate'
+    prevent_initial_call="initial_duplicate",
 )
 def toggle_consent_modal(accept_clicks, decline_clicks, cookie_data, is_open):
     if accept_clicks > 0:
-        return False, False, False, False, False, '/', "accepted"
+        return False, False, False, False, False, "/", "accepted"
     if decline_clicks > 0:
-        return False, True, True, True, True, '/*', None
+        return False, True, True, True, True, "/*", None
     if cookie_data == "accepted":
         return is_open, False, False, False, False, dash.no_update, cookie_data
     return True, False, False, False, False, dash.no_update, cookie_data
@@ -295,7 +299,7 @@ def toggle_consent_modal(accept_clicks, decline_clicks, cookie_data, is_open):
     Output(COOKIE_STORE, "data", allow_duplicate=True),
     Input("revoke-consent", "n_clicks"),
     [State(COOKIE_STORE, "data")],
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def toggle_consent_modal(revoke_clicks, cookie_data):
     if revoke_clicks > 0:
@@ -314,7 +318,7 @@ app.layout = dbc.Container(
         settings_modal.create_settings_modal(),
         imprint_modal.create_imprint_modal(),
         help_modal.create_help_modal(),
-        dcc.Store(id=COOKIE_STORE, storage_type='local'),
+        dcc.Store(id=COOKIE_STORE, storage_type="local"),
         consent_modal.create_consent_modal(),
     ],
     fluid=True,
@@ -328,3 +332,4 @@ if __name__ == "__main__":
     port = sys.argv[1]
     LOG.info(f"Starting server under port {port}")
     serve(app.server, host="0.0.0.0", port=port)
+    LOG.info(f"Starting server under port {port}")
