@@ -162,3 +162,5 @@ components:
   selectcollection:
     selectcollection:
      placement: top
+description:
+  This dashboard represents the argo float data.

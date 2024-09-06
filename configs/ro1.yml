@@ -87,3 +87,5 @@ components:
   scatterplot:
     scatterplot:
       placement: right
+description: This dashboard shows the Romania Cruises data. Data is loaded from  
+  DOORS_Cruise_1_IO-BAS.

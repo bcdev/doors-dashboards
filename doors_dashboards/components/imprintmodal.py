@@ -2,6 +2,8 @@ from dash import dcc
 import dash_bootstrap_components as dbc
 import os
 
+from doors_dashboards.components.modal import create_modal
+
 ASSETS_PATH = "../assets"
 
 
@@ -20,19 +22,9 @@ imprint_content = read_imprint_content(IMPRINT_MD_PATH)
 
 # Define the imprint modal component
 def create_imprint_modal():
-    return dbc.Modal(
-        [
-            dbc.ModalHeader(dbc.ModalTitle("Imprint")),
-            dbc.ModalBody(dcc.Markdown(imprint_content)),
-            dbc.ModalFooter(
-                dbc.Button("Close", id="close-imprint", className="ml-auto")
-            ),
-        ],
-        id="modal-imprint",
-        is_open=False,
-        size="lg",
-        style={
-            "font-size": "x-small",
-            "fontFamily": "Roboto, Helvetica, Arial, sans-serif;",
-        },
+    imprint_modal = create_modal(
+        modal_id="imprint",
+        title="Imprint",
+        content=imprint_content
     )
+    return imprint_modal
