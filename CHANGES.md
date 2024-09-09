@@ -1,5 +1,10 @@
 ## Changes in 0.2.1 (in development)
 
+* Dashboard data can be updated
+* Added dashboard descriptions
+* Do not show consent dialog again after declining consent
+* Fixed bug with collapsing scatterplots
+
 ## Changes in 0.2
 
 ### Functionalities
