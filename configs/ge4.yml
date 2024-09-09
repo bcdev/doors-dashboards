@@ -23,4 +23,5 @@ components:
   selectcollection:
     selectcollection:
      placement: top
-
+description: It shows the floating marine litter data for Georgia region from database
+  of DOORS Cruise 3 IO-BAS.

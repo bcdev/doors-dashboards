@@ -263,7 +263,7 @@ def toggle_imprint_modal(open_click, close_click, is_open):
     [Input("open-help", "n_clicks"), Input("close-help", "n_clicks")],
     [State("modal-help", "is_open")],
 )
-def toggle_imprint_modal(open_click, close_click, is_open):
+def toggle_help_modal(open_click, close_click, is_open):
     if open_click or close_click:
         return not is_open
     return is_open

@@ -58,3 +58,7 @@ components:
   timeplots:
     timeplots:
       placement: right
+description:
+  This dashboard is about moorings deployed in Varna and Burgas. The timely updated 
+  data of moorings is shown and timerseries for the different variables from the data.
+  The data comes from IO-BAS National Monitoring which then uploaded in geodb.

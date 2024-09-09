@@ -1,4 +1,4 @@
-from dash import dcc
+from dash import dcc, callback, Output, Input, State
 from dash import html
 import dash_bootstrap_components as dbc
 from typing import Dict
@@ -10,6 +10,7 @@ from doors_dashboards.components.scatterplot import ScatterplotComponent
 from doors_dashboards.components.selectcollection import SelectCollectionComponent
 from doors_dashboards.components.timeseries import TimeSeriesComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
+import doors_dashboards.components.infomodal as info_modal
 
 _COMPONENTS = {
     "scattermap": ScatterMapComponent,
@@ -23,6 +24,7 @@ _COMPONENTS = {
 def create_dashboard(config: Dict) -> html.Div:
     dashboard_id = config.get("id")
     dashboard_title = config.get("title")
+    dashboard_description = config.get("description")
     store_ids = {
         "general": f"{dashboard_id}-general",
         "collection_selector": f"{dashboard_id}-collection_selector",
@@ -105,13 +107,38 @@ def create_dashboard(config: Dict) -> html.Div:
                         style={"color": FONT_COLOR},
                         className="col m-1",
                     ),
+                    dbc.Col(html.I(
+                        className="fa fa-info-circle",
+                        id=f"{dashboard_id}_info_open",
+                        n_clicks=0,
+                        title="Info",
+                        style={
+                            "cursor": "pointer",
+                            "color": "white",
+                        },
+                    ), width="auto", className="m-1",
+                    ),
                 ],
+                className="d-flex justify-content-between align-items-center",
                 style={"height": "60px", "margin-top": "-3px"},
             ),
             # Plots
             *main,
+            info_modal.create_info_modal(dashboard_id, dashboard_description,
+                                         dashboard_title)
         ]
     )
+
+    @callback(
+        Output(f"modal-{dashboard_id}-info", "is_open"),
+        [Input(f"{dashboard_id}_info_open", "n_clicks"),
+         Input(f"close-{dashboard_id}-info", "n_clicks")],
+        [State(f"modal-{dashboard_id}-info", "is_open")],
+    )
+    def toggle_info_modal(open_click, close_click, is_open):
+        if open_click or close_click:
+            return not is_open
+        return is_open
 
     for component in components.values():
         component.register_callbacks(list(components.keys()), dashboard_id)
