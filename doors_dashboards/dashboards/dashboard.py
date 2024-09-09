@@ -1,7 +1,7 @@
 from dash import dcc, callback, Output, Input, State
 from dash import html
 import dash_bootstrap_components as dbc
-from typing import Dict
+from typing import Dict, List
 
 from doors_dashboards.components.constant import FONT_COLOR
 from doors_dashboards.components.meteogram import MeteogramComponent
@@ -99,6 +99,8 @@ def create_dashboard(config: Dict) -> html.Div:
             dcc.Store(id=store_ids["collection_selector"]),
             dcc.Store(id=store_ids["group_selector"]),
             dcc.Store(id=store_ids["variable_selector"]),
+            dcc.Interval(id=f"{dashboard_id}-interval", interval=1 * 1000,
+                         n_intervals=0),
             dbc.Row(
                 [
                     top_children["top"],
@@ -139,6 +141,18 @@ def create_dashboard(config: Dict) -> html.Div:
         if open_click or close_click:
             return not is_open
         return is_open
+
+    @callback(
+        Output("none", "children",allow_duplicate=True),
+        [Input(f"{dashboard_id}-interval", "n_intervals")],
+        prevent_initial_call=True
+    )
+    def get_new_data(interval):
+        collections = feature_handler.get_collections()
+        for collection in collections:
+            feature_handler.delete_df(collection)
+        #for collection in collections:
+        #feature_handler.get_df(collection)
 
     for component in components.values():
         component.register_callbacks(list(components.keys()), dashboard_id)
