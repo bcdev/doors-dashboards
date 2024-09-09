@@ -1,6 +1,7 @@
 id: bgmts
 title: Bulgaria Moorings
 eez: BG_eez
+update-interval: 3600
 features:
   - id: moorings_Burgas_Bay_wavebuoy
     type: geodb

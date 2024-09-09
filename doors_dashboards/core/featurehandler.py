@@ -9,6 +9,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from doors_dashboards.core.constants import LOG
 from doors_dashboards.core.constants import REFERENCE_CRS
 from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
 
@@ -52,10 +53,11 @@ class FeatureHandler:
         return self._dfs[collection]
 
     def delete_df(self, collection: str) -> None:
-        if collection not in self._configs:
-            raise ValueError(f"No collection with name '{collection}' configured.")
         if collection in self._dfs:
             del self._dfs[collection]
+            LOG.debug(f"Removed read dataframe '{collection}', requires re-reading")
+            return
+        LOG.debug(f"No dataframe '{collection}' read, nothing to remove")
 
     def get_variables(self, collection: str = None):
         collection = self._default_collection if not collection else collection
