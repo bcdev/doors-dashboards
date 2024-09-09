@@ -1,4 +1,4 @@
-## Changes in 0.2.1 (in development)
+## Changes in 0.3 (in development)
 
 * Dashboard data can be updated
 * Added dashboard descriptions
