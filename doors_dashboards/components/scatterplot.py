@@ -82,7 +82,7 @@ class ScatterplotComponent(DashboardComponent):
 
     @staticmethod
     def _get_dropdown_menu(
-            dropdown_id: str, items: List[dbc.DropdownMenuItem], default: str
+        dropdown_id: str, items: List[dbc.DropdownMenuItem], default: str
     ) -> dbc.DropdownMenu:
         return dbc.DropdownMenu(
             id=dropdown_id,
@@ -256,7 +256,7 @@ class ScatterplotComponent(DashboardComponent):
                 )
 
     def get(
-            self, sub_component: str, sub_component_id_str, sub_config: Dict
+        self, sub_component: str, sub_component_id_str, sub_config: Dict
     ) -> Component:
         self._setup_group_dropdown_menus()
         self._setup_variable_dropdown_menus()
@@ -375,12 +375,12 @@ class ScatterplotComponent(DashboardComponent):
         )
 
     def get_point_scatter_plot(
-            self,
-            collection: str,
-            selected_group_item: str = "",
-            selected_main_group_item: str = "",
-            x_variable: str = None,
-            y_variable: str = None,
+        self,
+        collection: str,
+        selected_group_item: str = "",
+        selected_main_group_item: str = "",
+        x_variable: str = None,
+        y_variable: str = None,
     ):
         df = self.get_dataframe(
             collection, selected_group_item, selected_main_group_item
@@ -425,8 +425,7 @@ class ScatterplotComponent(DashboardComponent):
         return " ".join(words)
 
     def get_line_scatter_plot(
-            self, collection: str, selected_main_group_item: str = "",
-            variable: str = None
+        self, collection: str, selected_main_group_item: str = "", variable: str = None
     ):
         df = self.get_dataframe(collection, ALL_GROUP_MEMBERS, selected_main_group_item)
         levels = self.feature_handler.get_levels(collection)
@@ -483,10 +482,10 @@ class ScatterplotComponent(DashboardComponent):
         return group_values
 
     def get_dataframe(
-            self,
-            collection: str,
-            selected_group_item: str = "",
-            selected_main_group_item: str = "",
+        self,
+        collection: str,
+        selected_group_item: str = "",
+        selected_main_group_item: str = "",
     ):
         df = self.feature_handler.get_df(collection)
         group_values, main_group_values = self._get_group_and_main_group_values(
@@ -763,8 +762,8 @@ class ScatterplotComponent(DashboardComponent):
                 )
                 results = []
                 for (
-                        main_group_dropdown_menu_id,
-                        main_group_dropdown_menu,
+                    main_group_dropdown_menu_id,
+                    main_group_dropdown_menu,
                 ) in self.main_group_dropdown_menus.items():
                     if main_group_dropdown_menu_id == selected_main_group_dropdown_id:
                         results.append({"display": "block"})
@@ -801,8 +800,8 @@ class ScatterplotComponent(DashboardComponent):
             )
             results = []
             for (
-                    group_dropdown_menu_id,
-                    group_dropdown_menu,
+                group_dropdown_menu_id,
+                group_dropdown_menu,
             ) in self.group_dropdown_menus.items():
                 if group_dropdown_menu_id == selected_group_dropdown_id:
                     results.append({"display": "block"})
@@ -827,8 +826,8 @@ class ScatterplotComponent(DashboardComponent):
             selected_point_x_dropdown_id = self.encode_xvar_dropdown(collection)
             results = []
             for (
-                    point_x_dropdown_menu_id,
-                    point_x_dropdown_menu,
+                point_x_dropdown_menu_id,
+                point_x_dropdown_menu,
             ) in self.point_x_dropdown_menus.items():
                 if point_x_dropdown_menu_id == selected_point_x_dropdown_id:
                     results.append({"display": "block"})
@@ -853,8 +852,8 @@ class ScatterplotComponent(DashboardComponent):
             selected_point_y_dropdown_id = self.encode_yvar_dropdown(collection)
             results = []
             for (
-                    point_y_dropdown_menu_id,
-                    point_y_dropdown_menu,
+                point_y_dropdown_menu_id,
+                point_y_dropdown_menu,
             ) in self.point_y_dropdown_menus.items():
                 if point_y_dropdown_menu_id == selected_point_y_dropdown_id:
                     results.append({"display": "block"})
@@ -879,8 +878,8 @@ class ScatterplotComponent(DashboardComponent):
             selected_line_dropdown_id = self.encode_linevar_dropdown(collection)
             results = []
             for (
-                    line_dropdown_menu_id,
-                    line_dropdown_menu,
+                line_dropdown_menu_id,
+                line_dropdown_menu,
             ) in self.line_dropdown_menus.items():
                 if line_dropdown_menu_id == selected_line_dropdown_id:
                     results.append({"display": "block"})
@@ -915,8 +914,8 @@ class ScatterplotComponent(DashboardComponent):
                 )
                 results = []
                 for (
-                        main_group_dropdown_menu_id,
-                        main_group_dropdown_menu,
+                    main_group_dropdown_menu_id,
+                    main_group_dropdown_menu,
                 ) in self.main_group_dropdown_menus.items():
                     if main_group_dropdown_menu_id == relevant_main_group_dropdown_id:
                         results.append(main_group)
@@ -939,8 +938,8 @@ class ScatterplotComponent(DashboardComponent):
             general_data = general_data or {}
             results = []
             for (
-                    group_dropdown_menu_id,
-                    group_dropdown_menu,
+                group_dropdown_menu_id,
+                group_dropdown_menu,
             ) in self.group_dropdown_menus.items():
                 c, main_group = self.decode_group_dropdown(group_dropdown_menu_id)
                 default_group = self._get_group_values_for_main_group(c, main_group)[0]
@@ -979,8 +978,8 @@ class ScatterplotComponent(DashboardComponent):
             relevant_x_dropdown_menu_id = self.encode_xvar_dropdown(collection)
             results = []
             for (
-                    x_dropdown_menu_id,
-                    x_dropdown_menu,
+                x_dropdown_menu_id,
+                x_dropdown_menu,
             ) in self.point_x_dropdown_menus.items():
                 if x_dropdown_menu_id == relevant_x_dropdown_menu_id:
                     results.append(x_variable)
@@ -1021,8 +1020,8 @@ class ScatterplotComponent(DashboardComponent):
             relevant_y_dropdown_menu_id = self.encode_yvar_dropdown(collection)
             results = []
             for (
-                    y_dropdown_menu_id,
-                    y_dropdown_menu,
+                y_dropdown_menu_id,
+                y_dropdown_menu,
             ) in self.point_y_dropdown_menus.items():
                 if y_dropdown_menu_id == relevant_y_dropdown_menu_id:
                     results.append(y_variable)
@@ -1063,8 +1062,8 @@ class ScatterplotComponent(DashboardComponent):
             relevant_line_dropdown_menu_id = self.encode_linevar_dropdown(collection)
             results = []
             for (
-                    line_dropdown_menu_id,
-                    line_dropdown_menu,
+                line_dropdown_menu_id,
+                line_dropdown_menu,
             ) in self.line_dropdown_menus.items():
                 if line_dropdown_menu_id == relevant_line_dropdown_menu_id:
                     results.append(line_variable)
@@ -1131,6 +1130,7 @@ class ScatterplotComponent(DashboardComponent):
                 .get(collection, {})
                 .get(LINE_VARIABLE, variables[0])
             )
+            point_plot_fig = dash.no_update
             if len(variables) > 1:
                 point_plot_fig = self.get_point_scatter_plot(
                     collection, group, main_group, x_variable, y_variable
