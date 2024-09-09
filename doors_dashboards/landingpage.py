@@ -31,6 +31,7 @@ external_stylesheets = [
 ACCESS_TOKEN = "pk.eyJ1Ijoicm1vdHdhbmkiLCJhIjoiY2xvNDVndHY2MDRlejJ4czIwa3QyYnk2bCJ9.g88Jq0lCZRcQda4eNPks2Q"
 KASSANDRA_URL = "http://kassandra.ve.ismar.cnr.it:8080/kassandra/black-sea"
 DOORS_VIEWER_URL = "https://doors.viewer.brockmann-consult.de"
+CLICK_COUNT_STORE = "click-count-store"
 COOKIE_STORE = "cookie-store"
 MAPSTYLE_STORE = "mapstyle_value_store"
 LOG.setLevel(os.getenv("DOORS_LOG_LEVEL", DEFAULT_LOG_LEVEL).upper())
@@ -204,11 +205,15 @@ def toggle_offcanvas(n1, is_open):
 
 @app.callback(
     Output("settings_modal", "is_open"),
-    [Input("open-settings", "n_clicks"), Input("close-settings", "n_clicks")],
+    [
+        Input("open-settings", "n_clicks"),
+        Input("close-settings", "n_clicks"),
+        Input("revoke-consent", "n_clicks"),
+    ],
     [State("settings_modal", "is_open")],
 )
-def toggle_settings_modal(open_click, close_click, is_open):
-    if open_click or close_click:
+def toggle_settings_modal(open_click, close_click, revoke_consent, is_open):
+    if open_click or close_click or revoke_consent:
         return not is_open
     return is_open
 
@@ -275,24 +280,29 @@ def toggle_help_modal(open_click, close_click, is_open):
     Output("open-settings", "disable_n_clicks"),
     Output("open-help", "disable_n_clicks"),
     Output("open-imprint", "disable_n_clicks"),
-    Output("url", "pathname"),
     Output(COOKIE_STORE, "data", allow_duplicate=True),
+    Output(CLICK_COUNT_STORE, "data"),
     [
         Input("accept-cookies", "n_clicks"),
         Input("decline-cookies", "n_clicks"),
         Input("cookie-store", "data"),
     ],
-    [State("consent_modal", "is_open")],
+    [State("consent_modal", "is_open"), State(CLICK_COUNT_STORE, "data")],
     prevent_initial_call="initial_duplicate",
 )
-def toggle_consent_modal(accept_clicks, decline_clicks, cookie_data, is_open):
-    if accept_clicks > 0:
-        return False, False, False, False, False, "/", "accepted"
-    if decline_clicks > 0:
-        return False, True, True, True, True, "/*", None
+def toggle_consent_modal(
+    accept_clicks, decline_clicks, cookie_data, is_open, click_count_data
+):
+    click_count_data = click_count_data or {"accepted": 0, "declined": 0}
+    if accept_clicks > click_count_data.get("accepted", 0):
+        click_count_data["accepted"] += 1
+        return False, False, False, False, False, "accepted", click_count_data
+    if decline_clicks > click_count_data.get("declined", 0):
+        click_count_data["declined"] += 1
+        return False, True, True, True, True, dash.no_update, click_count_data
     if cookie_data == "accepted":
-        return is_open, False, False, False, False, dash.no_update, cookie_data
-    return True, False, False, False, False, dash.no_update, cookie_data
+        return is_open, False, False, False, False, dash.no_update, click_count_data
+    return True, False, False, False, False, dash.no_update, click_count_data
 
 
 @app.callback(
@@ -318,6 +328,7 @@ app.layout = dbc.Container(
         settings_modal.create_settings_modal(),
         imprint_modal.create_imprint_modal(),
         help_modal.create_help_modal(),
+        dcc.Store(id=CLICK_COUNT_STORE),
         dcc.Store(id=COOKIE_STORE, storage_type="local"),
         consent_modal.create_consent_modal(),
     ],
