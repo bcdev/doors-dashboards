@@ -8,7 +8,7 @@ features:
   - id: bulgaria_bathing_water_points
     type: local
     params:
-      file: "../../data/collections/bathing_waters_bulgaria/bathing_waters_bulgaria.shp"
+      file: "../../data/collections/bathing_waters_bg/bathingwatersPoint_BG.shp"
   - id: bulgaria_shellfish_points
     type: local
     params:
