@@ -10,9 +10,9 @@ features:
       database: DOORS_Cruise_3_IO-BAS
       variables:
         - "transect"
-        - "concentration of macro plastic (items/km^2)"
+        - "concentration of macro litter (items/km^2)"
       colorcodevariable:
-        name: "concentration of macro plastic (items/km^2)"
+        name: "concentration of macro litter (items/km^2)"
         color_min_value: 160
         color_max_value: 2940
         color_range: Oranges
