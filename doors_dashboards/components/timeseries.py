@@ -17,13 +17,14 @@ from typing import Optional
 from doors_dashboards.components.constant import (
     COLLECTION,
     FONT_FAMILY,
-    # FONT_SIZE,
     SCATTER_FONT_SIZE,
     FONT_COLOR,
     GROUPS_SECTION,
     PLOT_BGCOLOR,
     GENERAL_STORE_ID,
 )
+
+from doors_dashboards.core.constants import LOG
 from doors_dashboards.core.dashboardcomponent import DashboardComponent
 from doors_dashboards.core.featurehandler import FeatureHandler
 
@@ -134,7 +135,9 @@ class TimeSeriesComponent(DashboardComponent):
             self._setup_group_dropdown_menus()
             self._setup_variable_dropdown_menus()
             time_plots = self._get_timeplots(sub_component_id)
-            time_div = html.Div(id=f"{self._dashboard_id}-{TIMEGRAPH_ID}", children=[time_plots])
+            time_div = html.Div(
+                id=f"{self._dashboard_id}-{TIMEGRAPH_ID}", children=[time_plots]
+            )
 
             var_drop_down_menus = list(self.var_drop_menus.values())
             var_drop_down_menus[0].style["display"] = "block"
@@ -145,7 +148,7 @@ class TimeSeriesComponent(DashboardComponent):
                     className="col-auto px-1 m-2",
                     style={"color": FONT_COLOR, "fontFamily": FONT_FAMILY},
                 ),
-                html.Div(var_drop_down_menus, className="col-auto px-1")
+                html.Div(var_drop_down_menus, className="col-auto px-1"),
             ]
 
             group_drop_down_menus = list(self.group_drop_menus.values())
@@ -163,10 +166,7 @@ class TimeSeriesComponent(DashboardComponent):
                 row_children.append(
                     html.Div(group_drop_down_menus, className="col-auto px-1")
                 )
-            row = html.Div(
-                row_children,
-                className="row justify-content-center"
-            )
+            row = html.Div(row_children, className="row justify-content-center")
 
             sub_components = [
                 dbc.Col(
@@ -382,8 +382,11 @@ class TimeSeriesComponent(DashboardComponent):
             return tuple(results)
 
         if len(group_drop_options) > 0:
+
             @callback(
-                Output(f"{dashboard_id}-{GENERAL_STORE_ID}", "data", allow_duplicate=True),
+                Output(
+                    f"{dashboard_id}-{GENERAL_STORE_ID}", "data", allow_duplicate=True
+                ),
                 Input(f"{dashboard_id}-group_selector", "data"),
                 State(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
                 prevent_initial_call=True,
@@ -393,7 +396,9 @@ class TimeSeriesComponent(DashboardComponent):
                     return no_update
                 general_data = general_data or {}
                 if COLLECTION not in general_data:
-                    general_data[COLLECTION] = self.feature_handler.get_default_collection()
+                    general_data[COLLECTION] = (
+                        self.feature_handler.get_default_collection()
+                    )
                 if GROUPS_SECTION not in general_data:
                     general_data[GROUPS_SECTION] = {}
                 collection = general_data[COLLECTION]
@@ -421,7 +426,10 @@ class TimeSeriesComponent(DashboardComponent):
                 return {GROUPS_SECTION: selected_group}
 
             @callback(
-                [Output(group_drop_menu, "label") for group_drop_menu in group_drop_menus],
+                [
+                    Output(group_drop_menu, "label")
+                    for group_drop_menu in group_drop_menus
+                ],
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
             )
             def update_group_drop_down_labels(general_data):
@@ -433,7 +441,10 @@ class TimeSeriesComponent(DashboardComponent):
                     group_drop_menu = GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
                     id_to_group[group_drop_menu] = group
                 results = []
-                for group_drop_menu_id, group_drop_menu in self.group_drop_menus.items():
+                for (
+                    group_drop_menu_id,
+                    group_drop_menu,
+                ) in self.group_drop_menus.items():
                     results.append(id_to_group.get(group_drop_menu_id, ""))
                 return tuple(results)
 
@@ -444,8 +455,14 @@ class TimeSeriesComponent(DashboardComponent):
         def update_time_plots_after_general_data_change(general_data):
             if general_data is None:
                 return no_update
+            LOG.debug(f"Updating time plot for dashboard '{dashboard_id}'")
             collection = general_data[COLLECTION]
             variable = general_data.get("variables", {}).get(collection)
+            LOG.debug(f"Groups: '{general_data.get(GROUPS_SECTION, {})}'")
+            LOG.debug(
+                f"Collection: "
+                f"'{general_data.get(GROUPS_SECTION, {}).get(collection, {})}'"
+            )
             group = (
                 general_data.get(GROUPS_SECTION, {}).get(collection, {}).get("group")
             )
@@ -502,6 +519,7 @@ class TimeSeriesComponent(DashboardComponent):
         group_outputs = group_style_outputs + group_label_outputs
 
         if len(group_outputs) > 0:
+
             @callback(
                 group_outputs,
                 Input(f"{dashboard_id}-{GENERAL_STORE_ID}", "data"),
@@ -511,16 +529,26 @@ class TimeSeriesComponent(DashboardComponent):
                 if general_data is None or COLLECTION not in general_data:
                     return no_update
                 collection = general_data.get(COLLECTION)
-                selected_group_dropdown_id = GROUP_DROPDOWN_ID_TEMPLATE.format(collection)
+                selected_group_dropdown_id = GROUP_DROPDOWN_ID_TEMPLATE.format(
+                    collection
+                )
                 results = []
-                for group_drop_menu_id, group_drop_menu in self.group_drop_menus.items():
+                for (
+                    group_drop_menu_id,
+                    group_drop_menu,
+                ) in self.group_drop_menus.items():
                     if group_drop_menu_id == selected_group_dropdown_id:
                         results.append({"display": "block"})
                     else:
                         results.append({"display": "none"})
-                for group_drop_menu_id, group_drop_menu in self.group_drop_menus.items():
+                for (
+                    group_drop_menu_id,
+                    group_drop_menu,
+                ) in self.group_drop_menus.items():
                     if group_drop_menu_id == selected_group_dropdown_id:
-                        group_values, _ = self._get_group_and_main_group_values(collection)
+                        group_values, _ = self._get_group_and_main_group_values(
+                            collection
+                        )
                         group = general_data.get(GROUPS_SECTION, {}).get(
                             collection, group_values[0]
                         )
