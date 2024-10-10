@@ -458,13 +458,14 @@ class TimeSeriesComponent(DashboardComponent):
             LOG.debug(f"Updating time plot for dashboard '{dashboard_id}'")
             collection = general_data[COLLECTION]
             variable = general_data.get("variables", {}).get(collection)
-            LOG.debug(f"Groups: '{general_data.get(GROUPS_SECTION, {})}'")
+            LOG.debug(f"Mapping of collection to group: "
+                      f"'{general_data.get(GROUPS_SECTION, {})}'")
             LOG.debug(
-                f"Collection: "
+                f"Collection group: "
                 f"'{general_data.get(GROUPS_SECTION, {}).get(collection, {})}'"
             )
             group = (
-                general_data.get(GROUPS_SECTION, {}).get(collection, {}).get("group")
+                general_data.get(GROUPS_SECTION, {}).get(collection)
             )
             line_plots = self._get_timeplots(
                 TIMEPLOTS_ID, collection=collection, variable=variable, group=group
