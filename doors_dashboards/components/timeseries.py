@@ -219,6 +219,10 @@ class TimeSeriesComponent(DashboardComponent):
         if group is not None:
             level = self.feature_handler.get_levels(collection)[0]
             df = df[df[level] == group]
+            LOG.debug(f"Updating time plot for level '{level}' and group '{group}'")
+        LOG.debug(
+            f"Updating time plot for collection '{collection}' and group '{group}'"
+        )
         time_column = self.feature_handler.get_time_column_name(collection)
         df[time_column] = pd.to_datetime(df[time_column])
         df = df.sort_values(by=time_column)
@@ -458,15 +462,15 @@ class TimeSeriesComponent(DashboardComponent):
             LOG.debug(f"Updating time plot for dashboard '{dashboard_id}'")
             collection = general_data[COLLECTION]
             variable = general_data.get("variables", {}).get(collection)
-            LOG.debug(f"Mapping of collection to group: "
-                      f"'{general_data.get(GROUPS_SECTION, {})}'")
+            LOG.debug(
+                f"Mapping of collection to group: "
+                f"'{general_data.get(GROUPS_SECTION, {})}'"
+            )
             LOG.debug(
                 f"Collection group: "
                 f"'{general_data.get(GROUPS_SECTION, {}).get(collection, {})}'"
             )
-            group = (
-                general_data.get(GROUPS_SECTION, {}).get(collection)
-            )
+            group = general_data.get(GROUPS_SECTION, {}).get(collection)
             line_plots = self._get_timeplots(
                 TIMEPLOTS_ID, collection=collection, variable=variable, group=group
             )
