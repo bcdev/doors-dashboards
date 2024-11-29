@@ -9,18 +9,14 @@ def register_homepage():
 
     hero_content = {
         "image": "/assets/dashboard_img.png",
-        "title": "Unleash the Power of Your Data",
+        "title": "Dear Ruchi",
         "desc": (
-            "The DOORS Dashboard Application provides users with an intuitive and visually "
-            "engaging interface for exploring and analyzing diverse datasets through "
-            "interactive visuals. It enables users to easily interpret data without "
-            "needing prior knowledge of the platform. The application features a range of "
-            "functionalities, from weather forecasts and time series to scatter plots like"
-            " point and line graphs, along with trajectory presentations, all accessible "
-            "from its dashboard. "
-            "Its lightweight design ensures"
-            " quick load times and seamless user interactions, "
-            "enhancing the overall user experience."
+            "I wish you all the best for the future. I hope that the things you have "
+            "learnt and the expericences you have made at your time a BC will be of "
+            "worth to you. Also, I hope that whatever you do next will work out for "
+            "you and you find a place where you can show your qualities and they are "
+            "appreciated. It was good working with you. You were of help. We couldn't "
+            "have achieved what we did without you. Thank you and goodbye!"
         ),
     }
 
