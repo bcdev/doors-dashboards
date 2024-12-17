@@ -1,0 +1,46 @@
+id: ro3
+title: EMSO EUXINUS
+features:
+  - id: EuxRoOB02
+    type: geodb
+    params:
+      title: "EMSO Euxinus 2"
+      collection: EuxRoOB02
+      database: doors-bc-geoecomar
+      color: blue
+      variables:
+        - 'sb air pressure [mbar]'
+        - 'sb air temperature [°c]'
+        - 'sb wind average speed [m/s]'
+        - 'sb wind gust speed [m/s]'
+        - 'sb current xy speed [cm/s]'
+        - 'sb current z speed [cm/s]'
+  - id: EuxRoOB03
+    type: geodb
+    params:
+      title: "EMSO Euxinus 3"
+      collection: EuxRoOB03
+      database: doors-bc-geoecomar
+      color: red
+      variables:
+        - 'sb air pressure [mbar]'
+        - 'sb air temperature [°c]'
+        - 'sb wind average speed [m/s]'
+        - 'sb wind gust speed [m/s]'
+        - 'sb current xy speed [cm/s]'
+        - 'sb current z speed [cm/s]'
+components:
+  scattermap:
+    scattermap:
+      placement: left
+      background_variable: sst
+  selectcollection:
+    selectcollection:
+     placement: top
+  timeplots:
+    timeplots:
+      placement: right
+description:
+  This dashboard is about moorings deployed in Varna and Burgas. The timely updated 
+  data of moorings is shown and timerseries for the different variables from the data.
+  The data comes from IO-BAS National Monitoring which then uploaded in geodb.
