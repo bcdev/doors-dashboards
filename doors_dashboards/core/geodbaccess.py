@@ -15,7 +15,9 @@ def _get_client() -> GeoDBClient:
     global _GEODB_CLIENT
     if _GEODB_CLIENT is None:
         _GEODB_CLIENT = GeoDBClient(
-            auth_aud="https://xcube-users.brockmann-consult.de/api/v2"
+            auth_aud="https://xcube-users.brockmann-consult.de/api/v2",
+            auth_domain="https://winchester.production.brockmann-consult.de/winchester",
+            gs_server_url="https://winchester.production.brockmann-consult.de/winchester"
         )
     return _GEODB_CLIENT
 
