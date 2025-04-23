@@ -12,6 +12,7 @@ from typing import Union
 from doors_dashboards.core.constants import LOG
 from doors_dashboards.core.constants import REFERENCE_CRS
 from doors_dashboards.core.geodbaccess import get_dataframe_from_geodb
+from doors_dashboards.core.vectordatacubeaccess import VectorDataCubeAccessor
 
 
 class FeatureHandler:
@@ -23,6 +24,7 @@ class FeatureHandler:
         self._default_collection = (
             self.get_collections()[0] if len(self.get_collections()) > 0 else None
         )
+        self._vdc_accessor = VectorDataCubeAccessor()
 
     def get_default_collection(self) -> str:
         return self._default_collection
@@ -31,13 +33,35 @@ class FeatureHandler:
         variables = self.get_variables(collection)
         return variables[0] if variables else None
 
+    def get_var_label(self, collection: str, variable: str) -> str:
+        features = self._configs.get(collection, {})
+        if features.get("type") != "vectordatacube":
+            return variable
+        feature_params = features.get("params")
+        return self._vdc_accessor.get_label(
+            feature_params.get("file_name"),
+            feature_params.get("bucket"),
+            feature_params.get("collection"),
+            variable
+        )
+
+    def get_var_from_label(self, collection: str, label: str) -> str:
+        features = self._configs.get(collection, {})
+        if features.get("type") != "vectordatacube":
+            return label
+        feature_params = features.get("params")
+        return self._vdc_accessor.get_var_for_label(
+            feature_params.get("collection"),
+            label
+        )
+
     @staticmethod
     def _load_eez(eez: str = None):
         if eez:
             extended_eez_path = f"../../data/eez/{eez}/{eez}.shp"
             file_dir = os.path.dirname(os.path.abspath(__file__))
             eez_path = os.path.join(file_dir, extended_eez_path)
-            eez = gpd.read_file(eez_path, driver="ESRI Shapefile")
+            eez = gpd.read_file(eez_path)
             eez = eez.to_crs(REFERENCE_CRS)
             return eez
 
@@ -155,7 +179,7 @@ class FeatureHandler:
                     df["geometry"] = df["geometry"].apply(wkt.loads)
                     gdf = gpd.GeoDataFrame(df, crs=crs)
                 else:
-                    gdf = gpd.read_file(os_file_path, driver="ESRI Shapefile")
+                    gdf = gpd.read_file(os_file_path)
 
                 if crs != REFERENCE_CRS:
                     gdf = gdf.to_crs(REFERENCE_CRS)
@@ -172,6 +196,17 @@ class FeatureHandler:
                 convert_from_parameters=params.get("convert_from_parameters", None),
                 label=params.get("label"),
                 levels=params.get("levels"),
+                mask=self._eez_frame,
+            )
+        if features.get("type") == "vectordatacube":
+            params = features.get("params")
+            return self._vdc_accessor.get_dataframe_from_vector_data_cube(
+                params.get("file_name"),
+                params.get("bucket"),
+                variables=params.get("variables"),
+                collection=params.get("collection"),
+                collection_coord=params.get("collection_coord"),
+                time_stamp_name=params.get("time_column", "timestamp"),
                 mask=self._eez_frame,
             )
 

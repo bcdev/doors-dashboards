@@ -4,6 +4,7 @@
 * Added dashboard descriptions
 * Do not show consent dialog again after declining consent
 * Fixed bug with collapsing scatterplots
+* Allow reading in vectordatacubes
 
 ## Changes in 0.2
 

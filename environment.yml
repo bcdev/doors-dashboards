@@ -13,6 +13,7 @@ dependencies:
   - waitress
   - xcube >=1.5.0
   - xcube_geodb
+  - xvec
   - pip:
     - dash-material-ui
     -

@@ -69,17 +69,19 @@ class TimeSeriesComponent(DashboardComponent):
                 var_drop_option_id = VAR_DROP_OPTION_TEMPLATE.format(
                     collection, variable
                 )
+                label = self.feature_handler.get_var_label(collection=collection, variable=variable)
                 line_drop_option = dbc.DropdownMenuItem(
-                    variable,
+                    label,
                     id=var_drop_option_id,
                     n_clicks=1,
-                    style={"fontSize": SCATTER_FONT_SIZE, "fontFamily": FONT_FAMILY},
+                    style={"fontSize": SCATTER_FONT_SIZE, "fontFamily": FONT_FAMILY}
                 )
                 self.var_drop_options[var_drop_option_id] = line_drop_option
                 drop_menu_items.append(line_drop_option)
             var_dropdown_id = VAR_DROPDOWN_ID_TEMPLATE.format(collection)
+            label = self.feature_handler.get_var_label(collection, variables[0])
             self.var_drop_menus[var_dropdown_id] = self._get_dropdown_menu(
-                var_dropdown_id, drop_menu_items, variables[0]
+                var_dropdown_id, drop_menu_items, label
             )
 
     def _get_group_and_main_group_values(self, collection: str):
@@ -210,6 +212,7 @@ class TimeSeriesComponent(DashboardComponent):
     ) -> Component:
         collection = collection or self.feature_handler.get_default_collection()
         variable = variable or self.feature_handler.get_default_variable(collection)
+        label = self.feature_handler.get_var_label(collection, variable)
         df = self.feature_handler.get_df(collection)
 
         if group is None:
@@ -224,7 +227,7 @@ class TimeSeriesComponent(DashboardComponent):
             f"Updating time plot for collection '{collection}' and group '{group}'"
         )
         time_column = self.feature_handler.get_time_column_name(collection)
-        df[time_column] = pd.to_datetime(df[time_column])
+        df.loc[df.index, time_column] = pd.to_datetime(df[time_column])
         df = df.sort_values(by=time_column)
         fig = make_subplots(
             cols=1,
@@ -234,7 +237,7 @@ class TimeSeriesComponent(DashboardComponent):
             go.Scatter(
                 x=pd.to_datetime(df[time_column]),
                 y=df[variable],
-                name=variable,
+                name=label,
                 textfont={
                     "family": FONT_FAMILY,
                 },
@@ -261,7 +264,7 @@ class TimeSeriesComponent(DashboardComponent):
         )
 
         fig.update_xaxes(showticklabels=True, showgrid=False, nticks=10, type="date")
-        fig.update_yaxes(title=variable.title(), showticklabels=True, showgrid=False)
+        fig.update_yaxes(title=label.title(), showticklabels=True, showgrid=False)
         min_time = min(df[time_column])
         max_time = max(df[time_column])
         delta = max_time - min_time
@@ -345,7 +348,8 @@ class TimeSeriesComponent(DashboardComponent):
             if "variables" not in general_data:
                 general_data["variables"] = {}
             collection = general_data[COLLECTION]
-            general_data["variables"][collection] = selected_data["selected_var"]
+            variable = self.feature_handler.get_var_from_label(collection, selected_data["selected_var"])
+            general_data["variables"][collection] = variable
             return general_data
 
         @callback(
@@ -379,7 +383,8 @@ class TimeSeriesComponent(DashboardComponent):
             id_to_var = {}
             for collection, variable in general_data.get("variables", {}).items():
                 var_drop_menu = VAR_DROPDOWN_ID_TEMPLATE.format(collection)
-                id_to_var[var_drop_menu] = variable
+                label = self.feature_handler.get_var_label(collection, variable)
+                id_to_var[var_drop_menu] = label
             results = []
             for var_drop_menu_id, var_drop_menu in self.var_drop_menus.items():
                 results.append(id_to_var.get(var_drop_menu_id, ""))
@@ -508,7 +513,8 @@ class TimeSeriesComponent(DashboardComponent):
                         collection,
                         self.feature_handler.get_default_variable(collection),
                     )
-                    results.append(variable)
+                    label = self.feature_handler.get_var_label(collection, variable)
+                    results.append(label)
                 else:
                     results.append("")
             return tuple(results)
