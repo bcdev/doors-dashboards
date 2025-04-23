@@ -1,0 +1,315 @@
+id: rd
+title: River Discharge
+features:
+  - id: Dniepr
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Dniepr
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Southern_Bug
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Southern_Bug
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Dniestr
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Dniestr
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Danube
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Danube
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Sakarya
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Sakarya
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Filyos
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Filyos
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Kizilirmak
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Kizilirmak
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Yesilirmak
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Yesilirmak
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Curuh
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Curuh
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Rioni
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Rioni
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Kodori
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Kodori
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+  - id: Inguri
+    type: vectordatacube
+    params:
+      title: "BSC Rivers Model"
+      file_name: bsc_rivers_model.zarr
+      bucket: "doors-cubes/vdcs"
+      collection_coord: river
+      collection: Inguri
+      time_column: "time"
+      color: blue
+      variables:
+        - 'n_as_algn'
+        - 'n_as_don'
+        - 'n_as_nh4'
+        - 'n_as_no3'
+        - 'n_as_pon'
+        - 'p_as_algp'
+        - 'p_as_dop'
+        - 'p_as_pip'
+        - 'p_as_po4'
+        - 'p_as_pop'
+        - 'sediment_frac1'
+        - 'sediment_frac2'
+        - 'sediment_frac3'
+        - 'temperature'
+components:
+  scattermap:
+    scattermap:
+      placement: left
+      background_variable: sst
+  selectcollection:
+    selectcollection:
+     placement: top
+  timeplots:
+    timeplots:
+      placement: right
+description:
